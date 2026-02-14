@@ -33,6 +33,15 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4 sm:gap-6">
+          {/* Section links (Portfolio mode only) */}
+          {!isResumeMode && (
+            <div className="hidden md:flex items-center gap-6 text-sm">
+              <a href="#about" className="text-cyber-muted hover:text-cyber-text transition-colors">About</a>
+              <a href="#projects" className="text-cyber-muted hover:text-cyber-text transition-colors">Projects</a>
+              <a href="#lab" className="text-cyber-muted hover:text-cyber-text transition-colors">Lab</a>
+              <a href="#contact" className="text-cyber-muted hover:text-cyber-text transition-colors">Contact</a>
+            </div>
+          )}
           {/* Mode Toggle */}
           <div className="flex items-center gap-2">
             <span

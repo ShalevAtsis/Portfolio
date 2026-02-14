@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --cyber-bg: #0a0e17;
   --cyber-accent: #06b6d4;
