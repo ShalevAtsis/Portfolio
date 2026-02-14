@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { projects } from "@/content/copy";
+import SpotlightCard from "@/components/ui/SpotlightCard";
 
 const c = projects.swellSight;
 
@@ -11,15 +11,11 @@ export default function SwellSightCard() {
   const [showThought, setShowThought] = useState(false);
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5 }}
-      className="group relative col-span-full overflow-hidden rounded-2xl border border-cyber-border/50 bg-cyber-surface/60 p-8 backdrop-blur-xl md:col-span-2"
+    <SpotlightCard
+      as="article"
+      className="group relative col-span-full flex h-full flex-col p-8 md:col-span-8"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-cyber-accent/10 to-cyber-emerald/10 opacity-0 transition-opacity group-hover:opacity-100" />
-      <div className="relative flex flex-col gap-4 md:flex-row md:items-start">
+      <div className="relative flex flex-1 flex-col gap-4 md:flex-row md:items-start">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-cyber-accent/20 text-cyber-accent shadow-glow">
           <WaveIcon />
         </div>
@@ -48,7 +44,7 @@ export default function SwellSightCard() {
               href={c.repoUrl}
               target="_blank"
               rel="no-opener noreferrer"
-              className="inline-flex items-center gap-1 text-sm font-medium text-cyber-accent hover:underline"
+              className="link-underline inline-flex items-center gap-1 text-sm font-medium text-cyber-accent"
             >
               {c.linkLabel}
               <span aria-hidden>→</span>
@@ -58,7 +54,7 @@ export default function SwellSightCard() {
                 href={c.colabUrl}
                 target="_blank"
                 rel="no-opener noreferrer"
-                className="inline-flex items-center gap-1 text-sm font-medium text-cyber-muted hover:text-cyber-accent hover:underline"
+                className="link-underline inline-flex items-center gap-1 text-sm font-medium text-cyber-muted hover:text-cyber-accent"
               >
                 Run in Colab
                 <span aria-hidden>→</span>
@@ -67,7 +63,7 @@ export default function SwellSightCard() {
           </div>
         </div>
       </div>
-    </motion.article>
+    </SpotlightCard>
   );
 }
 

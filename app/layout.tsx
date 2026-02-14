@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Lora } from "next/font/google";
 import "./globals.css";
 import { ViewProvider } from "@/context/ViewContext";
+import { DebugProvider } from "@/context/DebugContext";
+import DebugLayoutWrapper from "@/components/DebugLayoutWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,7 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${lora.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <ViewProvider>{children}</ViewProvider>
+        <DebugProvider>
+          <DebugLayoutWrapper>
+            <ViewProvider>{children}</ViewProvider>
+          </DebugLayoutWrapper>
+        </DebugProvider>
       </body>
     </html>
   );

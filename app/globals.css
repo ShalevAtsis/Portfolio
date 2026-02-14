@@ -18,10 +18,33 @@ html {
   @apply backdrop-blur-xl border border-cyber-border/50 bg-cyber-surface;
 }
 
+/* Link underline: expands from center to edges on hover */
+.link-underline {
+  @apply relative inline-block;
+}
+.link-underline::after {
+  content: "";
+  @apply absolute bottom-0 left-1/2 h-px w-0 -translate-x-1/2 bg-current transition-[width] duration-300 ease-out;
+}
+.link-underline:hover::after {
+  @apply w-full;
+}
+
 /* Resume A4 proportion (≈ 1.414) */
 .a4-proportion {
   aspect-ratio: 1 / 1.414;
   max-width: 210mm;
+}
+
+/* Debug / Chaos state — site stays usable but "broken" visually */
+.debug-chaos-wrapper[data-broken="true"] {
+  transform: rotate(-0.8deg);
+  filter: invert(1) hue-rotate(180deg);
+  font-family: "Courier New", Courier, monospace !important;
+}
+
+.debug-chaos-wrapper[data-broken="true"] * {
+  font-family: inherit;
 }
 
 /* Print overrides for Resume Mode */

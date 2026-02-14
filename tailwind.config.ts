@@ -47,6 +47,16 @@ const config: Config = {
         glow: "0 0 40px -10px rgba(6, 182, 212, 0.4)",
         "glow-emerald": "0 0 40px -10px rgba(16, 185, 129, 0.3)",
         paper: "0 1px 3px rgba(0,0,0,0.08)",
+        "glow-soft": "0 0 24px -6px rgba(6, 182, 212, 0.25)",
+      },
+      backdropBlur: {
+        glass: "12px",
+        "glass-lg": "20px",
+      },
+      backgroundColor: {
+        "glass/10": "rgba(255, 255, 255, 0.06)",
+        "glass/5": "rgba(255, 255, 255, 0.04)",
+        "cyber-glass": "rgba(15, 23, 42, 0.5)",
       },
       animation: {
         "float": "float 6s ease-in-out infinite",

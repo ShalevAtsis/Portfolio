@@ -2,13 +2,16 @@
 
 import { motion } from "framer-motion";
 import type { GitHubRepo } from "@/lib/github";
+import { springSnappy } from "@/lib/motion";
 
 interface RepoCardProps {
   repo: GitHubRepo;
   index: number;
+  /** When true, card is inside SpotlightCard – no border/bg to avoid double styling */
+  insideSpotlight?: boolean;
 }
 
-export default function RepoCard({ repo, index }: RepoCardProps) {
+export default function RepoCard({ repo, index, insideSpotlight }: RepoCardProps) {
   return (
     <motion.a
       href={repo.html_url}
@@ -16,8 +19,12 @@ export default function RepoCard({ repo, index }: RepoCardProps) {
       rel="no-opener noreferrer"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 * index }}
-      className="group block overflow-hidden rounded-xl border border-cyber-border/50 bg-cyber-surface/50 p-5 backdrop-blur-sm transition-all hover:border-cyber-accent/40 hover:shadow-glow"
+      transition={{ ...springSnappy, delay: 0.05 * index }}
+      className={`group block flex h-full flex-col overflow-hidden p-5 transition-all ${
+        insideSpotlight
+          ? "rounded-xl bg-transparent"
+          : "rounded-xl border border-cyber-border/50 bg-cyber-surface/50 backdrop-blur-sm hover:border-cyber-accent/40 hover:shadow-glow"
+      }`}
     >
       <h4 className="font-semibold text-cyber-text group-hover:text-cyber-accent transition-colors">
         {repo.name}

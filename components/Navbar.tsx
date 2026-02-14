@@ -15,7 +15,7 @@ export default function Navbar() {
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
         isResumeMode
           ? "bg-paper-surface/95 border-b border-paper-border text-paper-text backdrop-blur-sm"
@@ -25,7 +25,7 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className={`text-lg font-semibold transition-colors ${
+          className={`link-underline text-lg font-semibold transition-colors ${
             isResumeMode ? "text-paper-text hover:text-paper-accent" : "text-cyber-text hover:text-cyber-accent"
           }`}
         >
@@ -36,11 +36,11 @@ export default function Navbar() {
           {/* Section links (Portfolio mode only) */}
           {!isResumeMode && (
             <div className="hidden md:flex items-center gap-6 text-sm">
-              <a href="#about" className="text-cyber-muted hover:text-cyber-text transition-colors">About</a>
-              <a href="#projects" className="text-cyber-muted hover:text-cyber-text transition-colors">Projects</a>
-              <a href="#case-study" className="text-cyber-muted hover:text-cyber-text transition-colors">Case study</a>
-              <a href="#lab" className="text-cyber-muted hover:text-cyber-text transition-colors">Lab</a>
-              <a href="#contact" className="text-cyber-muted hover:text-cyber-text transition-colors">Contact</a>
+              <a href="#about" className="link-underline text-cyber-muted hover:text-cyber-text transition-colors">About</a>
+              <a href="#projects" className="link-underline text-cyber-muted hover:text-cyber-text transition-colors">Projects</a>
+              <a href="#case-study" className="link-underline text-cyber-muted hover:text-cyber-text transition-colors">Case study</a>
+              <a href="#lab" className="link-underline text-cyber-muted hover:text-cyber-text transition-colors">Lab</a>
+              <a href="#contact" className="link-underline text-cyber-muted hover:text-cyber-text transition-colors">Contact</a>
             </div>
           )}
           {/* Mode Toggle */}
@@ -80,8 +80,8 @@ export default function Navbar() {
               href={GITHUB_URL}
               target="_blank"
               rel="no-opener noreferrer"
-              className={`transition-opacity hover:opacity-80 ${
-                isResumeMode ? "text-paper-text" : "text-cyber-muted"
+              className={`inline-flex transition-all duration-200 hover:opacity-100 hover:scale-110 ${
+                isResumeMode ? "text-paper-text hover:text-paper-accent" : "text-cyber-muted hover:text-cyber-accent"
               }`}
               aria-label="GitHub"
             >
@@ -93,8 +93,8 @@ export default function Navbar() {
               href={LINKEDIN_URL}
               target="_blank"
               rel="no-opener noreferrer"
-              className={`transition-opacity hover:opacity-80 ${
-                isResumeMode ? "text-paper-text" : "text-cyber-muted"
+              className={`inline-flex transition-all duration-200 hover:opacity-100 hover:scale-110 ${
+                isResumeMode ? "text-paper-text hover:text-paper-accent" : "text-cyber-muted hover:text-cyber-accent"
               }`}
               aria-label="LinkedIn"
             >
@@ -104,8 +104,8 @@ export default function Navbar() {
             </Link>
             <Link
               href={EMAIL}
-              className={`transition-opacity hover:opacity-80 ${
-                isResumeMode ? "text-paper-text" : "text-cyber-muted"
+              className={`inline-flex transition-all duration-200 hover:opacity-100 hover:scale-110 ${
+                isResumeMode ? "text-paper-text hover:text-paper-accent" : "text-cyber-muted hover:text-cyber-accent"
               }`}
               aria-label="Email"
             >
