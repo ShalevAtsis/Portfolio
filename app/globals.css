@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cyber-bg: #0a0e17;
+  --cyber-accent: #06b6d4;
+  --paper-bg: #f8f9fa;
+  --paper-text: #212529;
+}
+
+/* Glassmorphism base */
+.glass {
+  @apply backdrop-blur-xl border border-cyber-border/50 bg-cyber-surface;
+}
+
+/* Resume A4 proportion (≈ 1.414) */
+.a4-proportion {
+  aspect-ratio: 1 / 1.414;
+  max-width: 210mm;
+}
+
+/* Print overrides for Resume Mode */
+@media print {
+  body {
+    @apply bg-white text-paper-text;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
