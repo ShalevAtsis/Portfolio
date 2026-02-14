@@ -31,9 +31,11 @@ export default function ProjectsSection({ repos }: ProjectsSectionProps) {
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <SwellSightCard />
-        {repos.map((repo, i) => (
-          <RepoCard key={repo.id} repo={repo} index={i + 1} />
-        ))}
+        {repos
+          .filter((repo) => repo.name !== "SwellSight")
+          .map((repo, i) => (
+            <RepoCard key={repo.id} repo={repo} index={i + 1} />
+          ))}
       </div>
     </section>
   );

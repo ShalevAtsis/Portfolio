@@ -14,19 +14,40 @@ export interface GitHubRepo {
 
 const GITHUB_API = "https://api.github.com";
 
-export async function getPinnedRepos(username: string): Promise<GitHubRepo[]> {
-  try {
-    const res = await fetch(
-      `${GITHUB_API}/users/${username}/repos?sort=updated&per_page=6`,
-      {
-        headers: { Accept: "application/vnd.github.v3+json" },
-        next: { revalidate: 3600 },
-      }
-    );
-    if (!res.ok) return [];
-    const data = (await res.json()) as GitHubRepo[];
-    return data.filter((r) => !r.fork).slice(0, 6);
-  } catch {
-    return [];
+/** Desired display order for the Projects section (repo names). */
+export const PROJECT_REPO_ORDER = [
+  "SwellSight",
+  "Anomalyze",
+  "Machine-Learning-Flow",
+  "Multithreaded-TCP-Chat",
+  "DevOps-Project",
+  "LeetCode",
+] as const;
+
+export async function getReposInOrder(
+  username: string,
+  repoNames: readonly string[] = PROJECT_REPO_ORDER
+): Promise<GitHubRepo[]> {
+  const results: GitHubRepo[] = [];
+  for (const name of repoNames) {
+    try {
+      const res = await fetch(
+        `${GITHUB_API}/repos/${username}/${name}`,
+        {
+          headers: { Accept: "application/vnd.github.v3+json" },
+          next: { revalidate: 3600 },
+        }
+      );
+      if (!res.ok) continue;
+      const data = (await res.json()) as GitHubRepo;
+      if (!data.fork) results.push(data);
+    } catch {
+      // skip repo if fetch fails
+    }
   }
+  return results;
+}
+
+export async function getPinnedRepos(username: string): Promise<GitHubRepo[]> {
+  return getReposInOrder(username);
 }
