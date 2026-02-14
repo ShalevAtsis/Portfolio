@@ -4,6 +4,7 @@ import type { GitHubRepo } from "@/lib/github";
 import HeroSection from "@/components/sections/HeroSection";
 import AboutSection from "@/components/sections/AboutSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
+import ProductionCaseStudySection from "@/components/sections/ProductionCaseStudySection";
 import LabSection from "@/components/sections/LabSection";
 import ContactSection from "@/components/sections/ContactSection";
 
@@ -19,6 +20,7 @@ export default function PortfolioView({ repos }: PortfolioViewProps) {
         <HeroSection />
         <AboutSection />
         <ProjectsSection repos={repos} />
+        <ProductionCaseStudySection />
         <LabSection />
         <ContactSection />
       </main>

@@ -34,7 +34,7 @@ export default function SwellSightCard() {
                 onClick={() => setShowThought(!showThought)}
                 className="text-sm font-medium text-cyber-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-cyber-accent rounded"
               >
-                {showThought ? "Hide" : "Why I built this & what I'd do next"}
+                {showThought ? "Hide" : "Why we built this & what we'd do next"}
               </button>
               {showThought && (
                 <p className="mt-2 text-sm text-cyber-muted italic">
@@ -43,15 +43,28 @@ export default function SwellSightCard() {
               )}
             </div>
           )}
-          <Link
-            href="https://github.com/ShalevAtsis"
-            target="_blank"
-            rel="no-opener noreferrer"
-            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-cyber-accent hover:underline"
-          >
-            {c.linkLabel}
-            <span aria-hidden>→</span>
-          </Link>
+          <div className="mt-3 flex flex-wrap gap-4">
+            <Link
+              href={c.repoUrl}
+              target="_blank"
+              rel="no-opener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-medium text-cyber-accent hover:underline"
+            >
+              {c.linkLabel}
+              <span aria-hidden>→</span>
+            </Link>
+            {c.colabUrl && (
+              <Link
+                href={c.colabUrl}
+                target="_blank"
+                rel="no-opener noreferrer"
+                className="inline-flex items-center gap-1 text-sm font-medium text-cyber-muted hover:text-cyber-accent hover:underline"
+              >
+                Run in Colab
+                <span aria-hidden>→</span>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </motion.article>
