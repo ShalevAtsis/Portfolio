@@ -49,6 +49,10 @@ Open [http://localhost:3000](http://localhost:3000). Use the navbar toggle to sw
 - **GitHub:** Repos are fetched for `ShalevAtsis` in `app/page.tsx` and `lib/github.ts`; change the username if needed.
 - **Themes:** Edit `tailwind.config.ts` (`cyber` and `paper` colors) and `app/globals.css` for visual tweaks.
 
+## Publish to GitHub Pages
+
+The site can be deployed to GitHub Pages via GitHub Actions. **See [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)** for step-by-step instructions to configure your repository and Pages source (Settings → Pages → Source: **GitHub Actions**). After that, every push to `main` will build and deploy automatically.
+
 ## Resume / PDF
 
 In **Resume** mode, click **Download PDF** to open the print dialog and save as PDF. Print styles hide the navbar and the button.
