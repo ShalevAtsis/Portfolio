@@ -14,8 +14,8 @@ const WHATSAPP_URL = "https://wa.me/+972585060699";
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CleanHero() {
-    const scrollToExperience = () => {
-        document.getElementById("experience")?.scrollIntoView({ behavior: "smooth" });
+    const scrollToAbout = () => {
+        document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
     };
 
     return (
@@ -141,8 +141,8 @@ export default function CleanHero() {
 
             {/* Scroll cue */}
             <motion.button
-                onClick={scrollToExperience}
-                aria-label="Scroll to experience"
+                onClick={scrollToAbout}
+                aria-label="Scroll to About Me"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
