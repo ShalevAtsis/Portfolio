@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import FadeInUp from "@/components/ui/FadeInUp";
 import GlobeViz from "@/components/ui/GlobeViz";
+import { asset } from "@/lib/basePath";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -186,7 +187,7 @@ const EQ_HEIGHTS = [
     [0.6, 1.2, 0.3, 1.0, 0.6],
 ];
 
-const AUDIO_SRC = "/BAD%20BUNNY%20-%20BAILE%20INoLVIDABLE%20(Video%20Oficial)%20%20DeB%C3%8D%20TiRAR%20M%C3%A1s%20FOToS.mp3";
+const AUDIO_SRC = asset("/bad_bunny.mp3");
 
 function NowPlayingCard() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -257,7 +258,7 @@ function NowPlayingCard() {
                     >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src="/Bad_Bunny_Deb%C3%AD_Tirar_M%C3%A1s_Fotos.png"
+                            src={asset("/bad_bunny.png")}
                             alt="Bad Bunny — Debí Tirar Más Fotos"
                             className="h-full w-full object-cover"
                         />
@@ -458,7 +459,7 @@ function AISharkCard() {
             {/* Background image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-                src="/Hammerhead.png"
+                src={asset("/hammerhead.png")}
                 alt="Hammerhead shark — AI CV scan"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out"
                 style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }}
@@ -517,12 +518,12 @@ function AISharkCard() {
                         className="absolute -top-14 left-0 right-0 rounded border border-cyan-500/40 bg-slate-950/90 px-3 py-1.5 font-mono text-[10px] text-cyan-300 backdrop-blur-sm"
                     >
                         <div className="font-bold text-cyan-400">[AI TARGET ACQUIRED]</div>
-                        <div>Species: Sphyrnidae (Hammerhead)</div>
+                        <div>Species: Hammerhead Shark</div>
                         <div>
                             Match:{" "}
                             <span className="font-bold text-emerald-400">99.8%</span>
                             {" "}·{" "}
-                            Status: <span className="text-amber-400">Favorite ★</span>
+                            Status: <span className="text-amber-400">Favorite</span>
                         </div>
                     </motion.div>
                 </div>
