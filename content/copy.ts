@@ -4,19 +4,23 @@
  */
 
 export const hero = {
-  headline: "Building systems that learn.",
+  headline: "Building Intelligent Software Solutions.",
   subheadline:
-    "Software Engineer shipping production systems today; building GenAI & ML projects on the side. B.Sc. CS (HIT). Targeting applied AI & ML engineering roles.",
+    "Motivated Software Engineer specializing in AI and Computer Vision. Passionate about developing reliable, maintainable software.",
   ctaPrimary: "See my AI work",
   currentlyLearning: "Currently: RAG, agentic systems & production ML.",
 } as const;
 
 export const about = {
+  // P1 — Who I am right now
   opening:
-    "I'm Shalev — a software engineer with a sharp turn toward AI. I've spent the last few years in production support and QA, which taught me how systems fail and how to fix them. Now I'm focused on building the kind of systems that learn: applied ML, GenAI, and LLM-based products.",
-  proof: "I co-built SwellSight — an AI system that analyzes beach cam footage to give surfers objective wave metrics (height, direction, breaking type). We used a three-stage pipeline: depth extraction, a synthetic data factory (FLUX + ControlNet) to overcome label scarcity, and a DINOv2-based analyzer. Sim-to-real training; results at 0.18m MAE and 92% direction accuracy. I'm pushing toward production ML and LLM applications.",
+    "I'm a Software Engineer in motion — simultaneously a Tier 2 Support Engineer at a high-availability Fintech SaaS company (Jifiti) and a Computer Science student at HIT, on track to graduate in 2026. Every week I debug production incidents by day and study algorithms by night. I genuinely enjoy both.",
+  // P2 — What I'm passionate about
+  proof:
+    "My deep interest lies at the intersection of AI, Computer Vision, and robust backend engineering. Whether that's training a PyTorch model, querying a misbehaving database, or integrating an API that refuses to cooperate — I find backend puzzles energizing. I'm particularly excited by the way GenAI and diffusion models are reshaping what software can do, and I want to be close to that frontier.",
+  // P3 — Diverse background as a differentiator
   closing:
-    "I'm looking for my first role where I can ship ML end-to-end and learn from teams that build at scale.",
+    "My path to software wasn't a straight line. I led a 15-person platoon operating radar and EW systems at sea. I ran global field tests on drone software across four countries. Now I investigate high-stakes Fintech incidents under pressure. That arc means I'm a calm problem-solver, a fast learner in unfamiliar domains, and someone who has operated in high-stakes environments long before writing production code.",
 } as const;
 
 export const projects = {
@@ -64,9 +68,9 @@ export const lab = {
 } as const;
 
 export const contact = {
-  headline: "Let's talk.",
-  line: "I'm actively looking for roles in AI engineering, applied ML, and LLM-based systems. If that's your team — say hi.",
-  ctaLabel: "Email me",
+  headline: "Let's build something together.",
+  line: "Whether you're hiring, brainstorming, or just want to talk AI and backend architecture — my inbox is always open. No formal pleasantries required.",
+  ctaLabel: "Send me an email",
   ctaHref: "mailto:Shalevatsis@gmail.com",
   resumeHint: "Prefer a one-pager? Use the Resume view above.",
 } as const;

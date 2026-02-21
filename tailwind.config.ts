@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",   // driven by next-themes adding class="dark" to <html>
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,7 +11,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      /* ── Primitive palettes ─────────────────────────────────────────────── */
       /* Cyber theme – Portfolio Mode: dark, glassmorphism, cyan/emerald glow */
+      /* Paper theme – Resume Mode: light/clean, document-style               */
       colors: {
         cyber: {
           bg: "#0a0e17",
@@ -23,7 +26,6 @@ const config: Config = {
           text: "#e2e8f0",
           muted: "#94a3b8",
         },
-        /* Paper theme – Resume Mode: light/clean, document-style */
         paper: {
           bg: "#f8f9fa",
           surface: "#ffffff",
@@ -31,6 +33,42 @@ const config: Config = {
           text: "#212529",
           muted: "#6c757d",
           accent: "#0d6efd",
+        },
+
+        /* ── Semantic alias groups ─────────────────────────────────────────── */
+        /* `dark-cyber`  → Portfolio (dark) design system token set             */
+        /* `light-paper` → Resume   (light) design system token set             */
+        /* Mirrors primitive palettes, giving components a stable mode-agnostic  */
+        /* API: e.g. text-dark-cyber-accent / bg-light-paper-surface            */
+        "dark-cyber": {
+          bg: "#0a0e17",
+          surface: "rgba(15, 23, 42, 0.6)",
+          border: "rgba(6, 182, 212, 0.3)",
+          accent: "#06b6d4",
+          accentDim: "#0891b2",
+          emerald: "#10b981",
+          emeraldDim: "#059669",
+          text: "#e2e8f0",
+          muted: "#94a3b8",
+        },
+        "light-paper": {
+          bg: "#f8f9fa",
+          surface: "#ffffff",
+          border: "#dee2e6",
+          text: "#212529",
+          muted: "#6c757d",
+          accent: "#0d6efd",
+        },
+        /* ── Clean theme – new light portfolio mode ─────────────────────── */
+        clean: {
+          bg: "#f8fafc",        // slate-50
+          surface: "#ffffff",
+          border: "#e2e8f0",    // slate-200
+          text: "#0f172a",      // slate-900
+          muted: "#475569",     // slate-500
+          subtle: "#94a3b8",    // slate-400
+          accent: "#4f46e5",    // indigo-600
+          accentLight: "#ede9fe", // indigo-100
         },
       },
       fontFamily: {

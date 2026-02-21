@@ -13,7 +13,19 @@ html {
   --paper-text: #212529;
 }
 
-/* Glassmorphism base */
+/* ── Portfolio mode: clean light base ────────────────────────────────────── */
+[data-view="portfolio"] body {
+  background-color: #f8fafc; /* slate-50 */
+  color: #0f172a;            /* slate-900 */
+}
+
+/* ── Resume mode: paper surface ───────────────────────────────────────────── */
+[data-view="resume"] body {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Glassmorphism base (used in Resume navbar) */
 .glass {
   @apply backdrop-blur-xl border border-cyber-border/50 bg-cyber-surface;
 }
@@ -36,7 +48,7 @@ html {
   max-width: 210mm;
 }
 
-/* Debug / Chaos state — site stays usable but "broken" visually */
+/* Debug / Chaos state */
 .debug-chaos-wrapper[data-broken="true"] {
   transform: rotate(-0.8deg);
   filter: invert(1) hue-rotate(180deg);

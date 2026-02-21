@@ -1,29 +1,91 @@
 "use client";
 
 import type { GitHubRepo } from "@/lib/github";
-import HeroSection from "@/components/sections/HeroSection";
+import { MessageCircle, Mail, Linkedin as LinkedinIcon, Github as GithubIcon } from "lucide-react";
+import BackgroundMatrix from "@/components/BackgroundMatrix";
+import SectionDivider from "@/components/SectionDivider";
+import ContactButton from "@/components/ContactButton";
+import CleanHero from "@/components/sections/CleanHero";
 import AboutSection from "@/components/sections/AboutSection";
-import ProjectsSection from "@/components/sections/ProjectsSection";
-import ProductionCaseStudySection from "@/components/sections/ProductionCaseStudySection";
-import LabSection from "@/components/sections/LabSection";
+import CleanExperience from "@/components/sections/CleanExperience";
+import CleanSkills from "@/components/sections/CleanSkills";
+import CleanProjects from "@/components/sections/CleanProjects";
 import ContactSection from "@/components/sections/ContactSection";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 interface PortfolioViewProps {
   repos: GitHubRepo[];
 }
 
-export default function PortfolioView({ repos }: PortfolioViewProps) {
+export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
   return (
-    <div className="min-h-screen bg-cyber-bg text-cyber-text">
-      <div className="pointer-events-none fixed inset-0 bg-cyber-glow" />
-      <main className="relative mx-auto max-w-4xl px-4 pt-24 pb-20 sm:px-6 lg:px-8">
-        <HeroSection />
+    <BackgroundMatrix className="text-slate-900 antialiased dark:text-slate-100">
+      <main className="mx-auto max-w-5xl px-6 pb-32 sm:px-8 lg:px-12">
+        <CleanHero />
+        <SectionDivider />
         <AboutSection />
-        <ProjectsSection repos={repos} />
-        <ProductionCaseStudySection />
-        <LabSection />
+        <SectionDivider double />
+        <CleanExperience />
+        <SectionDivider double />
+        <CleanSkills />
+        <SectionDivider double />
+        <CleanProjects />
+        <SectionDivider />
         <ContactSection />
       </main>
-    </div>
+
+      <footer className="border-t border-slate-100 bg-white/60 py-12 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/60">
+        <div className="mx-auto max-w-5xl px-6 sm:px-8 lg:px-12">
+
+          {/* ── Contact grid ── */}
+          <p className="mb-6 text-center text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+            Get in touch
+          </p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <ContactButton
+              href="https://wa.me/+972585060699"
+              icon={<MessageCircle className="h-5 w-5" strokeWidth={1.75} />}
+              label="WhatsApp"
+              description="Fastest response"
+              color="whatsapp"
+              variant="full"
+              external
+            />
+            <ContactButton
+              href="mailto:Shalevatsis@gmail.com"
+              icon={<Mail className="h-5 w-5" strokeWidth={1.75} />}
+              label="Email"
+              description="Shalevatsis@gmail.com"
+              color="email"
+              variant="full"
+            />
+            <ContactButton
+              href="https://www.linkedin.com/in/shalev-atsis-software-developer/"
+              icon={<LinkedinIcon className="h-5 w-5" strokeWidth={1.75} />}
+              label="LinkedIn"
+              description="shalev-atsis"
+              color="linkedin"
+              variant="full"
+              external
+            />
+            <ContactButton
+              href="https://github.com/ShalevAtsis"
+              icon={<GithubIcon className="h-5 w-5" strokeWidth={1.75} />}
+              label="GitHub"
+              description="ShalevAtsis"
+              color="github"
+              variant="full"
+              external
+            />
+          </div>
+
+          {/* ── Copyright ── */}
+          <p className="mt-10 text-center text-sm text-slate-400 dark:text-slate-500">
+            Shalev Atsis &middot; Software Engineer &middot; {new Date().getFullYear()}
+          </p>
+        </div>
+      </footer>
+      <ScrollToTopButton />
+    </BackgroundMatrix>
   );
 }
