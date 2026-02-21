@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import { DebugProvider } from "@/context/DebugContext";
 import DebugLayoutWrapper from "@/components/DebugLayoutWrapper";
+import { asset } from "@/lib/basePath";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,12 +20,12 @@ export const metadata: Metadata = {
   description:
     "Software Engineer specializing in AI & Computer Vision. Tier 2 at Jifiti, B.Sc. CS (GPA 90). Python, PyTorch, OpenCV. Open to engineering opportunities.",
   icons: {
-    // SVG auto-picked up from app/icon.svg by Next.js file convention
+    // asset() prepends /Portfolio on GitHub Pages, empty string locally
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: asset("/icon.svg"), type: "image/svg+xml" },
     ],
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",   // iOS home-screen icon (browsers scale the SVG)
+    shortcut: asset("/icon.svg"),
+    apple: asset("/icon.svg"),
   },
 };
 

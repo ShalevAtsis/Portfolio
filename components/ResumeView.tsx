@@ -2,9 +2,13 @@
 
 import { motion } from "framer-motion";
 import { Download, FileText } from "lucide-react";
+import { asset } from "@/lib/basePath";
 
-const PDF_PATH = "/Shalev_Atsis_CV.pdf";
+// asset() prepends NEXT_PUBLIC_BASE_PATH so the path is correct on
+// both local dev (no prefix) and GitHub Pages (/Portfolio prefix).
+const PDF_PATH = asset("/Shalev_Atsis_CV.pdf");
 const PDF_FILENAME = "Shalev_Atsis_CV.pdf";
+
 
 export default function ResumeView() {
   return (
