@@ -76,6 +76,10 @@ export default function OceanicBackground({ className = "" }: { className?: stri
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
+        // Non-null aliases — narrowing doesn't propagate into nested closures in TS,
+        // but the guards above guarantee these are safe.
+        const cvs = canvas as HTMLCanvasElement;
+        const cx = ctx as CanvasRenderingContext2D;
 
         let rafId = 0;
         let t = 0;
@@ -96,11 +100,11 @@ export default function OceanicBackground({ className = "" }: { className?: stri
             dpr = window.devicePixelRatio || 1;
             const w = window.innerWidth;
             const h = window.innerHeight;
-            canvas.width = w * dpr;
-            canvas.height = h * dpr;
-            canvas.style.width = `${w}px`;
-            canvas.style.height = `${h}px`;
-            ctx.scale(dpr, dpr);
+            cvs.width = w * dpr;
+            cvs.height = h * dpr;
+            cvs.style.width = `${w}px`;
+            cvs.style.height = `${h}px`;
+            cx.scale(dpr, dpr);
         };
         resize();
         const ro = new ResizeObserver(resize);
@@ -110,12 +114,12 @@ export default function OceanicBackground({ className = "" }: { className?: stri
         const CONTOUR_COUNT = 22;
 
         function draw() {
-            const W = canvas.width / dpr;
-            const H = canvas.height / dpr;
+            const W = cvs.width / dpr;
+            const H = cvs.height / dpr;
 
             // Background
-            ctx.fillStyle = "rgba(2, 6, 23, 0.96)";
-            ctx.fillRect(0, 0, W, H);
+            cx.fillStyle = "rgba(2, 6, 23, 0.96)";
+            cx.fillRect(0, 0, W, H);
 
             // ── Contour lines ────────────────────────────────────────────────────
             for (let c = 0; c < CONTOUR_COUNT; c++) {
@@ -129,11 +133,11 @@ export default function OceanicBackground({ className = "" }: { className?: stri
                 const alpha = 0.04 + 0.11 * Math.abs(isoVal);
                 const isEmphasis = c % 4 === 0;
 
-                ctx.beginPath();
-                ctx.strokeStyle = isEmphasis
+                cx.beginPath();
+                cx.strokeStyle = isEmphasis
                     ? `rgba(16, 185, 129, ${alpha * 2.2})`
                     : `rgba(148, 163, 184, ${alpha})`;
-                ctx.lineWidth = isEmphasis ? 0.8 : 0.4;
+                cx.lineWidth = isEmphasis ? 0.8 : 0.4;
 
                 let penDown = false;
 
@@ -154,13 +158,13 @@ export default function OceanicBackground({ className = "" }: { className?: stri
                             const px = baseX;
                             const py = prevY + frac * ch;
 
-                            if (!penDown) { ctx.moveTo(px, py); penDown = true; }
-                            else ctx.lineTo(px, py);
+                            if (!penDown) { cx.moveTo(px, py); penDown = true; }
+                            else cx.lineTo(px, py);
                         }
                         prevVal = val; prevY = baseY;
                     }
                 }
-                ctx.stroke();
+                cx.stroke();
             }
 
             // ── CV Artifacts ──────────────────────────────────────────────────────
@@ -179,28 +183,28 @@ export default function OceanicBackground({ className = "" }: { className?: stri
                 const s = art.size;
                 const color = `rgba(16, 185, 129, ${a})`;
 
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 0.7;
+                cx.strokeStyle = color;
+                cx.lineWidth = 0.7;
 
                 // + crosshair
-                ctx.beginPath();
-                ctx.moveTo(sx - s, sy); ctx.lineTo(sx + s, sy);
-                ctx.moveTo(sx, sy - s); ctx.lineTo(sx, sy + s);
-                ctx.stroke();
+                cx.beginPath();
+                cx.moveTo(sx - s, sy); cx.lineTo(sx + s, sy);
+                cx.moveTo(sx, sy - s); cx.lineTo(sx, sy + s);
+                cx.stroke();
 
                 // Tiny corner brackets
                 const b = s * 0.55;
-                ctx.beginPath();
-                ctx.moveTo(sx - s, sy - b); ctx.lineTo(sx - s, sy - s); ctx.lineTo(sx - b, sy - s);
-                ctx.moveTo(sx + b, sy - s); ctx.lineTo(sx + s, sy - s); ctx.lineTo(sx + s, sy - b);
-                ctx.moveTo(sx + s, sy + b); ctx.lineTo(sx + s, sy + s); ctx.lineTo(sx + b, sy + s);
-                ctx.moveTo(sx - b, sy + s); ctx.lineTo(sx - s, sy + s); ctx.lineTo(sx - s, sy + b);
-                ctx.stroke();
+                cx.beginPath();
+                cx.moveTo(sx - s, sy - b); cx.lineTo(sx - s, sy - s); cx.lineTo(sx - b, sy - s);
+                cx.moveTo(sx + b, sy - s); cx.lineTo(sx + s, sy - s); cx.lineTo(sx + s, sy - b);
+                cx.moveTo(sx + s, sy + b); cx.lineTo(sx + s, sy + s); cx.lineTo(sx + b, sy + s);
+                cx.moveTo(sx - b, sy + s); cx.lineTo(sx - s, sy + s); cx.lineTo(sx - s, sy + b);
+                cx.stroke();
 
                 // Hex label
-                ctx.fillStyle = color;
-                ctx.font = `${Math.max(7, s * 0.9)}px monospace`;
-                ctx.fillText(`0x${art.label}`, sx + s + 3, sy - s + 2);
+                cx.fillStyle = color;
+                cx.font = `${Math.max(7, s * 0.9)}px monospace`;
+                cx.fillText(`0x${art.label}`, sx + s + 3, sy - s + 2);
             });
 
             t += 0.012;
