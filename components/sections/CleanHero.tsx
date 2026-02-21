@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageCircle, Mail, Github, Linkedin, ArrowDown } from "lucide-react";
+import { MessageCircle, Mail, Github, Linkedin } from "lucide-react";
 import { fadeInUpVariants, springSnappy, staggerContainer } from "@/lib/motion";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -14,9 +14,6 @@ const WHATSAPP_URL = "https://wa.me/+972585060699";
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CleanHero() {
-    const scrollToAbout = () => {
-        document.getElementById("about")?.scrollIntoView({ behavior: "smooth" });
-    };
 
     return (
         <section
@@ -139,22 +136,6 @@ export default function CleanHero() {
                 </motion.div>
             </motion.div>
 
-            {/* Scroll cue */}
-            <motion.button
-                onClick={scrollToAbout}
-                aria-label="Scroll to About Me"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 rounded-full p-2 text-slate-300 transition-colors hover:text-slate-500 dark:text-slate-600 dark:hover:text-slate-400"
-            >
-                <motion.div
-                    animate={{ y: [0, 6, 0] }}
-                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                >
-                    <ArrowDown className="h-5 w-5" strokeWidth={1.5} />
-                </motion.div>
-            </motion.button>
         </section>
     );
 }

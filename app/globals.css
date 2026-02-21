@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+
+  /* Prevent the bare white HTML canvas from flashing through */
+  html,
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+
+  .dark html,
+  .dark body,
+  html.dark,
+  body.dark {
+    @apply bg-slate-950 text-slate-50;
+  }
+
+  /* Kill the browser's blue/white tap-highlight on buttons & links */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -15,8 +36,10 @@ html {
 
 /* ── Portfolio mode: clean light base ────────────────────────────────────── */
 [data-view="portfolio"] body {
-  background-color: #f8fafc; /* slate-50 */
-  color: #0f172a;            /* slate-900 */
+  background-color: #f8fafc;
+  /* slate-50 */
+  color: #0f172a;
+  /* slate-900 */
 }
 
 /* ── Resume mode: paper surface ───────────────────────────────────────────── */
@@ -34,10 +57,12 @@ html {
 .link-underline {
   @apply relative inline-block;
 }
+
 .link-underline::after {
   content: "";
   @apply absolute bottom-0 left-1/2 h-px w-0 -translate-x-1/2 bg-current transition-[width] duration-300 ease-out;
 }
+
 .link-underline:hover::after {
   @apply w-full;
 }
@@ -64,6 +89,7 @@ html {
   body {
     @apply bg-white text-paper-text;
   }
+
   .no-print {
     display: none !important;
   }
