@@ -5,6 +5,7 @@ import { MessageCircle, Mail, Linkedin as LinkedinIcon, Github as GithubIcon } f
 import BackgroundMatrix from "@/components/BackgroundMatrix";
 import SectionDivider from "@/components/SectionDivider";
 import ContactButton from "@/components/ContactButton";
+import BugTrigger from "@/components/BugTrigger";
 import CleanHero from "@/components/sections/CleanHero";
 import AboutSection from "@/components/sections/AboutSection";
 import CleanExperience from "@/components/sections/CleanExperience";
@@ -79,10 +80,13 @@ export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
             />
           </div>
 
-          {/* ── Copyright ── */}
-          <p className="mt-10 text-center text-sm text-slate-400 dark:text-slate-500">
-            Shalev Atsis &middot; Software Engineer &middot; {new Date().getFullYear()}
-          </p>
+          {/* ── Copyright + Easter Egg ── */}
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <p className="text-center text-sm text-slate-400 dark:text-slate-500">
+              Shalev Atsis &middot; Software Engineer &middot; {new Date().getFullYear()}
+            </p>
+            <BugTrigger />
+          </div>
         </div>
       </footer>
       <ScrollToTopButton />

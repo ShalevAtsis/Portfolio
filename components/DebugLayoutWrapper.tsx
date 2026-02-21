@@ -2,7 +2,6 @@
 
 import { useDebug } from "@/context/DebugContext";
 import TerminalOverlay from "./TerminalOverlay";
-import Footer from "./Footer";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function DebugLayoutWrapper({
@@ -19,7 +18,6 @@ export default function DebugLayoutWrapper({
         className="debug-chaos-wrapper min-h-screen transition-transform duration-500 ease-out"
       >
         {children}
-        <Footer />
       </div>
 
       <TerminalOverlay />

@@ -5,15 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDebug } from "@/context/DebugContext";
 
 const EXPECTED_COMMAND = "sudo fix-site --force";
-const HELP_HINT = "Try: sudo fix-site --force";
+const HELP_HINT = "Have you tried: sudo fix-site --force   (classic, never fails)";
 
 const BOOT_LINES = [
-  "[    0.000000] Booting kernel...",
-  "[    0.012341] Initializing subsystems...",
-  "[    0.045678] ERROR: ui_rendering_engine: FAILURE",
-  "[    0.045679] ERROR: layout_core: DEGRADED",
-  "[    0.045680] WARN: System integrity at 40%",
-  "[    0.046001] Awaiting recovery command.",
+  "[    0.000000] Booting kernel... fingers crossed.",
+  "[    0.012341] Loading dependencies... all 47,000 of them.",
+  "[    0.031337] npm warn deprecated everything@∞",
+  "[    0.045678] ERROR: coffee_module: DEPLETED — productivity at risk.",
+  "[    0.045679] ERROR: ui_rendering_engine: caught feelings, segfaulted.",
+  "[    0.045680] WARN: Stack trace too deep. Have you tried recursion?",
+  "[    0.046001] System integrity: 40%. Honestly not our worst launch.",
+  "[    0.046100] TIP: type 'help' — or just spam keys like the rest of us.",
 ];
 
 export default function TerminalOverlay() {
@@ -129,16 +131,18 @@ export default function TerminalOverlay() {
               transition={{ delay: 0.5 }}
               className="mt-4 text-red-400"
             >
-              CRITICAL ERROR: UI RENDERING ENGINE FAILURE. SYSTEM INTEGRITY AT
-              40%.
+              🚨 CRITICAL: Something broke. We&apos;re not saying it was you,
+              but it was definitely you. UI engine is crying.
+              System integrity: 40% and falling.
             </motion.div>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.65 }}
               className="mt-2 text-cyber-muted"
             >
-              Enter recovery command to restore system.
+              A seasoned engineer is required to restore order.
+              (That&apos;s you. Probably. We hope.)
             </motion.div>
 
             {showHelp && (
@@ -181,7 +185,7 @@ export default function TerminalOverlay() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder=" Enter command..."
+                  placeholder=" Enter command…"
                   className="flex-1 bg-transparent font-mono text-cyber-text outline-none placeholder:text-cyber-muted/50"
                   spellCheck={false}
                   autoComplete="off"

@@ -1,41 +1,22 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { useView } from "@/context/ViewContext";
 import type { GitHubRepo } from "@/lib/github";
-import PortfolioView from "./PortfolioView";
-import ResumeView from "./ResumeView";
+import { useView } from "@/context/ViewContext";
+import PortfolioView from "@/components/PortfolioView";
+import ResumeView from "@/components/ResumeView";
 
 interface ViewSwitcherProps {
   repos: GitHubRepo[];
 }
 
+/**
+ * ViewSwitcher
+ * ─────────────
+ * Reads the current view mode from ViewContext and renders either
+ * the main portfolio or the resume/PDF viewer. The Navbar's resume
+ * toggle button calls toggleMode() from the same context.
+ */
 export default function ViewSwitcher({ repos }: ViewSwitcherProps) {
   const { isResumeMode } = useView();
-
-  return (
-    <AnimatePresence mode="wait">
-      {isResumeMode ? (
-        <motion.div
-          key="resume"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <ResumeView />
-        </motion.div>
-      ) : (
-        <motion.div
-          key="portfolio"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
-          <PortfolioView repos={repos} />
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  return isResumeMode ? <ResumeView /> : <PortfolioView repos={repos} />;
 }
