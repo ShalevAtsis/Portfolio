@@ -19,7 +19,7 @@ export default function CleanHero() {
     return (
         <section
             id="hero"
-            className="relative flex min-h-[92vh] flex-col items-center justify-center px-4 pt-24 text-center"
+            className="relative flex flex-col items-center px-4 pt-24 pb-8 text-center md:pt-32 md:pb-16"
         >
             {/* Ambient glow — adapts to dark/light */}
             <div
@@ -39,10 +39,10 @@ export default function CleanHero() {
             >
                 {/* Status badge */}
                 <motion.div variants={fadeInUpVariants} transition={springSnappy}>
-                    <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">
-                        <span className="relative flex h-2 w-2">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75 dark:bg-indigo-500" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse dark:border-emerald-500 dark:bg-emerald-950/80 dark:text-emerald-300 dark:shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                        <span className="relative flex h-2.5 w-2.5">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 dark:bg-emerald-500" />
+                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                         </span>
                         Open to opportunities
                     </span>

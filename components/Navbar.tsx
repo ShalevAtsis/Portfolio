@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sun, Moon, MessageCircle, Mail,
-  LayoutDashboard, FileText,
+  LayoutDashboard, FileText, Menu, X
 } from "lucide-react";
 import { Github, Linkedin } from "lucide-react";
 import { useView } from "@/context/ViewContext";
@@ -113,6 +113,7 @@ function DualModeToggle() {
 
 export default function Navbar() {
   const { isResumeMode } = useView();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <motion.header
@@ -142,13 +143,13 @@ export default function Navbar() {
         {/* ── Centre nav links — portfolio mode, md+ ── */}
         {!isResumeMode && (
           <div className="hidden items-center gap-6 text-sm md:flex">
-            {["about", "experience", "skills", "projects", "contact"].map((id) => (
+            {["about", "experience", "skills", "projects", "personal-world", "contact"].map((id) => (
               <a
                 key={id}
                 href={`#${id}`}
                 className="capitalize text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
               >
-                {id === "about" ? "About" : id.charAt(0).toUpperCase() + id.slice(1)}
+                {id === "about" ? "About" : id.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
               </a>
             ))}
           </div>
@@ -156,6 +157,17 @@ export default function Navbar() {
 
         {/* ── Right-hand actions ── */}
         <div className="flex items-center gap-1">
+
+          {/* ── Mobile Menu Toggle ── */}
+          {!isResumeMode && (
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          )}
 
           {/* ── Theme Toggle ── */}
           <ThemeToggle />
@@ -217,6 +229,32 @@ export default function Navbar() {
           <DualModeToggle />
         </div>
       </nav>
+
+      {/* ── Mobile Menu Dropdown ── */}
+      <AnimatePresence>
+        {mobileMenuOpen && !isResumeMode && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute left-0 right-0 top-full overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 md:hidden shadow-lg"
+          >
+            <div className="flex flex-col px-6 py-4 space-y-4">
+              {["about", "experience", "skills", "projects", "personal-world", "contact"].map((id) => (
+                <a
+                  key={id}
+                  href={`#${id}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="capitalize text-slate-600 font-medium transition-colors hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400"
+                >
+                  {id === "about" ? "About" : id.replace("-", " ").replace(/\b\w/g, c => c.toUpperCase())}
+                </a>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }
