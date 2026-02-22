@@ -68,7 +68,12 @@ interface Artifact {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function OceanicBackground({ className = "" }: { className?: string }) {
+interface OceanicBackgroundProps {
+    children?: React.ReactNode;
+    className?: string;
+}
+
+export default function OceanicBackground({ children, className = "" }: OceanicBackgroundProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -118,7 +123,8 @@ export default function OceanicBackground({ className = "" }: { className?: stri
             const H = cvs.height / dpr;
 
             // Background
-            cx.fillStyle = "rgba(2, 6, 23, 0.96)";
+            cx.clearRect(0, 0, W, H);
+            cx.fillStyle = "rgba(2, 6, 23, 1)";
             cx.fillRect(0, 0, W, H);
 
             // ── Contour lines ────────────────────────────────────────────────────
@@ -230,10 +236,13 @@ export default function OceanicBackground({ className = "" }: { className?: stri
     }, []);
 
     return (
-        <canvas
-            ref={canvasRef}
-            aria-hidden="true"
-            className={`pointer-events-none fixed inset-0 z-[-1] ${className}`}
-        />
+        <div className={`relative min-h-screen w-full ${className}`}>
+            <canvas
+                ref={canvasRef}
+                aria-hidden="true"
+                className="pointer-events-none fixed inset-0 z-0"
+            />
+            {children}
+        </div>
     );
 }

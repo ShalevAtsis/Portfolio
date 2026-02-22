@@ -1,7 +1,7 @@
 "use client";
 
 import type { GitHubRepo } from "@/lib/github";
-import BackgroundMatrix from "@/components/BackgroundMatrix";
+import OceanicBackground from "@/components/OceanicBackground";
 import SectionDivider from "@/components/SectionDivider";
 import BugTrigger from "@/components/BugTrigger";
 import CleanHero from "@/components/sections/CleanHero";
@@ -19,8 +19,8 @@ interface PortfolioViewProps {
 
 export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
   return (
-    <BackgroundMatrix className="text-slate-900 antialiased dark:text-slate-100">
-      <main className="mx-auto max-w-5xl px-6 pb-32 sm:px-8 lg:px-12">
+    <OceanicBackground className="text-slate-900 antialiased dark:text-slate-100">
+      <main className="relative z-10 mx-auto max-w-5xl px-6 pb-32 sm:px-8 lg:px-12">
         <CleanHero />
         <SectionDivider />
         <AboutSection />
@@ -36,7 +36,7 @@ export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
         <ContactSection />
       </main>
 
-      <footer className="border-t border-slate-100 py-6 dark:border-slate-800">
+      <footer className="relative z-10 border-t border-slate-100 py-6 dark:border-slate-800">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 sm:px-8 lg:px-12">
           <p className="text-sm text-slate-400 dark:text-slate-500">
             Shalev Atsis &middot; Software Engineer &middot; {new Date().getFullYear()}
@@ -45,6 +45,6 @@ export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
         </div>
       </footer>
       <ScrollToTopButton />
-    </BackgroundMatrix>
+    </OceanicBackground>
   );
 }
