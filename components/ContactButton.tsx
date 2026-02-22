@@ -21,6 +21,7 @@ export type ContactColor =
     | "linkedin" // blue
     | "github"   // slate
     | "phone"    // amber
+    | "download" // indigo (CV)
     | "default"; // slate
 
 export type ContactVariant = "icon" | "full";
@@ -56,6 +57,11 @@ const colorMap: Record<ContactColor, {
         text: "text-blue-600     dark:text-blue-400",
         hover: "hover:bg-blue-50     dark:hover:bg-blue-950/50",
         ring: "focus-visible:ring-blue-500",
+    },
+    download: {
+        text: "text-indigo-600   dark:text-indigo-400",
+        hover: "hover:bg-indigo-50   dark:hover:bg-indigo-500/10",
+        ring: "focus-visible:ring-indigo-500",
     },
     github: {
         text: "text-slate-700    dark:text-slate-300",

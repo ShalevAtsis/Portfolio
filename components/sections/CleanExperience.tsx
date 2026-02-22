@@ -77,28 +77,34 @@ const nodeStyle: Record<EntryKind, {
     bullet: string; bulletDark: string;
     badge: string; badgeDark: string;
     spotlight: string;
+    borderHover: string;
+    shadowHover: string;
 }> = {
     work: {
-        icon: "bg-emerald-50  text-emerald-600 ring-emerald-200",
-        iconDark: "dark:bg-emerald-950/60 dark:text-emerald-400 dark:ring-emerald-800",
+        icon: "bg-emerald-50  text-emerald-600 ring-emerald-200 shadow-emerald-200/50",
+        iconDark: "dark:bg-emerald-950/60 dark:text-emerald-400 dark:ring-emerald-800 dark:shadow-emerald-900/50",
         org: "text-emerald-600",
         orgDark: "dark:text-emerald-400",
         bullet: "bg-emerald-400",
         bulletDark: "dark:bg-emerald-500",
         badge: "bg-emerald-50  text-emerald-700",
         badgeDark: "dark:bg-emerald-950/60 dark:text-emerald-300",
-        spotlight: "rgba(16,185,129,0.08)",
+        spotlight: "rgba(16,185,129,0.12)",
+        borderHover: "hover:border-emerald-300/50 dark:hover:border-emerald-700/50",
+        shadowHover: "hover:shadow-emerald-500/10 dark:hover:shadow-emerald-500/10",
     },
     education: {
-        icon: "bg-violet-50   text-violet-600  ring-violet-200",
-        iconDark: "dark:bg-violet-950/60 dark:text-violet-400  dark:ring-violet-800",
+        icon: "bg-violet-50   text-violet-600  ring-violet-200 shadow-violet-200/50",
+        iconDark: "dark:bg-violet-950/60 dark:text-violet-400  dark:ring-violet-800 dark:shadow-violet-900/50",
         org: "text-violet-600",
         orgDark: "dark:text-violet-400",
         bullet: "bg-violet-400",
         bulletDark: "dark:bg-violet-500",
         badge: "bg-violet-50   text-violet-700",
         badgeDark: "dark:bg-violet-950/60 dark:text-violet-300",
-        spotlight: "rgba(139,92,246,0.08)",
+        spotlight: "rgba(139,92,246,0.12)",
+        borderHover: "hover:border-violet-300/50 dark:hover:border-violet-700/50",
+        shadowHover: "hover:shadow-violet-500/10 dark:hover:shadow-violet-500/10",
     },
 };
 
@@ -106,8 +112,8 @@ function NodeIcon({ kind }: { kind: EntryKind }) {
     const Icon = kind === "education" ? GraduationCap : Briefcase;
     const s = nodeStyle[kind];
     return (
-        <span className={["flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-1", s.icon, s.iconDark].join(" ")}>
-            <Icon className="h-4 w-4" strokeWidth={1.75} />
+        <span className={["relative z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full ring-2 shadow-sm transition-transform duration-300 group-hover:scale-110", s.icon, s.iconDark].join(" ")}>
+            <Icon className="h-5 w-5" strokeWidth={1.75} />
         </span>
     );
 }
@@ -124,60 +130,63 @@ export default function CleanExperience() {
                 </p>
             </FadeInUp>
 
-            <div className="relative">
-                {/* Spine */}
+            <div className="relative mx-auto max-w-4xl px-2 sm:px-0">
+                {/* ── Background Spine Line ── */}
                 <div
-                    className="absolute left-[19px] top-0 bottom-0 w-px bg-gradient-to-b from-slate-200 via-slate-200/60 to-transparent dark:from-slate-700 dark:via-slate-700/40"
+                    className="absolute bottom-0 left-[26px] top-6 w-[2px] rounded-full bg-gradient-to-b from-slate-200 via-slate-200/80 to-transparent dark:from-slate-700/80 dark:via-slate-700/40"
                     aria-hidden
                 />
 
-                <div className="space-y-1">
+                <div className="space-y-6">
                     {ENTRIES.map((entry, i) => {
                         const s = nodeStyle[entry.kind];
                         return (
                             <motion.div
                                 key={entry.id}
-                                className="relative flex gap-5 pb-10 last:pb-0"
+                                className="group relative flex gap-6"
                                 variants={fadeInUpVariants}
                                 transition={{ ...springSnappy, delay: i * 0.07 }}
                                 initial="hidden"
                                 whileInView="visible"
                                 viewport={{ once: true, margin: "-60px" }}
                             >
-                                <div className="relative z-10 mt-0.5">
+                                {/* Subtle glowing node backplate */}
+                                <div className="absolute left-[4px] top-[4px] z-10 h-11 w-11 rounded-full bg-inherit blur-md transition-opacity duration-300 group-hover:opacity-100 opacity-0" />
+
+                                <div className="relative z-20 mt-1 flex flex-col items-center">
                                     <NodeIcon kind={entry.kind} />
                                 </div>
 
                                 <HoverEffectCard
-                                    className="flex-1 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+                                    className={`relative z-20 flex-1 rounded-2xl border border-slate-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 ease-out group-hover:-translate-y-1 ${s.borderHover} ${s.shadowHover} dark:border-slate-800/60 dark:bg-slate-900/60`}
                                     spotlightColor={s.spotlight}
                                 >
-                                    <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                                    <div className="flex flex-col gap-y-2 sm:flex-row sm:items-start sm:justify-between">
                                         <div>
-                                            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                                            <h3 className="text-lg font-bold text-slate-900 transition-colors duration-300 dark:text-slate-100">
                                                 {entry.role}
                                             </h3>
-                                            <p className={`mt-0.5 text-sm font-medium ${s.org} ${s.orgDark}`}>
+                                            <p className={`mt-1 text-sm font-semibold tracking-wide uppercase ${s.org} ${s.orgDark}`}>
                                                 {entry.org}
                                             </p>
                                         </div>
-                                        <div className="flex shrink-0 flex-col items-end gap-1.5">
-                                            <span className="text-xs text-slate-400 dark:text-slate-500">
-                                                {entry.period}
-                                            </span>
+                                        <div className="flex shrink-0 flex-row flex-wrap items-center gap-2 sm:flex-col sm:items-end">
                                             {entry.badge && (
-                                                <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${s.badge} ${s.badgeDark}`}>
+                                                <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${s.badge} ${s.badgeDark}`}>
                                                     {entry.badge}
                                                 </span>
                                             )}
+                                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                                {entry.period}
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <ul className="mt-4 space-y-2">
+                                    <ul className="mt-5 space-y-3">
                                         {entry.bullets.map((b) => (
-                                            <li key={b} className="flex gap-2.5 text-sm text-slate-500 dark:text-slate-400">
-                                                <span className={`mt-[7px] h-1 w-1 shrink-0 rounded-full ${s.bullet} ${s.bulletDark}`} aria-hidden />
-                                                {b}
+                                            <li key={b} className="flex items-start gap-3 text-[0.9375rem] leading-relaxed text-slate-600 dark:text-slate-400">
+                                                <span className={`mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full transition-transform duration-300 group-hover:scale-125 ${s.bullet} ${s.bulletDark}`} aria-hidden />
+                                                <span>{b}</span>
                                             </li>
                                         ))}
                                     </ul>

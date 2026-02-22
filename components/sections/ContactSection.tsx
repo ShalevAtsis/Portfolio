@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageCircle, Mail, Linkedin as LinkedinIcon, Github as GithubIcon } from "lucide-react";
+import { MessageCircle, Mail, Linkedin as LinkedinIcon, Github as GithubIcon, Download } from "lucide-react";
 import ContactButton from "@/components/ContactButton";
 import FadeInUp from "@/components/ui/FadeInUp";
 
@@ -26,7 +26,7 @@ export default function ContactSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
       >
         <ContactButton
           href="https://wa.me/+972585060699"
@@ -34,6 +34,15 @@ export default function ContactSection() {
           label="WhatsApp"
           description="Fastest response"
           color="whatsapp"
+          variant="full"
+          external
+        />
+        <ContactButton
+          href="/Shalev_Atsis_CV.pdf"
+          icon={<Download className="h-5 w-5" strokeWidth={1.75} />}
+          label="Download CV"
+          description="Resume (PDF)"
+          color="download"
           variant="full"
           external
         />
@@ -46,20 +55,20 @@ export default function ContactSection() {
           variant="full"
         />
         <ContactButton
-          href="https://www.linkedin.com/in/shalev-atsis-software-developer/"
-          icon={<LinkedinIcon className="h-5 w-5" strokeWidth={1.75} />}
-          label="LinkedIn"
-          description="shalev-atsis"
-          color="linkedin"
-          variant="full"
-          external
-        />
-        <ContactButton
           href="https://github.com/ShalevAtsis"
           icon={<GithubIcon className="h-5 w-5" strokeWidth={1.75} />}
           label="GitHub"
           description="ShalevAtsis"
           color="github"
+          variant="full"
+          external
+        />
+        <ContactButton
+          href="https://www.linkedin.com/in/shalev-atsis-software-developer/"
+          icon={<LinkedinIcon className="h-5 w-5" strokeWidth={1.75} />}
+          label="LinkedIn"
+          description="shalev-atsis"
+          color="linkedin"
           variant="full"
           external
         />

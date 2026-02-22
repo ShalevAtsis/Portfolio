@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageCircle, Mail, Github, Linkedin } from "lucide-react";
+import { MessageCircle, Mail, Github, Linkedin, Download } from "lucide-react";
 import { fadeInUpVariants, springSnappy, staggerContainer } from "@/lib/motion";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -82,56 +82,78 @@ export default function CleanHero() {
                 <motion.div
                     variants={fadeInUpVariants}
                     transition={{ ...springSnappy, delay: 0.12 }}
-                    className="flex flex-wrap items-center justify-center gap-3 pt-2"
+                    className="flex w-full flex-col items-center justify-center gap-3 pt-2 sm:flex-row sm:flex-wrap"
                 >
-                    {/* WhatsApp — primary CTA */}
+                    {/* Primary Button — WhatsApp */}
                     <motion.a
                         href={WHATSAPP_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Message on WhatsApp"
-                        whileHover={{ scale: 1.04, boxShadow: "0 8px 32px -6px rgba(16,185,129,0.40)" }}
+                        whileHover={{ scale: 1.04, y: -2 }}
                         whileTap={{ scale: 0.97 }}
                         transition={springSnappy}
-                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition-colors hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:bg-emerald-500 dark:shadow-emerald-950 dark:hover:bg-emerald-600"
+                        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/20 transition-all duration-300 hover:shadow-[#25D366]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:w-auto"
                     >
-                        <MessageCircle className="h-4 w-4" strokeWidth={2} />
+                        <MessageCircle className="h-4 w-4 transition-transform group-hover:scale-110" strokeWidth={2.5} />
                         WhatsApp Me
                     </motion.a>
 
-                    {/* Email — secondary */}
-                    <motion.a
-                        href={EMAIL}
-                        aria-label="Send email to Shalevatsis@gmail.com"
-                        whileHover={{ scale: 1.04 }}
-                        whileTap={{ scale: 0.97 }}
-                        transition={springSnappy}
-                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-indigo-600 shadow-sm transition-colors hover:border-indigo-300 hover:bg-indigo-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-indigo-400 dark:hover:border-indigo-700 dark:hover:bg-indigo-950/50"
-                    >
-                        <Mail className="h-4 w-4" strokeWidth={2} />
-                        Email
-                    </motion.a>
+                    {/* Secondary Buttons Row */}
+                    <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+                        {/* Download CV (Indigo Theme) */}
+                        <motion.a
+                            href="/Shalev_Atsis_CV.pdf"
+                            download="Shalev_Atsis_CV.pdf"
+                            aria-label="Download CV"
+                            whileHover={{ scale: 1.04, y: -2 }}
+                            whileTap={{ scale: 0.97 }}
+                            transition={springSnappy}
+                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200/50 bg-indigo-50/50 px-6 py-3 text-sm font-semibold text-indigo-700 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-indigo-300 hover:bg-indigo-100 hover:shadow-indigo-500/10 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:border-indigo-500/40 dark:hover:bg-indigo-500/20 sm:w-auto"
+                        >
+                            <Download className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" strokeWidth={2.5} />
+                            Download CV
+                        </motion.a>
 
-                    {/* Icon links */}
-                    <div className="flex items-center gap-1">
-                        {[
-                            { href: GITHUB_URL, label: "GitHub", icon: <Github className="h-5 w-5" strokeWidth={1.75} /> },
-                            { href: LINKEDIN_URL, label: "LinkedIn", icon: <Linkedin className="h-5 w-5" strokeWidth={1.75} /> },
-                        ].map(({ href, label, icon }) => (
-                            <motion.a
-                                key={label}
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={label}
-                                whileHover={{ scale: 1.12 }}
-                                whileTap={{ scale: 0.93 }}
-                                transition={springSnappy}
-                                className="inline-flex rounded-lg p-2.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-indigo-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
-                            >
-                                {icon}
-                            </motion.a>
-                        ))}
+                        {/* Email (Violet Theme) */}
+                        <motion.a
+                            href={EMAIL}
+                            aria-label="Send email to Shalevatsis@gmail.com"
+                            whileHover={{ scale: 1.04, y: -2 }}
+                            whileTap={{ scale: 0.97 }}
+                            transition={springSnappy}
+                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200/50 bg-violet-50/50 px-6 py-3 text-sm font-semibold text-violet-700 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-violet-300 hover:bg-violet-100 hover:shadow-violet-500/10 dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:border-violet-500/40 dark:hover:bg-violet-500/20 sm:w-auto"
+                        >
+                            <Mail className="h-4 w-4 transition-transform group-hover:scale-110" strokeWidth={2.5} />
+                            Email
+                        </motion.a>
+                    </div>
+
+                    {/* Social Icon Links */}
+                    <div className="flex w-full items-center justify-center gap-3 sm:w-auto">
+                        <motion.a
+                            href={GITHUB_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="GitHub Profile"
+                            whileHover={{ scale: 1.04, y: -2 }}
+                            whileTap={{ scale: 0.97 }}
+                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200/50 bg-slate-50/50 shadow-sm backdrop-blur-md transition-all duration-300 ease-in-out hover:border-slate-300 hover:bg-slate-100 hover:shadow-slate-500/10 dark:border-slate-700/50 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-700 dark:hover:shadow-slate-500/20"
+                        >
+                            <Github className="h-5 w-5 text-slate-600 transition-colors duration-300 group-hover:text-black dark:text-slate-400 dark:group-hover:text-white" strokeWidth={2} />
+                        </motion.a>
+
+                        <motion.a
+                            href={LINKEDIN_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn Profile"
+                            whileHover={{ scale: 1.04, y: -2 }}
+                            whileTap={{ scale: 0.97 }}
+                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200/50 bg-blue-50/50 shadow-sm backdrop-blur-md transition-all duration-300 ease-in-out hover:border-blue-300 hover:bg-blue-100 hover:shadow-blue-500/20 dark:border-blue-500/20 dark:bg-blue-900/20 dark:hover:border-blue-500/40 dark:hover:bg-blue-900/40"
+                        >
+                            <Linkedin className="h-5 w-5 text-blue-600 transition-colors duration-300 group-hover:text-[#0A66C2] dark:text-blue-400 dark:group-hover:text-[#0A66C2]" strokeWidth={2} />
+                        </motion.a>
                     </div>
                 </motion.div>
             </motion.div>
