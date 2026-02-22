@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { MessageCircle, Mail, Github, Linkedin, Download } from "lucide-react";
 import { fadeInUpVariants, springSnappy, staggerContainer } from "@/lib/motion";
+import { asset } from "@/lib/basePath";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -103,7 +104,7 @@ export default function CleanHero() {
                     <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                         {/* Download CV (Indigo Theme) */}
                         <motion.a
-                            href="/Shalev_Atsis_CV.pdf"
+                            href={asset("/Shalev_Atsis_CV.pdf")}
                             download="Shalev_Atsis_CV.pdf"
                             aria-label="Download CV"
                             whileHover={{ scale: 1.04, y: -2 }}

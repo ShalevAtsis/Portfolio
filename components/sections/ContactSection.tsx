@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { MessageCircle, Mail, Linkedin as LinkedinIcon, Github as GithubIcon, Download } from "lucide-react";
 import ContactButton from "@/components/ContactButton";
 import FadeInUp from "@/components/ui/FadeInUp";
+import { asset } from "@/lib/basePath";
 
 export default function ContactSection() {
   return (
@@ -38,7 +39,7 @@ export default function ContactSection() {
           external
         />
         <ContactButton
-          href="/Shalev_Atsis_CV.pdf"
+          href={asset("/Shalev_Atsis_CV.pdf")}
           icon={<Download className="h-5 w-5" strokeWidth={1.75} />}
           label="Download CV"
           description="Resume (PDF)"
