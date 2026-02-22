@@ -236,11 +236,11 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
     }, []);
 
     return (
-        <div className={`relative min-h-screen w-full ${className}`}>
+        <div className={`relative min-h-screen w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 transition-colors duration-300 ${className}`}>
             <canvas
                 ref={canvasRef}
                 aria-hidden="true"
-                className="pointer-events-none fixed inset-0 z-0"
+                className="pointer-events-none fixed inset-0 z-0 opacity-0 dark:opacity-100 transition-opacity duration-300"
             />
             {children}
         </div>

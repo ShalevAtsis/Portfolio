@@ -34,19 +34,7 @@ html {
   --paper-text: #212529;
 }
 
-/* ── Portfolio mode: clean light base ────────────────────────────────────── */
-[data-view="portfolio"] body {
-  background-color: #f8fafc;
-  /* slate-50 */
-  color: #0f172a;
-  /* slate-900 */
-}
-
-/* ── Resume mode: paper surface ───────────────────────────────────────────── */
-[data-view="resume"] body {
-  background-color: #f8f9fa;
-  color: #212529;
-}
+/* Removed rigid overrides here to let Tailwind responsive classes manage global theme colors. */
 
 /* Glassmorphism base (used in Resume navbar) */
 .glass {

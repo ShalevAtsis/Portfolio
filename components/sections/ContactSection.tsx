@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { MessageCircle, Mail, Linkedin as LinkedinIcon, Github as GithubIcon, Download } from "lucide-react";
 import ContactButton from "@/components/ContactButton";
+import ContactForm from "@/components/ContactForm";
 import FadeInUp from "@/components/ui/FadeInUp";
 import { asset } from "@/lib/basePath";
 
@@ -22,58 +23,72 @@ export default function ContactSection() {
         </p>
       </FadeInUp>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        <ContactButton
-          href="https://wa.me/+972585060699"
-          icon={<MessageCircle className="h-5 w-5" strokeWidth={1.75} />}
-          label="WhatsApp"
-          description="Fastest response"
-          color="whatsapp"
-          variant="full"
-          external
-        />
-        <ContactButton
-          href={asset("/Shalev_Atsis_CV.pdf")}
-          icon={<Download className="h-5 w-5" strokeWidth={1.75} />}
-          label="Download CV"
-          description="Resume (PDF)"
-          color="download"
-          variant="full"
-          external
-        />
-        <ContactButton
-          href="mailto:Shalevatsis@gmail.com"
-          icon={<Mail className="h-5 w-5" strokeWidth={1.75} />}
-          label="Email"
-          description="Shalevatsis@gmail.com"
-          color="email"
-          variant="full"
-        />
-        <ContactButton
-          href="https://github.com/ShalevAtsis"
-          icon={<GithubIcon className="h-5 w-5" strokeWidth={1.75} />}
-          label="GitHub"
-          description="ShalevAtsis"
-          color="github"
-          variant="full"
-          external
-        />
-        <ContactButton
-          href="https://www.linkedin.com/in/shalev-atsis-software-developer/"
-          icon={<LinkedinIcon className="h-5 w-5" strokeWidth={1.75} />}
-          label="LinkedIn"
-          description="shalev-atsis"
-          color="linkedin"
-          variant="full"
-          external
-        />
-      </motion.div>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 items-start">
+        {/* Left side: Quick Links */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2"
+        >
+          <ContactButton
+            href="https://wa.me/+972585060699"
+            icon={<MessageCircle className="h-5 w-5" strokeWidth={1.75} />}
+            label="WhatsApp"
+            description="Fastest response"
+            color="whatsapp"
+            variant="full"
+            external
+          />
+          <ContactButton
+            href={asset("/Shalev_Atsis_CV.pdf")}
+            icon={<Download className="h-5 w-5" strokeWidth={1.75} />}
+            label="Download CV"
+            description="Resume (PDF)"
+            color="download"
+            variant="full"
+            external
+          />
+          <ContactButton
+            href="mailto:Shalevatsis@gmail.com"
+            icon={<Mail className="h-5 w-5" strokeWidth={1.75} />}
+            label="Email"
+            description="Shalevatsis@gmail.com"
+            color="email"
+            variant="full"
+          />
+          <ContactButton
+            href="https://github.com/ShalevAtsis"
+            icon={<GithubIcon className="h-5 w-5" strokeWidth={1.75} />}
+            label="GitHub"
+            description="ShalevAtsis"
+            color="github"
+            variant="full"
+            external
+          />
+          <ContactButton
+            href="https://www.linkedin.com/in/shalev-atsis-software-developer/"
+            icon={<LinkedinIcon className="h-5 w-5" strokeWidth={1.75} />}
+            label="LinkedIn"
+            description="shalev-atsis"
+            color="linkedin"
+            variant="full"
+            className="sm:col-span-2 lg:col-span-2"
+            external
+          />
+        </motion.div>
+
+        {/* Right side: Contact Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+        >
+          <ContactForm />
+        </motion.div>
+      </div>
     </section>
   );
 }

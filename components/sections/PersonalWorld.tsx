@@ -10,6 +10,7 @@ import {
 import FadeInUp from "@/components/ui/FadeInUp";
 import GlobeViz from "@/components/ui/GlobeViz";
 import { asset } from "@/lib/basePath";
+import Image from "next/image";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -199,7 +200,7 @@ function NowPlayingCard() {
     // Initialise audio element once
     useEffect(() => {
         const audio = new Audio(AUDIO_SRC);
-        audio.preload = "metadata";
+        audio.preload = "none"; // Core Web Vitals Optimization: don't download audio until needed
         audioRef.current = audio;
 
         const onTimeUpdate = () => {
@@ -256,10 +257,11 @@ function NowPlayingCard() {
                             : { duration: 0.4, ease: "easeOut" }
                         }
                     >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                             src={asset("/bad_bunny.png")}
                             alt="Bad Bunny — Debí Tirar Más Fotos"
+                            width={96}
+                            height={96}
                             className="h-full w-full object-cover"
                         />
                         {/* Vinyl groove rings */}
@@ -456,12 +458,12 @@ function AISharkCard() {
             onMouseLeave={() => setHovered(false)}
             style={{ minHeight: 300 }}
         >
-            {/* Background image */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
                 src={asset("/hammerhead.png")}
                 alt="Hammerhead shark — AI CV scan"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="absolute inset-0 object-cover transition-transform duration-700 ease-out"
                 style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }}
             />
 
@@ -548,7 +550,7 @@ function AISharkCard() {
 
 export default function PersonalWorld() {
     return (
-        <section id="interests" className="py-20 sm:py-28 scroll-mt-20">
+        <section id="personal-world" className="py-20 sm:py-28 scroll-mt-20">
             <FadeInUp className="mb-12">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                     Beyond the Code
