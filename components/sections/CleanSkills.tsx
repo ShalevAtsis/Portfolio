@@ -38,6 +38,7 @@ const SKILL_GROUPS: SkillGroup[] = [
             s("Python", "lang"), s("TypeScript", "lang"), s("Java", "lang"),
             s("C++", "lang"), s("SQL", "lang"), s("JavaScript", "lang"),
             s("NumPy", "lang"), s("Pandas", "lang"), s("Matplotlib", "lang"),
+            s("React", "lang"), s("Node.js", "lang"),
         ],
     },
     {
@@ -55,8 +56,9 @@ const SKILL_GROUPS: SkillGroup[] = [
         category: "devops",
         spotlightColor: "rgba(245,158,11,0.10)",
         skills: [
-            s("AWS (EC2, ECR)", "devops"), s("Docker", "devops"), s("CI/CD", "devops"),
-            s("Jenkins", "devops"), s("MongoDB", "devops"), s("Git", "devops"),
+            s("AWS", "devops"), s("Docker", "devops"), s("CI/CD Pipelines", "devops"),
+            s("Jenkins", "devops"), s("MongoDB", "devops"), s("Git", "devops"), s("Playwright", "devops"),
+            s("Selenium", "devops"), s("Jira", "devops"), s("Postman", "devops"),
         ],
     },
     {
@@ -66,7 +68,7 @@ const SKILL_GROUPS: SkillGroup[] = [
         skills: [
             s("Data Structures", "concepts"), s("Algorithms", "concepts"),
             s("OOP", "concepts"), s("System Design", "concepts"),
-            s("Agile", "concepts"), s("Communication Networks", "concepts"),
+            s("Agile Methodologies", "concepts"), s("Communication Networks", "concepts"),
             s("Analytical Thinking", "concepts"), s("Team Collaboration", "concepts"),
             s("Fast Learning", "concepts"),
         ],

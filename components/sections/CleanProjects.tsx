@@ -1,66 +1,73 @@
 "use client";
 
+import { Waves, ShieldCheck, Server, GitMerge, BrainCircuit, Code2 } from "lucide-react";
 import type { Project } from "@/components/ProjectCard";
 import ProjectCard from "@/components/ProjectCard";
 import FadeInUp from "@/components/ui/FadeInUp";
 
 // ─── Project data ─────────────────────────────────────────────────────────────
-// Edit descriptions / skills here anytime; the grid renders automatically.
+// Edit descriptions / skills / urls / icons here; the grid renders automatically.
 
 const PROJECTS: Project[] = [
     {
         id: "swellsight",
         name: "SwellSight",
         description:
-            "AI-powered ocean wave analysis system utilizing GenAI and Computer Vision to extract critical metrics from beach camera footage.",
+            "AI-powered system that analyzes beach cam footage to extract wave height, direction, and breaking type. Features a sim-to-real pipeline using Depth-Anything-V2 for depth extraction, FLUX.1 for synthetic data generation, and DINOv2 for real-time analysis, achieving 92% direction accuracy across diverse weather conditions.",
         url: "https://github.com/ShalevAtsis/SwellSight_Colab",
-        skills: ["Python", "PyTorch", "OpenCV", "GenAI"],
+        skills: ["Python", "PyTorch", "DINOv2", "OpenCV", "HuggingFace", "ControlNet"],
+        icon: <Waves className="h-5 w-5" strokeWidth={1.75} />,
         accentColor: "rgba(6,182,212,0.09)",   // cyan — CV / AI
     },
     {
         id: "anomalyze",
         name: "Anomalyze",
         description:
-            "Machine learning pipeline for detecting anomalies and outliers in complex datasets.",
+            "Advanced AI-powered web security scanner that detects vulnerabilities, misconfigurations, and anomalies in web applications. Integrates ML-based analysis, CVE intelligence, and automated audits to deliver comprehensive, real-time security insights through an intuitive, analytics-driven dashboard.",
         url: "https://github.com/ShalevAtsis/Anomalyze",
-        skills: ["Machine Learning", "Python", "Data Analysis"],
-        accentColor: "rgba(249,115,22,0.09)",  // orange — anomaly detection
-    },
-    {
-        id: "ml-flow",
-        name: "Machine Learning Flow",
-        description:
-            "End-to-end ML architecture demonstrating data processing, model training, and evaluation workflows.",
-        url: "https://github.com/ShalevAtsis/Machine-Learning-Flow",
-        skills: ["Scikit-learn", "Pandas", "Model Training"],
-        accentColor: "rgba(99,102,241,0.09)",  // indigo — classic ML
+        skills: ["React", "Node.js", "Docker", "Express", "MongoDB", "DevSecOps"],
+        icon: <ShieldCheck className="h-5 w-5" strokeWidth={1.75} />,
+        accentColor: "rgba(249,115,22,0.09)",  // orange — security
     },
     {
         id: "tcp-chat",
         name: "Multithreaded TCP Chat",
         description:
-            "High-performance client-server chat application built with robust multithreading and socket programming.",
+            "A multithreaded chat server implemented in Python using TCP sockets. Supports real-time communication between multiple clients with both private and broadcast messaging, session logging, and graceful shutdown.",
         url: "https://github.com/ShalevAtsis/Multithreaded-TCP-Chat",
-        skills: ["C++/Java", "Sockets", "Multithreading", "Networking"],
+        skills: ["Python", "TCP/IP", "Sockets", "Multithreading", "Client-Server"],
+        icon: <Server className="h-5 w-5" strokeWidth={1.75} />,
         accentColor: "rgba(16,185,129,0.09)",  // emerald — systems / networking
     },
     {
         id: "devops",
-        name: "DevOps CI/CD Pipeline",
+        name: "E2E DevOps Pipeline",
         description:
-            "Comprehensive cloud infrastructure project featuring automated testing, containerization, and continuous deployment.",
+            "An automated end-to-end DevOps pipeline featuring CI/CD with Jenkins, cloud deployment on Render, UI automation with Selenium, and comprehensive performance benchmarking using Gatling.",
         url: "https://github.com/ShalevAtsis/DevOps-Project",
-        skills: ["AWS", "Docker", "Jenkins", "CI/CD"],
-        accentColor: "rgba(99,102,241,0.14)",  // indigo — matches other cards
+        skills: ["Jenkins", "Docker", "Selenium", "Gatling", "Tomcat", "CI/CD"],
+        icon: <GitMerge className="h-5 w-5" strokeWidth={1.75} />,
+        accentColor: "rgba(99,102,241,0.09)",  // indigo — DevOps
+    },
+    {
+        id: "titanic-ml",
+        name: "Titanic ML Flow",
+        description:
+            "Machine Learning flow project predicting Titanic passenger survival using KNN, Decision Tree, and Naive Bayes. Features EDA, feature engineering, and model evaluation.",
+        url: "https://github.com/ShalevAtsis/Machine-Learning-Flow",
+        skills: ["Python", "Scikit-Learn", "Pandas", "Seaborn", "Classification"],
+        icon: <BrainCircuit className="h-5 w-5" strokeWidth={1.75} />,
+        accentColor: "rgba(139,92,246,0.09)",  // violet — classic ML
     },
     {
         id: "leetcode",
-        name: "LeetCode Solutions",
+        name: "LeetCode Architecture",
         description:
-            "Collection of optimized algorithmic solutions focusing on data structures, time complexity, and dynamic programming.",
+            "A structured repository containing optimized solutions to various problems related to algorithms, data structures, and databases. Organized by problem number and category for efficient technical reference.",
         url: "https://github.com/ShalevAtsis/LeetCode",
-        skills: ["Algorithms", "Data Structures", "Problem Solving"],
-        accentColor: "rgba(139,92,246,0.09)",  // violet — CS theory
+        skills: ["Python", "C", "Algorithms", "Data Structures", "Graphs"],
+        icon: <Code2 className="h-5 w-5" strokeWidth={1.75} />,
+        accentColor: "rgba(234,179,8,0.09)",   // amber — CS theory
     },
 ];
 

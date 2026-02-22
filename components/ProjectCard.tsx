@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Github, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import HoverEffectCard from "@/components/HoverEffectCard";
@@ -14,6 +14,8 @@ export interface Project {
     description: string;
     url: string;
     skills: string[];
+    /** A lucide-react icon element rendered in the card header */
+    icon?: ReactNode;
     /** Optional override for the spotlight colour */
     accentColor?: string;
 }
@@ -22,7 +24,7 @@ export interface Project {
 
 function SkillBadge({ label }: { label: string }) {
     return (
-        <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2.5 py-1 text-[11px] font-medium text-indigo-400 ring-1 ring-inset ring-indigo-500/20 dark:bg-indigo-400/10 dark:text-indigo-300 dark:ring-indigo-400/20">
+        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
             {label}
         </span>
     );
@@ -68,24 +70,29 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                         "transition-colors duration-300",
                     ].join(" ")}
                 >
-                    {/* ── Header row — GitHub icon + external link ── */}
-                    <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`View ${project.name} on GitHub`}
-                        className="flex items-center justify-between"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                    {/* ── Header row — project icon + external link ── */}
+                    <div className="flex items-center justify-between">
+                        <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`View ${project.name} on GitHub`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+                        >
+                            {project.icon ?? <Github className="h-5 w-5" strokeWidth={1.75} />}
+                        </a>
+                        <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`View ${project.name} on GitHub`}
+                            tabIndex={-1}
+                            className="text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-100"
+                        >
                             <Github className="h-5 w-5" strokeWidth={1.75} />
-                        </span>
-                        <ExternalLink
-                            className="h-4 w-4 text-slate-300 transition-colors group-hover:text-indigo-400 dark:text-slate-600 dark:group-hover:text-indigo-400"
-                            strokeWidth={1.75}
-                            aria-hidden
-                        />
-                    </a>
+                        </a>
+                    </div>
 
                     {/* ── Title ── */}
                     <a
