@@ -99,6 +99,9 @@ const config: Config = {
       animation: {
         "float": "float 6s ease-in-out infinite",
         "marquee": "marquee 30s linear infinite",
+        "hero-fade-up": "heroFadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both",
+        "hero-slide-up": "heroSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both",
+        "nav-slide-down": "navSlideDown 0.45s cubic-bezier(0.22,1,0.36,1) both",
       },
       keyframes: {
         float: {
@@ -108,6 +111,21 @@ const config: Config = {
         marquee: {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
+        },
+        // Hero entrance — secondary elements: translate + fade
+        heroFadeUp: {
+          "from": { opacity: "0", transform: "translateY(18px)" },
+          "to": { opacity: "1", transform: "translateY(0)" },
+        },
+        // Hero LCP element — translate only, NEVER hides text behind opacity:0
+        heroSlideUp: {
+          "from": { transform: "translateY(14px)" },
+          "to": { transform: "translateY(0)" },
+        },
+        // Navbar slide-in from top
+        navSlideDown: {
+          "from": { opacity: "0", transform: "translateY(-20px)" },
+          "to": { opacity: "1", transform: "translateY(0)" },
         },
       },
     },

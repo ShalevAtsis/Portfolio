@@ -42,15 +42,6 @@ export default function ContactSection() {
             external
           />
           <ContactButton
-            href={asset("/Shalev_Atsis_CV.pdf")}
-            icon={<Download className="h-5 w-5" strokeWidth={1.75} />}
-            label="Download CV"
-            description="Resume (PDF)"
-            color="download"
-            variant="full"
-            external
-          />
-          <ContactButton
             href="mailto:Shalevatsis@gmail.com"
             icon={<Mail className="h-5 w-5" strokeWidth={1.75} />}
             label="Email"
@@ -59,22 +50,31 @@ export default function ContactSection() {
             variant="full"
           />
           <ContactButton
+            href="https://www.linkedin.com/in/shalev-atsis-software-developer/"
+            icon={<LinkedinIcon className="h-5 w-5" strokeWidth={1.75} />}
+            label="LinkedIn"
+            description="Let's connect"
+            color="linkedin"
+            variant="full"
+            external
+          />
+          <ContactButton
             href="https://github.com/ShalevAtsis"
             icon={<GithubIcon className="h-5 w-5" strokeWidth={1.75} />}
             label="GitHub"
-            description="ShalevAtsis"
+            description="Explore my code"
             color="github"
             variant="full"
             external
           />
           <ContactButton
-            href="https://www.linkedin.com/in/shalev-atsis-software-developer/"
-            icon={<LinkedinIcon className="h-5 w-5" strokeWidth={1.75} />}
-            label="LinkedIn"
-            description="shalev-atsis"
-            color="linkedin"
+            href={asset("/Shalev_Atsis_CV.pdf")}
+            icon={<Download className="h-5 w-5" strokeWidth={1.75} />}
+            label="Download CV"
+            description="Get my full resume (PDF)"
+            color="download"
             variant="full"
-            className="sm:col-span-2 lg:col-span-2"
+            className="sm:col-span-2 lg:col-span-2 flex-col sm:flex-row justify-center py-6 sm:py-4"
             external
           />
         </motion.div>

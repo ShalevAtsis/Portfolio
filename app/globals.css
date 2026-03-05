@@ -27,6 +27,75 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Staggered entrance animations for hero items.
+   hero-item        — full fade-up (opacity + translate), for secondary elements.
+   hero-item--lcp   — translate only (NO opacity), for the LCP candidate <h1>
+                      so Lighthouse can always measure it as a paint candidate. */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-slide-up {
+  from {
+    transform: translateY(18px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.hero-item {
+  animation: hero-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* LCP element variant — never hides the element behind opacity:0 */
+.hero-item--lcp {
+  animation: hero-slide-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-item-1 {
+  animation-delay: 0ms;
+}
+
+.hero-item-2 {
+  animation-delay: 80ms;
+}
+
+.hero-item-3 {
+  animation-delay: 160ms;
+}
+
+.hero-item-4 {
+  animation-delay: 240ms;
+}
+
+
+/* Navbar entrance */
+@keyframes nav-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: nav-slide-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 :root {
   --cyber-bg: #0a0e17;
   --cyber-accent: #06b6d4;

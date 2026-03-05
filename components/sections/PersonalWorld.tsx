@@ -8,7 +8,7 @@ import {
     Wind, Anchor, Play, Pause,
 } from "lucide-react";
 import FadeInUp from "@/components/ui/FadeInUp";
-import GlobeViz from "@/components/ui/GlobeViz";
+import GlobeLoader from "@/components/ui/GlobeLoader";
 import { asset } from "@/lib/basePath";
 import Image from "next/image";
 
@@ -64,9 +64,9 @@ function OceanCard() {
             onMouseLeave={() => setHovered(false)}
             style={{ minHeight: 380 }}
         >
-            {/* 3D Globe Background */}
+            {/* 3D Globe Background — only mounted when card enters viewport via IntersectionObserver */}
             <div className="absolute inset-0 z-0 transition-opacity duration-700 hover:opacity-100 opacity-90">
-                <GlobeViz />
+                <GlobeLoader minHeight={380} />
             </div>
 
             {/* Subtle overlay to retain text legibility and neat edges */}

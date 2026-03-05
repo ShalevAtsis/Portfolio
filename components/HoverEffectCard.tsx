@@ -46,6 +46,7 @@ export default function HoverEffectCard({
     spotlightColor = "rgba(16,185,129,0.12)",  // emerald default
 }: HoverEffectCardProps) {
     const ref = useRef<HTMLDivElement>(null);
+    const rectCache = useRef<DOMRect | null>(null);
 
     // ── Normalised mouse pos [0,1] — drives tilt ────────────────────────────
     const mouseX = useMotionValue(0.5);
@@ -80,7 +81,8 @@ export default function HoverEffectCard({
 
     // ── Event handlers ───────────────────────────────────────────────────────
     const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = ref.current?.getBoundingClientRect();
+        // Use cached rect — avoids forced reflow on every mousemove
+        const rect = rectCache.current;
         if (!rect) return;
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -90,9 +92,14 @@ export default function HoverEffectCard({
         spotY.set(y);
     };
 
-    const onEnter = () => spotOpacity.set(1);
+    const onEnter = () => {
+        // Cache rect once on enter — the card doesn't move during hover
+        rectCache.current = ref.current?.getBoundingClientRect() ?? null;
+        spotOpacity.set(1);
+    };
 
     const onLeave = () => {
+        rectCache.current = null; // invalidate so next hover re-reads
         mouseX.set(0.5);
         mouseY.set(0.5);
         spotOpacity.set(0);

@@ -9,16 +9,20 @@ import { asset } from "@/lib/basePath";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",   // paint text immediately with fallback, swap when loaded
+  preload: true,     // emits <link rel=preload> in <head> for zero-delay font start
 });
 const lora = Lora({
   subsets: ["latin"],
   variable: "--font-serif",
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
   title: "Shalev Atsis · Software Engineer & AI Developer",
   description:
-    "Software Engineer specializing in AI & Computer Vision. Tier 2 at Jifiti, B.Sc. CS (GPA 90). Python, PyTorch, OpenCV. Open to engineering opportunities.",
+    "Software Engineer specializing in AI & Computer Vision. Tier 2 at Jifiti, B.Sc. Computer Science. Python, PyTorch, OpenCV. Open to engineering opportunities.",
   icons: {
     // asset() prepends /Portfolio on GitHub Pages, empty string locally
     icon: [

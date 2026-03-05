@@ -1,18 +1,14 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { motion } from "framer-motion";
-import { springSnappy } from "@/lib/motion";
 
 /**
  * ContactButton
  * ─────────────
- * Reusable contact / social button with two display variants:
- *
- *  • "icon"  — compact square (40×40 px), icon only. Use in Navbar / tight spots.
- *  • "full"  — pill/card with icon + label + optional description. Use in Footer.
- *
- * Colour theming is done via the `color` prop which maps to Tailwind token groups.
+ * framer-motion has been removed. All hover/tap effects are pure CSS
+ * (transition-transform, hover:scale-*, active:scale-*) so this component
+ * can be safely imported in Navbar without pulling framer-motion into the
+ * critical-path bundle.
  */
 
 export type ContactColor =
@@ -99,15 +95,13 @@ export default function ContactButton({
 
     if (variant === "icon") {
         return (
-            <motion.a
+            <a
                 href={href}
                 aria-label={label}
-                whileHover={{ scale: 1.08, y: -2 }}
-                whileTap={{ scale: 0.94 }}
-                transition={springSnappy}
                 className={[
                     "inline-flex h-10 w-10 items-center justify-center rounded-xl",
-                    "border border-transparent transition-colors",
+                    "border border-transparent transition-[colors,transform]",
+                    "hover:scale-[1.08] hover:-translate-y-0.5 active:scale-[0.94]",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                     c.text, c.hover, c.ring,
                     className,
@@ -115,23 +109,22 @@ export default function ContactButton({
                 {...externalProps}
             >
                 {icon}
-            </motion.a>
+            </a>
         );
     }
 
     // "full" variant — icon + label + optional description
     return (
-        <motion.a
+        <a
             href={href}
             aria-label={label}
-            whileHover={{ y: -3, boxShadow: "0 8px 24px -6px rgba(0,0,0,0.12)" }}
-            whileTap={{ scale: 0.97 }}
-            transition={springSnappy}
             className={[
                 "group flex items-center gap-4 rounded-2xl",
                 "border border-slate-100 dark:border-slate-800",
                 "bg-white dark:bg-slate-900",
-                "px-5 py-4 transition-all",
+                "px-5 py-4 transition-[colors,transform,box-shadow]",
+                "hover:-translate-y-[3px] hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)]",
+                "active:scale-[0.97]",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                 c.ring,
                 className,
@@ -159,6 +152,6 @@ export default function ContactButton({
                     </span>
                 )}
             </span>
-        </motion.a>
+        </a>
     );
 }

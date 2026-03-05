@@ -1,20 +1,17 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Terminal, BrainCircuit, Shield } from "lucide-react";
-import { springSnappy } from "@/lib/motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Pillar {
   icon: React.ReactNode;
-  label: string;          // small overline label
-  heading: string;        // bold pillar title
-  body: React.ReactNode;  // JSX so we can highlight key terms inline
+  label: string;
+  heading: string;
+  body: React.ReactNode;
 }
 
-// ─── Highlighted span helpers ────────────────────────────────────────────────
-// Keep it DRY: one accent color, one semantic weight.
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function Hi({ children }: { children: React.ReactNode }) {
   return (
@@ -24,7 +21,7 @@ function Hi({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Pillar data ──────────────────────────────────────────────────────────────
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PILLARS: Pillar[] = [
   {
@@ -77,57 +74,31 @@ const PILLARS: Pillar[] = [
   },
 ];
 
-// ─── Stagger config ───────────────────────────────────────────────────────────
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.13,
-      delayChildren: 0.05,
-    },
-  },
-};
-
-const pillarVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { ...springSnappy } },
-};
-
 // ─── Component ────────────────────────────────────────────────────────────────
+// framer-motion removed. Entrance animations use CSS scroll-driven approach:
+// the section uses whileInView-equivalent via the `animate-fade-in-up` patterns
+// defined in globals.css, applied with staggered animation-delay inline styles.
 
 export default function AboutSection() {
   return (
     <section id="about" className="py-20 sm:py-28 scroll-mt-20">
-      {/* ── Section heading — centred, then body left-aligned ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className="mb-14"
-      >
+      {/* ── Section heading ── */}
+      <div className="mb-14 hero-item" style={{ animationDelay: "0ms" }}>
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
           About Me
         </p>
         <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
           The TL;DR
         </h2>
-      </motion.div>
+      </div>
 
-      {/* ── Three pillars — staggered grid ── */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-60px" }}
-        className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8 lg:gap-12"
-      >
-        {PILLARS.map((pillar) => (
-          <motion.div
+      {/* ── Three pillars — CSS staggered grid ── */}
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8 lg:gap-12">
+        {PILLARS.map((pillar, i) => (
+          <div
             key={pillar.label}
-            variants={pillarVariants}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 hero-item"
+            style={{ animationDelay: `${80 + i * 130}ms` }}
           >
             {/* Icon + overline label */}
             <div className="flex items-center gap-3">
@@ -144,13 +115,13 @@ export default function AboutSection() {
               {pillar.heading}
             </h3>
 
-            {/* Body — left-aligned, generous line height */}
+            {/* Body */}
             <p className="max-w-prose text-[0.9375rem] leading-relaxed text-slate-600 dark:text-slate-300">
               {pillar.body}
             </p>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }

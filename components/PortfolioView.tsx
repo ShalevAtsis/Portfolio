@@ -1,17 +1,22 @@
-"use client";
+// Server Component layout shell. All client-interactive children (OceanicBackground,
+// dynamic section imports, ScrollToTopButton, BugTrigger) carry their own
+// "use client" boundaries and hydrate independently.
 
+import dynamic from "next/dynamic";
 import type { GitHubRepo } from "@/lib/github";
 import OceanicBackground from "@/components/OceanicBackground";
 import SectionDivider from "@/components/SectionDivider";
 import BugTrigger from "@/components/BugTrigger";
+// Only CleanHero must be eagerly loaded — it contains the LCP element
 import CleanHero from "@/components/sections/CleanHero";
-import AboutSection from "@/components/sections/AboutSection";
-import CleanExperience from "@/components/sections/CleanExperience";
-import CleanSkills from "@/components/sections/CleanSkills";
-import CleanProjects from "@/components/sections/CleanProjects";
-import PersonalWorld from "@/components/sections/PersonalWorld";
-import ContactSection from "@/components/sections/ContactSection";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
+// All sections below CleanHero — split into separate JS chunks, loaded on demand
+const AboutSection = dynamic(() => import("@/components/sections/AboutSection"), { ssr: false });
+const CleanExperience = dynamic(() => import("@/components/sections/CleanExperience"), { ssr: false });
+const CleanSkills = dynamic(() => import("@/components/sections/CleanSkills"), { ssr: false });
+const CleanProjects = dynamic(() => import("@/components/sections/CleanProjects"), { ssr: false });
+const PersonalWorld = dynamic(() => import("@/components/sections/PersonalWorld"), { ssr: false });
+const ContactSection = dynamic(() => import("@/components/sections/ContactSection"), { ssr: false });
 
 interface PortfolioViewProps {
   repos: GitHubRepo[];
