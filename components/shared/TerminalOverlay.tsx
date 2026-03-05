@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDebug } from "@/context/DebugContext";
+import { useDebug } from "@/lib/hooks";
 
 const EXPECTED_COMMAND = "sudo fix-site --force";
 const HELP_HINT = "Have you tried: sudo fix-site --force   (classic, never fails)";

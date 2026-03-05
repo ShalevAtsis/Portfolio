@@ -4,12 +4,12 @@
 
 import dynamic from "next/dynamic";
 import type { GitHubRepo } from "@/lib/github";
-import OceanicBackground from "@/components/OceanicBackground";
-import SectionDivider from "@/components/SectionDivider";
-import BugTrigger from "@/components/BugTrigger";
+import OceanicBackground from "@/components/shared/OceanicBackground";
+import SectionDivider from "@/components/ui/SectionDivider";
+import BugTrigger from "@/components/shared/BugTrigger";
 // Only CleanHero must be eagerly loaded — it contains the LCP element
 import CleanHero from "@/components/sections/CleanHero";
-import ScrollToTopButton from "@/components/ScrollToTopButton";
+import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 // All sections below CleanHero — split into separate JS chunks, loaded on demand
 const AboutSection = dynamic(() => import("@/components/sections/AboutSection"), { ssr: false });
 const CleanExperience = dynamic(() => import("@/components/sections/CleanExperience"), { ssr: false });

@@ -1,7 +1,7 @@
 "use client";
 
-import { useDebug } from "@/context/DebugContext";
-import TerminalOverlay from "./TerminalOverlay";
+import { useDebug } from "@/lib/hooks";
+import TerminalOverlay from "@/components/shared/TerminalOverlay";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function DebugLayoutWrapper({

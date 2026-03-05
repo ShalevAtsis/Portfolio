@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import OceanicBackground from "@/components/OceanicBackground";
+import OceanicBackground from "@/components/shared/OceanicBackground";
 
 /**
  * BackgroundMatrix

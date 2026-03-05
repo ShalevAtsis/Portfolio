@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode } from "react";
+import type { ContactButtonProps, ContactColor } from "@/lib/types/components";
 
 /**
  * ContactButton
@@ -10,28 +11,6 @@ import { type ReactNode } from "react";
  * can be safely imported in Navbar without pulling framer-motion into the
  * critical-path bundle.
  */
-
-export type ContactColor =
-    | "whatsapp" // green
-    | "email"    // indigo
-    | "linkedin" // blue
-    | "github"   // slate
-    | "phone"    // amber
-    | "download" // indigo (CV)
-    | "default"; // slate
-
-export type ContactVariant = "icon" | "full";
-
-interface ContactButtonProps {
-    href: string;
-    icon: ReactNode;
-    label: string;
-    description?: string;          // shown only in "full" variant
-    color?: ContactColor;
-    variant?: ContactVariant;
-    external?: boolean;            // adds target="_blank" rel="noopener noreferrer"
-    className?: string;
-}
 
 // ── Color token map ──────────────────────────────────────────────────────────
 const colorMap: Record<ContactColor, {

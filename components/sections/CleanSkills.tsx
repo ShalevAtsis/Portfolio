@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { fadeInUpVariants, springSnappy } from "@/lib/motion";
 import FadeInUp from "@/components/ui/FadeInUp";
-import HoverEffectCard from "@/components/HoverEffectCard";
+import HoverEffectCard from "@/components/ui/HoverEffectCard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

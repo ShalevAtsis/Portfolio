@@ -22,8 +22,8 @@ import {
     Github, Linkedin, Mail, MessageCircle,
     MoreHorizontal, X,
 } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
-import DualModeToggle from "@/components/DualModeToggle";
+import ThemeToggle from "@/components/shared/ThemeToggle";
+import DualModeToggle from "@/components/shared/DualModeToggle";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 

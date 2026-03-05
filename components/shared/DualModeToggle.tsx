@@ -1,7 +1,7 @@
 "use client";
 
 import { LayoutDashboard, FileText } from "lucide-react";
-import { useView } from "@/context/ViewContext";
+import { useView } from "@/lib/hooks";
 
 export default function DualModeToggle() {
     const { isResumeMode, toggleMode } = useView();

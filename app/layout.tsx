@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Lora } from "next/font/google";
 import "./globals.css";
-import Providers from "@/components/Providers";
+import Providers from "@/components/shared/Providers";
 import { DebugProvider } from "@/context/DebugContext";
-import DebugLayoutWrapper from "@/components/DebugLayoutWrapper";
+import DebugLayoutWrapper from "@/components/layout/DebugLayoutWrapper";
 import { asset } from "@/lib/basePath";
 
 const inter = Inter({

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Briefcase, GraduationCap } from "lucide-react";
 import { fadeInUpVariants, springSnappy } from "@/lib/motion";
 import FadeInUp from "@/components/ui/FadeInUp";
-import HoverEffectCard from "@/components/HoverEffectCard";
+import HoverEffectCard from "@/components/ui/HoverEffectCard";
 
 type EntryKind = "work" | "education";
 

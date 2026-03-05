@@ -1,24 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { Github, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import HoverEffectCard from "@/components/HoverEffectCard";
+import HoverEffectCard from "@/components/ui/HoverEffectCard";
 import { fadeInUpVariants, springSnappy } from "@/lib/motion";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface Project {
-    id: string;
-    name: string;
-    description: string;
-    url: string;
-    skills: string[];
-    /** A lucide-react icon element rendered in the card header */
-    icon?: ReactNode;
-    /** Optional override for the spotlight colour */
-    accentColor?: string;
-}
+import type { Project } from "@/lib/types/components";
 
 // ─── Skill badge pill ─────────────────────────────────────────────────────────
 
@@ -32,12 +19,7 @@ function SkillBadge({ label }: { label: string }) {
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
 
-interface ProjectCardProps {
-    project: Project;
-    index: number;
-}
-
-export default function ProjectCard({ project, index }: ProjectCardProps) {
+export default function ProjectCard({ project, index }: { project: Project; index: number }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (

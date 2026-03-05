@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { MessageCircle, Mail, Linkedin as LinkedinIcon, Github as GithubIcon, Download } from "lucide-react";
-import ContactButton from "@/components/ContactButton";
-import ContactForm from "@/components/ContactForm";
+import ContactButton from "@/components/shared/ContactButton";
+import ContactForm from "@/components/shared/ContactForm";
 import FadeInUp from "@/components/ui/FadeInUp";
 import { asset } from "@/lib/basePath";
 

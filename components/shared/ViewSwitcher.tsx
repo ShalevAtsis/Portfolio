@@ -2,9 +2,9 @@
 
 import dynamic from "next/dynamic";
 import type { GitHubRepo } from "@/lib/github";
-import { useView } from "@/context/ViewContext";
-import PortfolioView from "@/components/PortfolioView";
-const ResumeView = dynamic(() => import("@/components/ResumeView"), { ssr: false });
+import { useView } from "@/lib/hooks";
+import PortfolioView from "@/components/shared/PortfolioView";
+const ResumeView = dynamic(() => import("@/components/shared/ResumeView"), { ssr: false });
 
 interface ViewSwitcherProps {
   repos: GitHubRepo[];

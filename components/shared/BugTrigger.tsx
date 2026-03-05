@@ -1,7 +1,7 @@
 "use client";
 
 import { Bug } from "lucide-react";
-import { useDebug } from "@/context/DebugContext";
+import { useDebug } from "@/lib/hooks";
 
 // framer-motion removed. Hover/tap effects are pure CSS transitions.
 

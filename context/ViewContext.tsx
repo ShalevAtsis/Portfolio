@@ -25,7 +25,7 @@ export interface ViewContextValue {
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
-const ViewContext = createContext<ViewContextValue | null>(null);
+export const ViewContext = createContext<ViewContextValue | null>(null);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
@@ -63,14 +63,4 @@ export function ViewProvider({ children }: { children: React.ReactNode }) {
   return (
     <ViewContext.Provider value={value}>{children}</ViewContext.Provider>
   );
-}
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
-
-export function useView(): ViewContextValue {
-  const ctx = useContext(ViewContext);
-  if (!ctx) {
-    throw new Error("useView must be used inside a <ViewProvider>.");
-  }
-  return ctx;
 }

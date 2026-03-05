@@ -23,6 +23,8 @@ interface DebugContextValue {
 
 const DebugContext = createContext<DebugContextValue | null>(null);
 
+export { DebugContext };
+
 const TOAST_DURATION_MS = 4000;
 
 export function DebugProvider({ children }: { children: React.ReactNode }) {
@@ -83,12 +85,4 @@ export function DebugProvider({ children }: { children: React.ReactNode }) {
   return (
     <DebugContext.Provider value={value}>{children}</DebugContext.Provider>
   );
-}
-
-export function useDebug() {
-  const ctx = useContext(DebugContext);
-  if (!ctx) {
-    throw new Error("useDebug must be used within a DebugProvider");
-  }
-  return ctx;
 }

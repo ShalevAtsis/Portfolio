@@ -1,8 +1,8 @@
 "use client";
 
 import { Waves, ShieldCheck, Server, GitMerge, BrainCircuit, Code2 } from "lucide-react";
-import type { Project } from "@/components/ProjectCard";
-import ProjectCard from "@/components/ProjectCard";
+import type { Project } from "@/lib/types/components";
+import ProjectCard from "@/components/shared/ProjectCard";
 import FadeInUp from "@/components/ui/FadeInUp";
 
 // ─── Project data ─────────────────────────────────────────────────────────────

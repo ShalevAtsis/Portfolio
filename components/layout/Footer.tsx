@@ -1,6 +1,6 @@
 "use client";
 
-import BugTrigger from "./BugTrigger";
+import BugTrigger from "../shared/BugTrigger";
 
 export default function Footer() {
   return (

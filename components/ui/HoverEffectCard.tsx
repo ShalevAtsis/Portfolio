@@ -8,6 +8,7 @@ import {
     useTransform,
     useMotionTemplate,
 } from "framer-motion";
+import type { HoverEffectCardProps } from "@/lib/types/components";
 
 /**
  * HoverEffectCard — Spotlight 2.0
@@ -27,17 +28,9 @@ import {
  */
 
 const SPRING_CFG = { stiffness: 160, damping: 22 } as const;
-const TILT_DEG = 7;    // max tilt amplitude
-const SPOT_PX = 480;  // spotlight radius (px) — larger = softer spill
-const BORDER_PX = 380;  // border glow radius
-
-interface HoverEffectCardProps {
-    children: ReactNode;
-    className?: string;
-    style?: CSSProperties;
-    /** Card-specific accent colour for the spotlight centre — RGBA string */
-    spotlightColor?: string;
-}
+const TILT_DEG = 7; // max tilt amplitude
+const SPOT_PX = 480; // spotlight radius (px) — larger = softer spill
+const BORDER_PX = 380; // border glow radius
 
 export default function HoverEffectCard({
     children,
