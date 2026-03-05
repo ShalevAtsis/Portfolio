@@ -2,6 +2,7 @@ import { type Page, type Locator } from '@playwright/test';
 
 export class HeroSection {
     readonly page: Page;
+    readonly sectionLocator: Locator;
     readonly headingFirstFrame: Locator;
     readonly statusBadge: Locator;
     readonly whatsappButton: Locator;
@@ -9,10 +10,11 @@ export class HeroSection {
 
     constructor(page: Page) {
         this.page = page;
-        this.headingFirstFrame = page.getByRole('heading', { level: 1, name: /Shalev Atsis/i });
-        this.statusBadge = page.getByText('Open to opportunities', { exact: true });
-        this.whatsappButton = page.getByRole('link', { name: /Message on WhatsApp/i });
-        this.downloadCVButton = page.getByRole('link', { name: /Download CV/i });
+        this.sectionLocator = page.locator('section#hero');
+        this.headingFirstFrame = this.sectionLocator.getByRole('heading', { level: 1, name: /Shalev Atsis/i });
+        this.statusBadge = this.sectionLocator.getByText('Open to opportunities', { exact: true });
+        this.whatsappButton = this.sectionLocator.getByRole('link', { name: /Message on WhatsApp/i });
+        this.downloadCVButton = this.sectionLocator.getByRole('link', { name: /Download CV/i });
     }
 
     getSocialLinkInHero(name: 'github' | 'linkedin' | 'email'): Locator {

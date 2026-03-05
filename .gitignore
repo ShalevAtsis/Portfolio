@@ -30,3 +30,7 @@ next-env.d.ts
 playwright-report/
 test-results/
 test-results.json
+*.log
+test_errors.txt
+test_failures.txt
+spec_err.txt

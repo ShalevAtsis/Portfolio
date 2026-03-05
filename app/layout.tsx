@@ -42,7 +42,7 @@ export default function RootLayout({
     // suppressHydrationWarning is required by next-themes to avoid the
     // class mismatch warning between SSR (no class) and client (dark/light class).
     // It is also needed on the body tag because extensions (like Grammarly) inject attributes.
-    <html lang="en" className={`${inter.variable} ${lora.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${lora.variable} overflow-x-hidden`} suppressHydrationWarning>
       <body className="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 font-sans antialiased overflow-x-hidden transition-colors duration-300" suppressHydrationWarning>
         <DebugProvider>
           <DebugLayoutWrapper>

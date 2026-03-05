@@ -55,7 +55,7 @@ export default function CleanHero() {
                     LCP render delay reported by Lighthouse.
                     ─────────────────────────────────────────────────────────────────────── */}
                 <h1
-                    className="animate-hero-slide-up text-6xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 sm:text-7xl md:text-8xl lg:text-[6rem]"
+                    className="animate-hero-slide-up text-5xl font-extrabold tracking-tight break-words text-slate-900 dark:text-slate-50 sm:text-6xl md:text-7xl lg:text-[6rem]"
                     style={{ lineHeight: 1.05 }}
                 >
                     Shalev Atsis
