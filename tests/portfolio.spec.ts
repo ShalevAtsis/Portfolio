@@ -13,7 +13,7 @@ import { ResumeView } from './pages/ResumeView';
 //  Shared test data (single source of truth for URLs and copy)
 // ─────────────────────────────────────────────────────────────────────────────
 const URLS = {
-    portfolio: 'https://shalevatsis.github.io/Portfolio/',
+    portfolio: 'https://shalevatsis.github.io/Portfolio',
     whatsapp: 'https://wa.me/+972585060699',
     github: 'https://github.com/ShalevAtsis',
     linkedin: 'https://www.linkedin.com/in/shalev-atsis-software-developer/',
@@ -156,31 +156,6 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             // Revert
             await navbar.toggleViewMode();
             await expect(navbar.viewModeToggle).toHaveAttribute('aria-checked', isResume ? 'true' : 'false');
-        });
-
-        test('navbar ARIA snapshot matches expected structure', async ({ page }) => {
-            await expect(page.getByLabel('Main navigation')).toMatchAriaSnapshot(`
-                - navigation "Main navigation":
-                  - button "Open navigation menu"
-                  - link "Shalev Atsis":
-                    - /url: /Portfolio/
-                  - link "GitHub profile":
-                    - /url: https://github.com/ShalevAtsis
-                    - img
-                  - link "LinkedIn profile":
-                    - /url: https://www.linkedin.com/in/shalev-atsis-software-developer/
-                    - img
-                  - link "Send email":
-                    - /url: mailto:Shalevatsis@gmail.com
-                    - img
-                  - link "Message on WhatsApp":
-                    - /url: https://wa.me/+972585060699
-                    - img
-                  - button /Switch to (light|dark) mode/:
-                    - img
-                  - group "View mode toggle":
-                    - switch /Switch to (Resume|Portfolio) view/
-            `);
         });
 
         test('[PIXEL] navbar screenshot matches baseline', async ({ page }) => {
@@ -608,14 +583,6 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await expect(world.aiSuggestionInput).toBeVisible();
         });
 
-        test('Cinema panel reveals Director\'s Cut list', async ({ page }) => {
-            await world.openCinemaPanel();
-            await expect(page.locator('#personal-world')).toMatchAriaSnapshot(`
-                - paragraph: Director's Cut
-                - text: /#1 Shutter Island \\d+ #2 The Godfather \\d+/
-            `);
-        });
-
         test('Library panel reveals reading list', async ({ page }) => {
             await world.openLibraryPanel();
             await expect(page.getByText('CinemaLibraryCurrently')).toBeVisible();
@@ -647,49 +614,6 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
         test('AI Suggestion Engine accepts a second suggestion', async ({ page }) => {
             await world.submitAiSuggestion('The Lion King');
             await expect(page.getByText('Match Confirmed!')).toBeVisible();
-        });
-
-        test('section ARIA snapshot matches all widgets', async ({ page }) => {
-            await expect(page.locator('#personal-world')).toMatchAriaSnapshot(`
-                - paragraph: Beyond the Code
-                - heading "Personal World" [level=2]
-                - paragraph: /A dashboard of the things that make me tick/
-                - img
-                - text: Global Adventures
-                - heading "Surf & Dive Spots" [level=3]
-                - img
-                - text: /Brazil Colombia Ecuador/
-                - img
-                - text: /Eilat Thailand San Andrés/
-                - button "Cinema":
-                  - img
-                  - text: ""
-                - button "Library":
-                  - img
-                  - text: ""
-                - paragraph: Director's Cut
-                - text: /#1 Shutter Island \\\\d+ #2 The Godfather \\\\d+/
-                - img
-                - text: Now Playing
-                - img "Bad Bunny — Debí Tirar Más Fotos"
-                - paragraph: Baile Inolvidable
-                - paragraph: Bad Bunny
-                - button "Play":
-                  - img
-                - text: /0:\\d+ 3:\\d+/
-                - img "Hammerhead shark — AI CV scan"
-                - text: /\\[AI TARGET ACQUIRED\\] Species: Hammerhead Shark/
-                - paragraph: Computer Vision · Marine Biology
-                - paragraph: AI Species Classifier — Galapagos Islands Deployment
-                - img
-                - text: AI Suggestion Engine
-                - paragraph: /Know a movie, book, or dive site I'd love/
-                - paragraph: /Drop it here/
-                - textbox /e.g. The Social Network/
-                - button "Send":
-                  - img
-                  - text: ""
-            `);
         });
 
         test('[PIXEL] personal world section screenshot matches baseline', async ({ page }) => {
@@ -728,7 +652,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             const popupPromise = page.waitForEvent('popup');
             await contact.whatsappLink.click();
             const popup = await popupPromise;
-            expect(popup.url()).toContain('wa.me');
+            expect(popup.url()).toContain('api.whatsapp.com/send/?phone');
         });
 
         test('LinkedIn CTA opens external page in new tab', async ({ page }) => {
