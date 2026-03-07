@@ -49,6 +49,7 @@ jobs:
           # so that the asset() helper in lib/basePath.ts resolves correctly
           # for native HTML tags (<object>, <a>) that don't auto-prepend basePath.
           NEXT_PUBLIC_BASE_PATH: ${{ env.BASE_PATH }}
+          NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
