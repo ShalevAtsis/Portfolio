@@ -158,6 +158,40 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await expect(navbar.viewModeToggle).toHaveAttribute('aria-checked', isResume ? 'true' : 'false');
         });
 
+        test('clicking brand name scrolls viewport to top', async ({ page }) => {
+            // Scroll down first
+            await page.evaluate(() => window.scrollTo(0, 1000));
+            let scrollY = await page.evaluate(() => window.scrollY);
+            expect(scrollY).toBeGreaterThan(500);
+
+            // Click brand name (using the POM navbar object if available, or direct locator)
+            // The Navbar class in POM likely has a locator for the brand name, but looking at previous snippets:
+            // I'll check Navbar POM first.
+            await page.getByRole('link', { name: 'Shalev Atsis' }).click();
+
+            // Wait for smooth scroll
+            await page.waitForTimeout(1000);
+
+            scrollY = await page.evaluate(() => window.scrollY);
+            expect(scrollY).toBeLessThan(100);
+        });
+
+        test('clicking brand name scrolls viewport to top', async ({ page }) => {
+            // Scroll down first
+            await page.evaluate(() => window.scrollTo(0, 1000));
+            let scrollY = await page.evaluate(() => window.scrollY);
+            expect(scrollY).toBeGreaterThan(500);
+
+            // Click brand name using POM
+            await navbar.brandLink.click();
+
+            // Wait for smooth scroll
+            await page.waitForTimeout(1000);
+
+            scrollY = await page.evaluate(() => window.scrollY);
+            expect(scrollY).toBeLessThan(100);
+        });
+
         test('[PIXEL] navbar screenshot matches baseline', async ({ page }) => {
             await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveScreenshot('navbar.png', {
                 maxDiffPixelRatio: 0.02,

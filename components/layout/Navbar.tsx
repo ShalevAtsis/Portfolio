@@ -17,6 +17,7 @@
 import Link from "next/link";
 import NavigationMenu from "@/components/shared/NavigationMenu";
 import NavActions from "@/components/shared/NavActions";
+import BrandName from "./BrandName";
 
 export default function Navbar() {
   return (
@@ -32,15 +33,7 @@ export default function Navbar() {
 
         {/* ── Center: Brand (Absolutely Centered) ────────────────────── */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Link
-            href="/"
-            className="block whitespace-nowrap text-sm font-extrabold tracking-tight text-slate-900
-                       transition-colors duration-150 hover:text-indigo-600
-                       dark:text-slate-50 dark:hover:text-indigo-400
-                       sm:text-base md:text-lg"
-          >
-            Shalev Atsis
-          </Link>
+          <BrandName />
         </div>
 
         {/* ── Right: NavActions (responsive icon row + mobile dropdown) ── */}

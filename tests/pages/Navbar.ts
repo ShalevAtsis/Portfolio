@@ -8,6 +8,8 @@ export class Navbar {
     readonly themeToggle: Locator;
     readonly viewModeToggle: Locator;
     readonly affordanceDot: Locator;
+    readonly brandLink: Locator;
+    readonly brandLink: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -18,6 +20,7 @@ export class Navbar {
         this.viewModeToggle = page.getByRole('switch', { name: /Switch to (Resume|Portfolio) view/i });
         // The affordance dot is nested inside the viewModeToggle
         this.affordanceDot = this.viewModeToggle.locator('.animate-ping');
+        this.brandLink = page.getByRole('link', { name: 'Shalev Atsis' });
     }
 
     async openMenu() {
