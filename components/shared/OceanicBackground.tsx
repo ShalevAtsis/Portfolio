@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 // ─── Lightweight Value Noise (no external deps) ───────────────────────────────
 
@@ -48,7 +49,7 @@ function noise2d(x: number, y: number): number {
     );
 }
 
-function fbm(x: number, y: number, octaves = 4): number {
+function fbm(x: number, y: number, octaves = 3): number {
     let val = 0, amp = 0.5, freq = 1, max = 0;
     for (let o = 0; o < octaves; o++) {
         val += noise2d(x * freq, y * freq) * amp;
@@ -75,6 +76,11 @@ interface OceanicBackgroundProps {
 
 export default function OceanicBackground({ children, className = "" }: OceanicBackgroundProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const { theme } = useTheme();
+
+    // Use a ref to access the latest theme inside the animation loop without re-running effects
+    const themeRef = useRef(theme);
+    useEffect(() => { themeRef.current = theme; }, [theme]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -90,7 +96,7 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
         let t = 0;
         let dpr = 1;
         let lastDraw = 0;
-        const FRAME_MS = 50; // ~20 fps cap
+        const FRAME_MS = 33; // ~30 fps cap for smoother but still performant animation
 
         // ── Artifacts pool ──────────────────────────────────────────────────────
         const ARTIFACT_COUNT = 18;
@@ -122,14 +128,29 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
         const COLS = 48; // reduced from 80 for perf (~14× CPU improvement combined with fps cap)
         const ROWS = 30; // reduced from 50
 
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        const onMouseMove = (e: MouseEvent) => {
+            targetX = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
+            targetY = (e.clientY / window.innerHeight - 0.5) * 2; // -1 to 1
+        };
+        window.addEventListener("mousemove", onMouseMove);
+
         function draw() {
             const W = cvs.width / dpr;
             const H = cvs.height / dpr;
 
+            // Parallax interpolation (faster follow)
+            mouseX += (targetX - mouseX) * 0.08;
+            mouseY += (targetY - mouseY) * 0.08;
+
             // Background
             cx.clearRect(0, 0, W, H);
-            cx.fillStyle = "rgba(2, 6, 23, 1)";
-            cx.fillRect(0, 0, W, H);
+
+            const isDark = themeRef.current !== "light";
 
             // ── Contour lines ────────────────────────────────────────────────────
             for (let c = 0; c < CONTOUR_COUNT; c++) {
@@ -142,9 +163,16 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
                 const isEmphasis = c % 4 === 0;
 
                 cx.beginPath();
-                cx.strokeStyle = isEmphasis
-                    ? `rgba(16, 185, 129, ${alpha * 2.2})`
-                    : `rgba(148, 163, 184, ${alpha})`;
+
+                const emphasisColor = isDark
+                    ? `rgba(16, 185, 129, ${alpha * 2.2})` // Emerald
+                    : `rgba(14, 165, 233, ${alpha * 2.5})`; // Sky blue
+
+                const baseColor = isDark
+                    ? `rgba(148, 163, 184, ${alpha})` // Slate 400
+                    : `rgba(15, 23, 42, ${alpha * 1.5})`; // Slate 900
+
+                cx.strokeStyle = isEmphasis ? emphasisColor : baseColor;
                 cx.lineWidth = isEmphasis ? 0.8 : 0.4;
 
                 let penDown = false;
@@ -159,7 +187,7 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
                     for (let yi = 0; yi <= ROWS; yi++) {
                         const baseY = yi * ch;
                         const noiseY = (baseY / H) * 2.2;
-                        const val = fbm(noiseX + t * 0.04, noiseY + t * 0.025);
+                        const val = fbm(noiseX + t * 0.04 + mouseX * 0.5, noiseY + t * 0.025 + mouseY * 0.5);
 
                         if (prevVal !== Infinity && (prevVal - isoVal) * (val - isoVal) < 0) {
                             const frac = (isoVal - prevVal) / (val - prevVal);
@@ -177,7 +205,7 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
 
             // ── CV Artifacts ──────────────────────────────────────────────────────
             artifacts.forEach((art) => {
-                art.alpha += art.dir * 0.004;
+                art.alpha += art.dir * 0.015; // increased speed of appearance/disappearance
                 if (art.alpha >= 1) { art.alpha = 1; art.dir = -1; }
                 if (art.alpha <= 0) {
                     art.alpha = 0; art.dir = 1;
@@ -189,7 +217,7 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
                 const sy = art.y * H;
                 const a = art.alpha * 0.55;
                 const s = art.size;
-                const color = `rgba(16, 185, 129, ${a})`;
+                const color = isDark ? `rgba(16, 185, 129, ${a})` : `rgba(14, 165, 233, ${a * 1.5})`;
 
                 cx.strokeStyle = color;
                 cx.lineWidth = 0.7;
@@ -215,7 +243,7 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
                 cx.fillText(`0x${art.label}`, sx + s + 3, sy - s + 2);
             });
 
-            t += 0.012;
+            t += 0.035; // increased speed of topographic lines
         }
 
         // ── RAF loop with visibility pause ────────────────────────────────────────
@@ -236,6 +264,7 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
             cancelAnimationFrame(rafId);
             ro.disconnect();
             document.removeEventListener("visibilitychange", onVisibility);
+            window.removeEventListener("mousemove", onMouseMove);
         };
     }, []);
 
@@ -244,7 +273,7 @@ export default function OceanicBackground({ children, className = "" }: OceanicB
             <canvas
                 ref={canvasRef}
                 aria-hidden="true"
-                className="pointer-events-none fixed inset-0 z-0 opacity-0 dark:opacity-100 transition-opacity duration-300"
+                className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
             />
             {children}
         </div>

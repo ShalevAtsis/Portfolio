@@ -126,7 +126,7 @@ export default function ContactButton({
             <span className="min-w-0">
                 <span className={`block text-sm font-semibold ${c.text}`}>{label}</span>
                 {description && (
-                    <span className="block truncate text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                    <span className="block truncate text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         {description}
                     </span>
                 )}

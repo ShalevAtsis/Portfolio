@@ -105,7 +105,7 @@ export default function AboutSection() {
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 {pillar.icon}
               </span>
-              <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                 {pillar.label}
               </p>
             </div>

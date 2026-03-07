@@ -129,7 +129,7 @@ export default function NavigationMenu() {
                                 }}
                             >
                                 {/* Index */}
-                                <span className="w-6 text-right text-[10px] font-bold tabular-nums text-slate-400 dark:text-slate-500 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:w-8 sm:text-xs">
+                                <span className="w-6 text-right text-[10px] font-bold tabular-nums text-slate-500 dark:text-slate-400 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:w-8 sm:text-xs">
                                     {idx}
                                 </span>
 
@@ -144,7 +144,7 @@ export default function NavigationMenu() {
             </nav>
 
             {/* Footer */}
-            <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 whitespace-nowrap">
+            <p className="absolute bottom-6 inset-x-0 text-center text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                 Shalev Atsis · Software Engineer
             </p>
         </div>

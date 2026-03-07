@@ -162,7 +162,7 @@ function CinephileReaderCard() {
                             <p className="font-semibold text-slate-900 dark:text-slate-50">📖 The Lean Startup</p>
                             <p className="text-xs text-slate-400">Eric Ries</p>
                         </div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Read</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Read</p>
                         <div className="flex flex-col gap-1.5">
                             {BOOKS_READ.map((b) => (
                                 <div key={b} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -336,11 +336,43 @@ function SuggestionCard() {
     const [state, setState] = useState<SuggestionState>("idle");
     const [input, setInput] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim()) return;
+
         setState("processing");
-        setTimeout(() => setState("success"), 1600);
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({
+                    access_key: "281812e7-7bc2-4ab8-a187-5c126385345a",
+                    subject: "New AI Suggestion from Portfolio",
+                    from_name: "Portfolio AI Suggestion",
+                    suggestion: input,
+                    category: "AI Suggestion",
+                    botcheck: ""
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setInput("");
+                setState("success");
+            } else {
+                console.error(result);
+                setState("idle");
+            }
+
+        } catch (error) {
+            console.error(error);
+            setState("idle");
+        }
     };
 
     const reset = () => { setState("idle"); setInput(""); };

@@ -64,7 +64,7 @@ const SKILL_GROUPS: SkillGroup[] = [
     {
         title: "Concepts & Soft Skills",
         category: "concepts",
-        spotlightColor: "rgba(100,116,139,0.10)",
+        spotlightColor: "rgba(14,165,233,0.10)", // sky-500
         skills: [
             s("Data Structures", "concepts"), s("Algorithms", "concepts"),
             s("OOP", "concepts"), s("System Design", "concepts"),
@@ -99,11 +99,11 @@ const PILL_STYLES: Record<SkillCategory, string> = {
         "hover:bg-amber-100 dark:hover:bg-amber-900/50",
     ].join(" "),
 
-    // Concepts & Soft Skills — slate/gray
+    // Concepts & Soft Skills — sky
     concepts: [
-        "bg-slate-100   text-slate-600   ring-1 ring-slate-200",
-        "dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700",
-        "hover:bg-slate-200 dark:hover:bg-slate-700",
+        "bg-sky-50      text-sky-700      ring-1 ring-sky-200",
+        "dark:bg-sky-950/60 dark:text-sky-300 dark:ring-sky-800",
+        "hover:bg-sky-100 dark:hover:bg-sky-900/50",
     ].join(" "),
 };
 
@@ -111,7 +111,7 @@ const TITLE_STYLES: Record<SkillCategory, string> = {
     lang: "text-indigo-600  dark:text-indigo-400",
     ai: "text-emerald-600 dark:text-emerald-400",
     devops: "text-amber-600   dark:text-amber-400",
-    concepts: "text-slate-400   dark:text-slate-500",
+    concepts: "text-sky-600     dark:text-sky-400",
 };
 
 // ─── Pill animation ───────────────────────────────────────────────────────────
@@ -263,7 +263,7 @@ export default function CleanSkills() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="text-sm text-slate-400 dark:text-slate-500"
+                        className="text-sm text-slate-500 dark:text-slate-400"
                     >
                         No skills match &ldquo;{query}&rdquo;.
                     </motion.p>

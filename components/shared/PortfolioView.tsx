@@ -42,7 +42,7 @@ export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
 
       <footer className="relative z-10 border-t border-slate-100 py-6 dark:border-slate-800">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 sm:px-8 lg:px-12">
-          <p className="text-sm text-slate-400 dark:text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Shalev Atsis &middot; Software Engineer &middot; {new Date().getFullYear()}
           </p>
           <BugTrigger />
