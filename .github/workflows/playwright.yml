@@ -22,8 +22,7 @@ jobs:
     - name: Run Playwright tests
       run: npx playwright test
       env:
-        PLAYWRIGHT_TEST_BASE_URL: https://shalevatsis.github.io/Portfolio/
-        NEXT_PUBLIC_BASE_PATH: /Portfolio
+        PLAYWRIGHT_TEST_BASE_URL: https://shalevatsis.dev
         # Add any other environment variables you need here
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}

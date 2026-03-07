@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { Download, FileText } from "lucide-react";
 import { asset } from "@/lib/basePath";
 
-// asset() prepends NEXT_PUBLIC_BASE_PATH so the path is correct on
-// both local dev (no prefix) and GitHub Pages (/Portfolio prefix).
+// asset() prepends basePath so the path is correct on the custom domain
+// as well as local development environments.
 const PDF_PATH = asset("/Shalev_Atsis_CV.pdf");
 const PDF_FILENAME = "Shalev_Atsis_CV.pdf";
 

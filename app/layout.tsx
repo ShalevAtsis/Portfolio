@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description:
     "Software Engineer specializing in AI & Computer Vision. Tier 2 at Jifiti, B.Sc. Computer Science. Python, PyTorch, OpenCV. Open to engineering opportunities.",
   icons: {
-    // asset() prepends /Portfolio on GitHub Pages, empty string locally
+    // asset() dynamically prepends the basePath for static deployment
     icon: [
       { url: asset("/icon.svg"), type: "image/svg+xml" },
     ],

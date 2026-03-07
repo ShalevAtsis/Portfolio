@@ -18,7 +18,7 @@ const URLS = {
     github: 'https://github.com/ShalevAtsis',
     linkedin: 'https://www.linkedin.com/in/shalev-atsis-software-developer/',
     email: 'mailto:Shalevatsis@gmail.com',
-    cv: '/Portfolio/Shalev_Atsis_CV.pdf',
+    cv: '/Shalev_Atsis_CV.pdf',
 } as const;
 
 const PROJECTS = ['SwellSight', 'Anomalyze', 'Multithreaded TCP Chat', 'E2E DevOps Pipeline', 'Titanic ML Flow', 'LeetCode Architecture'] as const;
@@ -240,7 +240,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
                   - img
                   - text: ""
                 - link "Download CV":
-                  - /url: /Portfolio/Shalev_Atsis_CV.pdf
+                  - /url: /Shalev_Atsis_CV.pdf
                   - img
                   - text: ""
                 - link "Send email to Shalevatsis@gmail.com":
@@ -739,7 +739,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
                   - img
                   - text: GitHub Explore my code
                 - link "Download CV":
-                  - /url: /Portfolio/Shalev_Atsis_CV.pdf
+                  - /url: /Shalev_Atsis_CV.pdf
                   - img
                   - text: Download CV Get my full resume (PDF)
                 - text: Name
