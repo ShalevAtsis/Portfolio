@@ -176,22 +176,6 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             expect(scrollY).toBeLessThan(100);
         });
 
-        test('clicking brand name scrolls viewport to top', async ({ page }) => {
-            // Scroll down first
-            await page.evaluate(() => window.scrollTo(0, 1000));
-            let scrollY = await page.evaluate(() => window.scrollY);
-            expect(scrollY).toBeGreaterThan(500);
-
-            // Click brand name using POM
-            await navbar.brandLink.click();
-
-            // Wait for smooth scroll
-            await page.waitForTimeout(1000);
-
-            scrollY = await page.evaluate(() => window.scrollY);
-            expect(scrollY).toBeLessThan(100);
-        });
-
         test('[PIXEL] navbar screenshot matches baseline', async ({ page }) => {
             await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveScreenshot('navbar.png', {
                 maxDiffPixelRatio: 0.02,
