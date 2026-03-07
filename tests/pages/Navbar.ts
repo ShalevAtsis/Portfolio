@@ -9,7 +9,6 @@ export class Navbar {
     readonly viewModeToggle: Locator;
     readonly affordanceDot: Locator;
     readonly brandLink: Locator;
-    readonly brandLink: Locator;
 
     constructor(page: Page) {
         this.page = page;
