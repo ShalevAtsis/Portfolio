@@ -1,12 +1,14 @@
 name: Playwright Tests
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types:
+      - completed
+  workflow_dispatch:
 jobs:
   test:
     timeout-minutes: 60
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -20,6 +22,7 @@ jobs:
     - name: Run Playwright tests
       run: npx playwright test
       env:
+        PLAYWRIGHT_TEST_BASE_URL: https://shalevatsis.github.io/Portfolio/
         NEXT_PUBLIC_BASE_PATH: /Portfolio
         # Add any other environment variables you need here
     - uses: actions/upload-artifact@v4

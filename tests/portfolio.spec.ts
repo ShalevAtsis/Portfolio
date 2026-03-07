@@ -13,7 +13,7 @@ import { ResumeView } from './pages/ResumeView';
 //  Shared test data (single source of truth for URLs and copy)
 // ─────────────────────────────────────────────────────────────────────────────
 const URLS = {
-    portfolio: 'https://shalevatsis.github.io/Portfolio',
+    portfolio: '/', // Uses baseURL from playwright.config.ts
     whatsapp: 'https://wa.me/+972585060699',
     github: 'https://github.com/ShalevAtsis',
     linkedin: 'https://www.linkedin.com/in/shalev-atsis-software-developer/',
@@ -251,7 +251,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
     test.describe('About Section', () => {
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URLS.portfolio + '#about');
+            await page.goto('#about');
         });
 
         test('renders all three story cards', async () => {
@@ -298,7 +298,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
     test.describe('Experience Section', () => {
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URLS.portfolio + '/#experience');
+            await page.goto('#experience');
         });
 
         test('section heading is visible', async () => {
@@ -374,7 +374,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
     test.describe('Skills Section', () => {
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URLS.portfolio + '/#skills');
+            await page.goto('#skills');
         });
 
         test('all four skill categories are visible', async () => {
@@ -436,7 +436,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
     test.describe('Projects Section', () => {
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URLS.portfolio + '/#projects');
+            await page.goto('#projects');
         });
 
         test('section heading is visible', async () => {
@@ -553,7 +553,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
     test.describe('Personal World Section', () => {
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URLS.portfolio + '/#personal-world');
+            await page.goto('#personal-world');
         });
 
         test('globe canvas renders', async () => {
@@ -629,7 +629,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
     test.describe('Contact Section', () => {
 
         test.beforeEach(async ({ page }) => {
-            await page.goto(URLS.portfolio + '/#contact');
+            await page.goto('#contact');
         });
 
         test('all five CTA links are visible', async () => {
