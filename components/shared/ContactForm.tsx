@@ -65,10 +65,15 @@ export default function ContactForm() {
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
+
                 },
                 body: JSON.stringify({
                     access_key: process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "",
                     ...formData,
+                    subject: "New Contact Form Submission from Portfolio",
+                    from_name: "Portfolio Contact Form",
+                    category: "Contact Form",
+                    botcheck: ""
                 }),
             });
 
