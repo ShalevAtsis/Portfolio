@@ -23,7 +23,7 @@ export default function CleanHero() {
     return (
         <section
             id="hero"
-            className="relative flex flex-col items-center px-4 pt-24 pb-8 text-center md:pt-32 md:pb-16"
+            className="relative flex flex-col items-center px-4 pt-24 pb-8 text-center md:pt-32 md:pb-16 lg:pt-40 lg:pb-24 xl:pt-48"
         >
             {/* Ambient glow */}
             <div
@@ -55,7 +55,7 @@ export default function CleanHero() {
                     LCP render delay reported by Lighthouse.
                     ─────────────────────────────────────────────────────────────────────── */}
                 <h1
-                    className="animate-hero-slide-up text-5xl font-extrabold tracking-tight break-words text-slate-900 dark:text-slate-50 sm:text-6xl md:text-7xl lg:text-[6rem]"
+                    className="animate-hero-slide-up text-5xl font-extrabold tracking-tight break-words text-slate-900 dark:text-slate-50 sm:text-6xl md:text-7xl lg:text-[7rem] xl:text-[8rem] lg:tracking-tighter"
                     style={{ lineHeight: 1.05 }}
                 >
                     Shalev Atsis
@@ -63,7 +63,7 @@ export default function CleanHero() {
 
                 {/* Title — fades in after h1 */}
                 <p
-                    className="animate-hero-fade-up text-2xl font-medium text-slate-500 dark:text-slate-400 sm:text-3xl"
+                    className="animate-hero-fade-up text-2xl font-medium text-slate-500 dark:text-slate-400 sm:text-3xl lg:text-4xl xl:text-5xl"
                     style={{ animationDelay: "100ms" }}
                 >
                     Software Engineer
@@ -73,7 +73,7 @@ export default function CleanHero() {
 
                 {/* Summary */}
                 <p
-                    className="animate-hero-fade-up max-w-2xl text-base leading-relaxed text-slate-500 dark:text-slate-400 sm:text-lg"
+                    className="animate-hero-fade-up max-w-2xl lg:max-w-[70ch] text-base leading-relaxed text-slate-500 dark:text-slate-400 sm:text-lg lg:text-xl lg:leading-relaxed"
                     style={{ animationDelay: "180ms" }}
                 >
                     Currently powering production systems at Jifiti while finishing a B.Sc. in Computer Science.{" "}

@@ -81,13 +81,13 @@ const PILLARS: Pillar[] = [
 
 export default function AboutSection() {
   return (
-    <section id="about" className="py-20 sm:py-28 scroll-mt-20">
+    <section id="about" className="py-20 sm:py-28 lg:py-32 xl:py-40 scroll-mt-20">
       {/* ── Section heading ── */}
       <div className="mb-14 hero-item" style={{ animationDelay: "0ms" }}>
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
           About Me
         </p>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl lg:text-5xl">
           The TL;DR
         </h2>
       </div>
@@ -116,7 +116,7 @@ export default function AboutSection() {
             </h3>
 
             {/* Body */}
-            <p className="max-w-prose text-[0.9375rem] leading-relaxed text-slate-600 dark:text-slate-300">
+            <p className="max-w-prose text-[0.9375rem] leading-relaxed text-slate-600 dark:text-slate-300 lg:text-lg lg:leading-relaxed">
               {pillar.body}
             </p>
           </div>

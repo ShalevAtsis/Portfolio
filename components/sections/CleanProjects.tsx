@@ -75,7 +75,7 @@ const PROJECTS: Project[] = [
 
 export default function CleanProjects() {
     return (
-        <section id="projects" className="py-24 sm:py-32 scroll-mt-20">
+        <section id="projects" className="py-24 sm:py-32 lg:py-40 xl:py-48 scroll-mt-20">
             {/* Section header */}
             <FadeInUp className="mb-14">
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
@@ -87,7 +87,7 @@ export default function CleanProjects() {
             </FadeInUp>
 
             {/* Responsive 3-column grid */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 lg:gap-8 xl:gap-10">
                 {PROJECTS.map((project, i) => (
                     <ProjectCard key={project.id} project={project} index={i} />
                 ))}

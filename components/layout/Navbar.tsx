@@ -23,7 +23,7 @@ export default function Navbar() {
   return (
     <header className="animate-nav-slide-down fixed inset-x-0 top-0 z-50 border-b border-slate-200/60 dark:border-slate-800/50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl">
       <nav
-        className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-10"
+        className="relative mx-auto flex w-full max-w-5xl lg:max-w-6xl 2xl:max-w-screen-xl items-center justify-between px-4 py-2 sm:px-6 lg:px-12 lg:py-4 2xl:px-16"
         aria-label="Main navigation"
       >
         {/* ── Left: Burger ───────────────────────────────────────────── */}

@@ -9,7 +9,7 @@ import { asset } from "@/lib/basePath";
 
 export default function ContactSection() {
   return (
-    <section id="contact" className="py-20 sm:py-28 scroll-mt-20">
+    <section id="contact" className="py-20 sm:py-28 lg:py-32 xl:py-40 scroll-mt-20">
       <FadeInUp className="mb-10">
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
           Let&apos;s Talk
