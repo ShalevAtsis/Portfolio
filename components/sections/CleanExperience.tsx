@@ -37,7 +37,7 @@ const ENTRIES: TimelineEntry[] = [
         kind: "education",
         role: "B.Sc. Computer Science (In Progress)",
         org: "Holon Institute of Technology (HIT)",
-        period: "2022 – June 2026",
+        period: "Oct 2023 – June 2026",
         badge: "GPA 90",
         bullets: [
             "Specialising in Artificial Intelligence and Computer Vision — coursework spans Deep Learning, Algorithms, Databases, and Communication Networks.",
