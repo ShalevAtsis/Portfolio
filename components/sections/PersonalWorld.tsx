@@ -8,14 +8,31 @@ import {
     Wind, Anchor, Play, Pause,
 } from "lucide-react";
 import FadeInUp from "@/components/ui/FadeInUp";
-import GlobeLoader from "@/components/ui/GlobeLoader";
+import GlobeLoader, { type GlobeVizHandle } from "@/components/ui/GlobeLoader";
 import { asset } from "@/lib/basePath";
 import Image from "next/image";
+import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const SURF_SPOTS = ["Brazil", "Colombia", "Ecuador", "Panama", "Nicaragua", "Mexico"];
-const DIVE_SPOTS = ["Eilat", "Thailand", "San Andrés", "Galapagos", "Bocas del Toro", "Belize", "Cozumel"];
+const SURF_SPOTS: { label: string; lat: number; lng: number }[] = [
+    { label: "Brazil",    lat: -14.235,  lng: -51.925  },
+    { label: "Colombia",  lat:  11.249,  lng: -73.561  },
+    { label: "Ecuador",   lat:  -1.826,  lng: -80.751  },
+    { label: "Panama",    lat:   7.433,  lng: -80.183  },
+    { label: "Nicaragua", lat:  11.254,  lng: -85.871  },
+    { label: "Mexico",    lat:  15.864,  lng: -97.071  },
+];
+
+const DIVE_SPOTS: { label: string; lat: number; lng: number }[] = [
+    { label: "Eilat",         lat:  29.558, lng:  34.948 },
+    { label: "Thailand",      lat:  10.094, lng:  99.838 },
+    { label: "San Andrés",    lat:  12.585, lng: -81.701 },
+    { label: "Galapagos",     lat:  -0.380, lng: -90.300 },
+    { label: "Bocas del Toro",lat:   9.333, lng: -82.250 },
+    { label: "Belize",        lat:  17.316, lng: -87.535 },
+    { label: "Cozumel",       lat:  20.423, lng: -86.922 },
+];
 
 const BOOKS_READ = [
     "The Power of Habit", "Can't Hurt Me", "Badulina",
@@ -42,54 +59,60 @@ function CardLabel({ icon, label, color = "text-slate-400" }: {
     );
 }
 
-function Pill({ children, color }: { children: React.ReactNode; color: string }) {
-    return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${color}`}>
-            {children}
-        </span>
-    );
-}
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // Card 1 — Ocean Matrix
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function OceanCard() {
-    const [hovered, setHovered] = useState(false);
+    const globeRef = useRef<GlobeVizHandle>(null);
+
+    const flyTo = (lat: number, lng: number) => {
+        globeRef.current?.flyTo(lat, lng);
+    };
 
     return (
         <div
             className="relative col-span-1 overflow-hidden rounded-2xl md:col-span-2 bg-slate-950/80 ring-1 ring-slate-800"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
             style={{ minHeight: 380 }}
         >
-            {/* 3D Globe Background — only mounted when card enters viewport via IntersectionObserver */}
+            {/* 3D Globe Background */}
             <div className="absolute inset-0 z-0 transition-opacity duration-700 hover:opacity-100 opacity-90">
-                <GlobeLoader minHeight={380} />
+                <GlobeLoader ref={globeRef} minHeight={380} />
             </div>
 
-            {/* Subtle overlay to retain text legibility and neat edges */}
+            {/* Subtle overlay to retain text legibility */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10" />
 
             {/* ── Content overlay ── */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 z-20">
+            <div className="absolute inset-x-0 bottom-0 p-5 z-20">
                 <CardLabel icon={<Waves className="h-3 w-3" />} label="Global Adventures" color="text-cyan-400 drop-shadow-md" />
-                <h3 className="mt-2 text-base font-bold text-white drop-shadow-md">Surf & Dive Spots</h3>
+                <h3 className="mt-2 text-base font-bold text-white drop-shadow-md pointer-events-none">Surf & Dive Spots</h3>
 
                 <div className="mt-3 flex flex-col gap-2">
                     {/* Surf pills */}
                     <div className="flex items-center gap-1.5 flex-wrap">
-                        <Wind className="h-3 w-3 text-emerald-400 shrink-0 drop-shadow-md" />
+                        <Wind className="h-3 w-3 text-emerald-400 shrink-0 drop-shadow-md pointer-events-none" />
                         {SURF_SPOTS.map((s) => (
-                            <Pill key={s} color="bg-emerald-500/10 text-emerald-300 ring-emerald-500/30 backdrop-blur-md shadow-sm">{s}</Pill>
+                            <button
+                                key={s.label}
+                                onClick={() => flyTo(s.lat, s.lng)}
+                                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 bg-emerald-500/10 text-emerald-300 ring-emerald-500/30 backdrop-blur-md shadow-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-emerald-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                            >
+                                {s.label}
+                            </button>
                         ))}
                     </div>
                     {/* Dive pills */}
                     <div className="flex items-center gap-1.5 flex-wrap">
-                        <Anchor className="h-3 w-3 text-indigo-400 shrink-0 drop-shadow-md" />
+                        <Anchor className="h-3 w-3 text-indigo-400 shrink-0 drop-shadow-md pointer-events-none" />
                         {DIVE_SPOTS.map((s) => (
-                            <Pill key={s} color="bg-indigo-500/10 text-indigo-300 ring-indigo-500/30 backdrop-blur-md shadow-sm">{s}</Pill>
+                            <button
+                                key={s.label}
+                                onClick={() => flyTo(s.lat, s.lng)}
+                                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 bg-indigo-500/10 text-indigo-300 ring-indigo-500/30 backdrop-blur-md shadow-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-indigo-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                            >
+                                {s.label}
+                            </button>
                         ))}
                     </div>
                 </div>
@@ -188,18 +211,16 @@ const EQ_HEIGHTS = [
     [0.6, 1.2, 0.3, 1.0, 0.6],
 ];
 
-const AUDIO_SRC = asset("/bad_bunny.mp3");
-
 function NowPlayingCard() {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [progress, setProgress] = useState(0); // 0–100
     const [currentTime, setCurrentTime] = useState("0:00");
-    const [duration, setDuration] = useState("3:44");
+    const [duration, setDuration] = useState("6:18");
 
-    // Initialise audio element once
+    // Initialise audio element once — inside useEffect to ensure client-only
     useEffect(() => {
-        const audio = new Audio(AUDIO_SRC);
+        const audio = new Audio(asset("/bad_bunny.mp3"));
         audio.preload = "none"; // Core Web Vitals Optimization: don't download audio until needed
         audioRef.current = audio;
 
@@ -258,7 +279,8 @@ function NowPlayingCard() {
                         }
                     >
                         <Image
-                            src={asset("/bad_bunny.png")}
+                            loader={cloudinaryLoader}
+                            src="bad_bunny_svvufd.png"
                             alt="Bad Bunny — Debí Tirar Más Fotos"
                             width={96}
                             height={96}
@@ -491,7 +513,8 @@ function AISharkCard() {
             style={{ minHeight: 300 }}
         >
             <Image
-                src={asset("/hammerhead.png")}
+                loader={cloudinaryLoader}
+                src="hammerhead_vj3iky"
                 alt="Hammerhead shark — AI CV scan"
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -569,7 +592,7 @@ function AISharkCard() {
                     Computer Vision · Marine Biology
                 </p>
                 <p className="mt-1 text-sm font-semibold text-white">
-                    AI Species Classifier — Galapagos Islands Deployment
+                    AI Species Classifier — Galapagos Islands
                 </p>
             </div>
         </div>

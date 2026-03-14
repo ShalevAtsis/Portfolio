@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, forwardRef, useImperativeHandle } from "react";
 import dynamic from "next/dynamic";
 
 // Dynamically import react-globe.gl with no SSR for Next.js App Router
@@ -16,6 +16,10 @@ const Globe = dynamic(() => import("react-globe.gl"), {
         </div>
     ),
 });
+
+export interface GlobeVizHandle {
+    flyTo: (lat: number, lng: number) => void;
+}
 
 export interface LocationData {
     lat: number;
@@ -48,11 +52,19 @@ const LOCATIONS: LocationData[] = [
     { lat: 20.4229, lng: -86.9223, name: "Cozumel, Mexico", type: "dive" }
 ];
 
-export default function GlobeViz() {
+const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
     const containerRef = useRef<HTMLDivElement>(null);
     const globeRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [hoveredRing, setHoveredRing] = useState<LocationData | null>(null);
+
+    useImperativeHandle(ref, () => ({
+        flyTo(lat: number, lng: number) {
+            globeRef.current?.pointOfView({ lat, lng, altitude: 1.5 }, 1200);
+            const controls = globeRef.current?.controls();
+            if (controls) controls.autoRotate = false;
+        },
+    }));
 
     // Auto-resize the globe to fit its container
     useEffect(() => {
@@ -158,4 +170,6 @@ export default function GlobeViz() {
             )}
         </div>
     );
-}
+});
+
+export default GlobeViz;

@@ -20,6 +20,7 @@ const nextConfig = {
     // in a static export. The custom loader bypasses that restriction entirely.
     loader: "custom",
     loaderFile: "./lib/cloudinaryLoader.ts",
+    qualities: [25, 50, 75, 85, 90, 100],
     // remotePatterns are still respected for security when loader is 'custom'
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },

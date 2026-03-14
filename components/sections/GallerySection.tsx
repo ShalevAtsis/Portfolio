@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import FadeInUp from "@/components/ui/FadeInUp";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
-
-const GalleryLightbox = dynamic(() => import("./GalleryLightbox"), { ssr: false });
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,201 +23,215 @@ export interface GalleryImage {
 const PLACEHOLDER =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
-// Cinematic grid — 2-column symmetrical layout.
-// Ordered by visual weight: strongest images anchor rows 1 and 2.
-// 7 images = 3 full pairs + 1 orphan that spans both columns as a panoramic closer.
 const IMAGES: GalleryImage[] = [
   {
-    src: "IMG_9845_1_rt7mur",
-    alt: "Autonomous drone pre-flight systems check",
-    caption: "Autonomous Drone Integration",
-    sub: "Pre-flight systems check · Global deployment",
+    src: "IMG_9845_1_rt7mur.jpg",
+    alt: "Military vehicles undergoing sensor integration",
+    caption: "Tactical Vehicle Integration",
+    sub: "Sensor installation · Multi-platform networking",
     width: 4032,
     height: 2268,
     blurDataURL: PLACEHOLDER,
   },
   {
-    src: "IMG_1334_dpg2t6",
-    alt: "Ground control station setup",
-    caption: "Ground Control Station",
-    sub: "C2 link verification · Remote operations",
+    src: "IMG_1334_dpg2t6.jpg",
+    alt: "Thai Navy personnel operating installed base systems",
+    caption: "Base System Deployment",
+    sub: "Operator training · Royal Thai Navy",
     width: 3840,
     height: 2160,
     blurDataURL: PLACEHOLDER,
   },
   {
-    src: "IMG_1341_1_re7iq2",
-    alt: "Military vehicle sensor installation",
-    caption: "Vehicle Sensor Installation",
-    sub: "Multi-sensor array · Field integration",
+    src: "IMG_1341_1_re7iq2.jpg",
+    alt: "Commemorative exchange with Thai Navy officer",
+    caption: "Joint Cooperation",
+    sub: "Project completion · Officer recognition",
     width: 4032,
     height: 2268,
     blurDataURL: PLACEHOLDER,
   },
   {
-    src: "IMG_8390_1_witvvh",
-    alt: "Drone swarm coordination test",
-    caption: "Swarm Coordination Test",
-    sub: "Multi-UAV formation · Live exercise",
+    src: "IMG_8390_1_witvvh.jpg",
+    alt: "Field engineering team with Thai Navy personnel",
+    caption: "Field Deployment Team",
+    sub: "On-site integration · Royal Thai Navy",
     width: 4032,
     height: 2268,
     blurDataURL: PLACEHOLDER,
   },
   {
-    src: "IMG_6674_aepizs",
-    alt: "Sensor mast installation on armoured vehicle",
-    caption: "Sensor Mast Installation",
-    sub: "Armoured platform · Systems integration",
+    src: "IMG_6674_aepizs.jpg",
+    alt: "Dual autonomous drone takeoff during field test",
+    caption: "Autonomous UAV Field Test",
+    sub: "Dual drone launch · Flight verification",
     width: 3520,
     height: 1986,
     blurDataURL: PLACEHOLDER,
   },
   {
-    src: "IMG_7975_3_sxvi88",
-    alt: "Night-vision optics field calibration",
-    caption: "Night-Vision Optics Calibration",
-    sub: "Low-light validation · Forward operating base",
+    src: "IMG_7975_3_sxvi88.jpg",
+    alt: "Command and control center operational setup",
+    caption: "Command & Control (C2) Center",
+    sub: "System deployment · Live operational environment",
     width: 4032,
     height: 2268,
     blurDataURL: PLACEHOLDER,
   },
   {
-    // Panoramic closer — spans full width, 21:9 crop hides the 4:3 ratio entirely
-    src: "IMG_8392_b509ka",
-    alt: "Radar and EO/IR payload alignment",
-    caption: "EO/IR Payload Alignment",
-    sub: "Precision calibration · Operational site",
+    src: "IMG_8392_b509ka.jpg",
+    alt: "Official system handover to Thai Ministry of Defense",
+    caption: "Official System Handover",
+    sub: "Project delivery · Thai Ministry of Defense",
     width: 4000,
     height: 3000,
     blurDataURL: PLACEHOLDER,
-  },
+  }
 ];
 
-// ─── Grid Item ────────────────────────────────────────────────────────────────
-
-function GalleryItem({
-  img,
-  index,
-  total,
-  onClick,
-}: {
-  img: GalleryImage;
-  index: number;
-  total: number;
-  onClick: (i: number) => void;
-  priority?: boolean;
-}) {
-  const isLast = index === total - 1;
-  const isOddTotal = total % 2 !== 0;
-  const isPanoramic = isLast && isOddTotal;
-  const priority = index < 2;
-
-  return (
-    <button
-      onClick={() => onClick(index)}
-      aria-label={`View: ${img.caption}`}
-      className={[
-        "group relative overflow-hidden rounded-2xl",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500",
-        isPanoramic ? "md:col-span-2" : "col-span-1",
-      ].join(" ")}
-    >
-      {/* Aspect ratio: 16:9 for paired cells, 21:9 for the panoramic closer.
-          The 4:3 outlier (IMG_8392) is placed last — the 21:9 crop removes
-          its excess height symmetrically, making it look intentionally cinematic.
-          The lightbox always shows the full uncropped original. */}
-      <div className={isPanoramic ? "aspect-[21/9] w-full" : "aspect-video w-full"}>
-        <div className="relative h-full w-full">
-
-          <Image
-            loader={cloudinaryLoader}
-            src={img.src}
-            alt={img.alt}
-            fill
-            sizes={
-              isPanoramic
-                ? "100vw"
-                : "(max-width: 768px) 100vw, 50vw"
-            }
-            quality={85}
-            priority={priority}
-            className="object-cover brightness-[0.5] transition-all duration-700 ease-out group-hover:brightness-[0.85] group-hover:scale-[1.04]"
-          />
-
-          {/* Corner scan-line accents */}
-          <div className="pointer-events-none absolute left-3 top-3 h-5 w-5 border-l-2 border-t-2 border-cyan-400/60 transition-all duration-500 group-hover:border-cyan-400 group-hover:h-7 group-hover:w-7" />
-          <div className="pointer-events-none absolute right-3 top-3 h-5 w-5 border-r-2 border-t-2 border-cyan-400/60 transition-all duration-500 group-hover:border-cyan-400 group-hover:h-7 group-hover:w-7" />
-
-          {/* Index badge */}
-          <div className="absolute left-3 top-3 flex h-5 w-5 items-center justify-center">
-            <span className="font-mono text-[9px] font-bold text-cyan-400/80 transition-colors duration-300 group-hover:text-cyan-300">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-          </div>
-
-          {/* Bottom vignette */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
-
-          {/* Glassmorphism caption */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-full opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-            <div className="border-t border-white/10 bg-slate-900/75 px-4 py-3 backdrop-blur-md">
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-cyan-400">
-                {img.caption}
-              </p>
-              <p className="mt-0.5 text-[11px] text-slate-400">{img.sub}</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </button>
-  );
-}
+const AUTOPLAY_MS = 4000;
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function GallerySection() {
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [current, setCurrent] = useState(0);
+  const [animKey, setAnimKey] = useState(0); // increments to force animation restart
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const open  = useCallback((i: number) => setLightboxIndex(i), []);
-  const close = useCallback(() => setLightboxIndex(null), []);
-  const prev  = useCallback(() => setLightboxIndex((i) => i !== null ? (i - 1 + IMAGES.length) % IMAGES.length : i), []);
-  const next  = useCallback(() => setLightboxIndex((i) => i !== null ? (i + 1) % IMAGES.length : i), []);
-  const goTo  = useCallback((i: number) => setLightboxIndex(i), []);
+  const resetTimer = useCallback((callback: () => void) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(callback, AUTOPLAY_MS);
+  }, []);
+
+  const advance = useCallback((indexFn: (i: number) => number) => {
+    setCurrent((i) => indexFn(i));
+    setAnimKey((k) => k + 1);
+  }, []);
+
+  const next = useCallback(() => advance((i) => (i + 1) % IMAGES.length), [advance]);
+  const prev = useCallback(() => advance((i) => (i - 1 + IMAGES.length) % IMAGES.length), [advance]);
+
+  useEffect(() => {
+    timerRef.current = setTimeout(next, AUTOPLAY_MS);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [current, next]);
+
+  const handlePrev = useCallback(() => { prev(); resetTimer(next); }, [prev, next, resetTimer]);
+  const handleNext = useCallback(() => { next(); resetTimer(next); }, [next, resetTimer]);
+  const handleDot  = useCallback((i: number) => {
+    setCurrent(i);
+    setAnimKey((k) => k + 1);
+    resetTimer(next);
+  }, [next, resetTimer]);
+
+  const img = IMAGES[current];
 
   return (
     <section id="gallery" className="py-16 sm:py-20 md:py-24 lg:py-32 scroll-mt-20">
       <FadeInUp className="mb-10">
-        {/* Eyebrow with scan-line decoration */}
-        <div className="mb-3 flex items-center gap-3">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-            Field Engineering
-          </p>
-        </div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+          Field Engineering
+        </p>
         <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
-          In the Field
+          Gallery
         </h2>
         <p className="mt-3 max-w-xl text-slate-500 dark:text-slate-400">
           Autonomous systems, sensor integrations, and global deployments captured on-site.
         </p>
       </FadeInUp>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
-        {IMAGES.map((img, i) => (
-          <GalleryItem key={img.src} img={img} index={i} total={IMAGES.length} onClick={open} />
-        ))}
-      </div>
+      {/* Cinematic slideshow container */}
+      <div className="relative w-full aspect-[4/3] md:aspect-video lg:aspect-[21/9] overflow-hidden rounded-2xl bg-slate-950/80 ring-1 ring-white/10">
 
-      {lightboxIndex !== null && (
-        <GalleryLightbox
-          images={IMAGES}
-          index={lightboxIndex}
-          onClose={close}
-          onPrev={prev}
-          onNext={next}
-          onGoTo={goTo}
-        />
-      )}
+        {/* All slides stacked — outer key never changes so the element stays
+            mounted; the active/idle class swap is what drives the animation.
+            Each slide is its own GPU layer via will-change in the CSS class. */}
+        {IMAGES.map((image, i) => (
+          <div
+            key={i === current ? `active-${animKey}` : image.src}
+            className={[
+              "absolute inset-0",
+              i === current ? "gallery-slide-active" : "gallery-slide-idle",
+            ].join(" ")}
+            style={{ zIndex: i === current ? 2 : 1 }}
+          >
+            <Image
+              loader={cloudinaryLoader}
+              src={image.src}
+              alt={image.alt}
+              fill
+              sizes="100vw"
+              quality={90}
+              priority={i === 0}
+              className="object-cover"
+            />
+          </div>
+        ))}
+
+        {/* Autoplay progress bar */}
+        <div className="absolute inset-x-0 top-0 z-30 h-[2px] bg-slate-800/60">
+          <div
+            key={current}
+            className="h-full bg-cyan-500/70 gallery-progress"
+            style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
+          />
+        </div>
+
+        {/* Bottom vignette */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent z-10" />
+
+        {/* HUD corner accents */}
+        <div className="pointer-events-none absolute left-3 top-3 z-20 h-6 w-6 border-l-2 border-t-2 border-cyan-400/60" />
+        <div className="pointer-events-none absolute right-3 top-3 z-20 h-6 w-6 border-r-2 border-t-2 border-cyan-400/60" />
+        <div className="pointer-events-none absolute bottom-3 left-3 z-20 h-6 w-6 border-b-2 border-l-2 border-cyan-400/60" />
+        <div className="pointer-events-none absolute bottom-3 right-3 z-20 h-6 w-6 border-b-2 border-r-2 border-cyan-400/60" />
+
+        {/* Prev button */}
+        <button
+          onClick={handlePrev}
+          aria-label="Previous image"
+          className="absolute left-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2.5 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+
+        {/* Next button */}
+        <button
+          onClick={handleNext}
+          aria-label="Next image"
+          className="absolute right-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2.5 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+
+        {/* Caption bar */}
+        <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-4 border-t border-white/10 bg-slate-900/75 px-5 py-3 backdrop-blur-md">
+          <div className="min-w-0">
+            <p className="truncate text-[16px] font-bold uppercase tracking-[0.15em] text-cyan-400">
+              {img.caption}
+            </p>
+            <p className="mt-0.5 truncate text-s text-slate-400">{img.sub}</p>
+          </div>
+
+          {/* Dot indicators */}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {IMAGES.map((_, i) => (
+              <button
+                key={i}
+                aria-label={`Go to image ${i + 1}`}
+                onClick={() => handleDot(i)}
+                className={[
+                  "rounded-full transition-all duration-300",
+                  i === current
+                    ? "h-1.5 w-5 bg-cyan-400"
+                    : "h-1.5 w-1.5 bg-slate-600 hover:bg-slate-400",
+                ].join(" ")}
+              />
+            ))}
+          </div>
+        </div>
+
+      </div>
     </section>
   );
 }

@@ -3,21 +3,15 @@
 /**
  * GlobeLoader
  * ───────────
- * Dedicated viewport-observer wrapper for the 3D Globe.
- *
- * Architecture:
- *  1. Maintains a fixed minimum height while unloaded — ensures the placeholder
- *     card sits BELOW the fold and the IntersectionObserver never fires on the
- *     initial paint.
- *  2. Uses IntersectionObserver to detect when the card enters the viewport.
- *  3. Only then dynamically imports GlobeViz (which in turn imports react-globe.gl
- *     / Three.js). This guarantees those heavy chunks are NEVER in the initial JS
- *     evaluation path and cannot corrupt the LCP measurement.
- *  4. Displays a pure-CSS loading skeleton while unloaded or while loading.
+ * Viewport-observer wrapper for the 3D Globe.
+ * Forwards a ref to GlobeViz so parent components can call flyTo().
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, forwardRef } from "react";
 import dynamic from "next/dynamic";
+import type { GlobeVizHandle } from "@/components/ui/GlobeViz";
+
+export type { GlobeVizHandle };
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 
@@ -34,10 +28,7 @@ function GlobeSkeleton() {
     );
 }
 
-// ─── Lazy GlobeViz — NOT imported at module level ────────────────────────────
-// This dynamic() call is intentionally placed inside this file (not at the
-// parent level) so that the react-globe.gl / Three.js chunk is only downloaded
-// after the IntersectionObserver fires.
+// ─── Lazy GlobeViz ───────────────────────────────────────────────────────────
 
 const GlobeViz = dynamic(() => import("@/components/ui/GlobeViz"), {
     ssr: false,
@@ -47,43 +38,38 @@ const GlobeViz = dynamic(() => import("@/components/ui/GlobeViz"), {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 interface GlobeLoaderProps {
-    /**
-     * Must match the containing card's height so the placeholder keeps
-     * the card below the fold — preventing the observer from firing
-     * instantly during the initial paint.
-     */
     minHeight?: number;
 }
 
-export default function GlobeLoader({ minHeight = 380 }: GlobeLoaderProps) {
-    const wrapperRef = useRef<HTMLDivElement>(null);
-    const [inView, setInView] = useState(false);
+const GlobeLoader = forwardRef<GlobeVizHandle, GlobeLoaderProps>(
+    function GlobeLoader({ minHeight = 380 }, ref) {
+        const wrapperRef = useRef<HTMLDivElement>(null);
+        const [inView, setInView] = useState(false);
 
-    useEffect(() => {
-        const el = wrapperRef.current;
-        if (!el) return;
+        useEffect(() => {
+            const el = wrapperRef.current;
+            if (!el) return;
 
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setInView(true);
-                    observer.disconnect(); // one-shot — no need to keep watching
-                }
-            },
-            { rootMargin: "120px" } // pre-load slightly before it enters the viewport
+            const observer = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting) {
+                        setInView(true);
+                        observer.disconnect();
+                    }
+                },
+                { rootMargin: "120px" }
+            );
+
+            observer.observe(el);
+            return () => observer.disconnect();
+        }, []);
+
+        return (
+            <div ref={wrapperRef} className="h-full w-full" style={{ minHeight }}>
+                {inView ? <GlobeViz ref={ref} /> : <GlobeSkeleton />}
+            </div>
         );
+    }
+);
 
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, []);
-
-    return (
-        <div
-            ref={wrapperRef}
-            className="h-full w-full"
-            style={{ minHeight }}
-        >
-            {inView ? <GlobeViz /> : <GlobeSkeleton />}
-        </div>
-    );
-}
+export default GlobeLoader;
