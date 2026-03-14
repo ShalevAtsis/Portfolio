@@ -17,8 +17,9 @@ const NAV_LINKS = [
     { href: "#experience", label: "Experience", idx: "02" },
     { href: "#skills", label: "Skills", idx: "03" },
     { href: "#projects", label: "Projects", idx: "04" },
-    { href: "#personal-world", label: "Personal World", idx: "05" },
-    { href: "#contact", label: "Contact", idx: "06" },
+    { href: "#gallery", label: "Gallery", idx: "05" },
+    { href: "#personal-world", label: "Personal World", idx: "06" },
+    { href: "#contact", label: "Contact", idx: "07" },
 ];
 
 const STYLE = `
@@ -73,8 +74,8 @@ export default function NavigationMenu() {
             aria-label="Site navigation"
             aria-hidden={!isOpen}
             className={[
-                "fixed inset-0 z-[99999]",
-                "flex flex-col items-center justify-center",
+                "fixed inset-x-0 top-0 z-[99999]",
+                "flex h-[100dvh] flex-col items-center justify-center",
                 // SOLID premium colours — NO transparency or backdrop-blur
                 "bg-white dark:bg-slate-950",
                 // Pure CSS fade-in/out
@@ -113,7 +114,7 @@ export default function NavigationMenu() {
 
             {/* ── Centred nav links with adjusted sizes ── */}
             <nav aria-label="Site sections" className="relative z-10 flex w-full flex-col items-center px-4 text-center">
-                <ul className="flex w-full max-w-lg flex-col gap-2 sm:gap-4 lg:gap-6" role="list">
+                <ul className="flex w-full max-w-lg flex-col gap-1.5 sm:gap-3 lg:gap-5" role="list">
                     {NAV_LINKS.map(({ href, label, idx }, i) => (
                         <li key={href}>
                             <a

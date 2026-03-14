@@ -188,7 +188,7 @@ export default function GallerySection() {
   const goTo  = useCallback((i: number) => setLightboxIndex(i), []);
 
   return (
-    <section id="gallery" className="py-20 sm:py-28 scroll-mt-20">
+    <section id="gallery" className="py-16 sm:py-20 md:py-24 lg:py-32 scroll-mt-20">
       <FadeInUp className="mb-10">
         {/* Eyebrow with scan-line decoration */}
         <div className="mb-3 flex items-center gap-3">

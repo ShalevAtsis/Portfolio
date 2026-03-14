@@ -582,7 +582,7 @@ function AISharkCard() {
 
 export default function PersonalWorld() {
     return (
-        <section id="personal-world" className="py-20 sm:py-28 scroll-mt-20">
+        <section id="personal-world" className="py-16 sm:py-20 md:py-24 lg:py-32 scroll-mt-20">
             <FadeInUp className="mb-12">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                     Beyond the Code

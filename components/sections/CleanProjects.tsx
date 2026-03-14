@@ -75,7 +75,7 @@ const PROJECTS: Project[] = [
 
 export default function CleanProjects() {
     return (
-        <section id="projects" className="py-24 sm:py-32 lg:py-40 xl:py-48 scroll-mt-20">
+        <section id="projects" className="py-16 sm:py-20 md:py-24 lg:py-32 scroll-mt-20">
             {/* Section header */}
             <FadeInUp className="mb-14">
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">

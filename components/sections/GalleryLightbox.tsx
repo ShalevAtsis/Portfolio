@@ -55,7 +55,7 @@ export default function GalleryLightbox({
   return (
     // Backdrop — clicking bare backdrop closes the lightbox
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-slate-950/95 p-4 backdrop-blur-xl md:p-8"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-slate-950/95 p-4 backdrop-blur-xl md:p-8"
       style={{ animation: "lb-fade 0.2s ease both" }}
       onClick={onClose}
     >
@@ -74,7 +74,7 @@ export default function GalleryLightbox({
         {/* ── Close — top-right of the card, always on top ─────────────────── */}
         <button
           onClick={onClose}
-          className="absolute right-0 top-0 z-[120] -translate-y-1/2 translate-x-1/2 rounded-full bg-slate-800 p-2.5 text-slate-300 ring-1 ring-white/20 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          className="absolute right-4 top-4 z-[120] rounded-full bg-slate-800 p-2.5 text-slate-300 ring-1 ring-white/20 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           aria-label="Close"
         >
           <X className="h-4 w-4" />
@@ -94,8 +94,6 @@ export default function GalleryLightbox({
               sizes="(max-width: 640px) 100vw, (max-width: 1280px) 90vw, 80vw"
               quality={90}
               className="object-contain"
-              placeholder={img.blurDataURL ? "blur" : "empty"}
-              blurDataURL={img.blurDataURL}
             />
           </div>
 
