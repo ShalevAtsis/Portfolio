@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Lora } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/shared/Providers";
+import ScrollToTop from "@/components/shared/ScrollToTop";
 import { DebugProvider } from "@/context/DebugContext";
 import DebugLayoutWrapper from "@/components/layout/DebugLayoutWrapper";
 import { asset } from "@/lib/basePath";
@@ -50,7 +51,10 @@ export default function RootLayout({
       <body className="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 font-sans antialiased overflow-x-hidden transition-colors duration-300" suppressHydrationWarning>
         <DebugProvider>
           <DebugLayoutWrapper>
-            <Providers>{children}</Providers>
+            <Providers>
+                <ScrollToTop />
+                {children}
+              </Providers>
           </DebugLayoutWrapper>
         </DebugProvider>
       </body>
