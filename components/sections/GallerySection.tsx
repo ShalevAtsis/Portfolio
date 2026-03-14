@@ -107,10 +107,12 @@ function GalleryItem({
   index: number;
   total: number;
   onClick: (i: number) => void;
+  priority?: boolean;
 }) {
   const isLast = index === total - 1;
   const isOddTotal = total % 2 !== 0;
   const isPanoramic = isLast && isOddTotal;
+  const priority = index < 2;
 
   return (
     <button
@@ -140,9 +142,7 @@ function GalleryItem({
                 : "(max-width: 768px) 100vw, 50vw"
             }
             quality={85}
-            loading="lazy"
-            placeholder={img.blurDataURL ? "blur" : "empty"}
-            blurDataURL={img.blurDataURL}
+            priority={priority}
             className="object-cover brightness-[0.5] transition-all duration-700 ease-out group-hover:brightness-[0.85] group-hover:scale-[1.04]"
           />
 
