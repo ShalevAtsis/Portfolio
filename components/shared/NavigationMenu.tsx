@@ -135,7 +135,7 @@ export default function NavigationMenu() {
                                 </span>
 
                                 {/* Label — Scaled down to fit mobile cleanly */}
-                                <span className="relative text-3xl font-black tracking-tighter text-slate-900 dark:text-white transition-[colors,transform] duration-300 group-hover:translate-x-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:text-4xl md:text-[42px] lg:text-[50px]">
+                                <span className="relative text-3xl font-black tracking-tighter text-slate-900 dark:text-white transition-[colors,transform] duration-300 group-hover:translate-x-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:text-[42px] md:text-[42px] lg:text-[50px]">
                                     {label}
                                 </span>
                             </a>
