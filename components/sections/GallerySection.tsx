@@ -89,7 +89,7 @@ const IMAGES: GalleryImage[] = [
   }
 ];
 
-const AUTOPLAY_MS = 4000;
+const AUTOPLAY_MS = 6000;
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -140,36 +140,11 @@ export default function GallerySection() {
         </p>
       </FadeInUp>
 
-      {/* Cinematic slideshow container */}
-      <div className="relative w-full aspect-[4/3] md:aspect-video lg:aspect-[21/9] overflow-hidden rounded-2xl bg-slate-950/80 ring-1 ring-white/10">
+      {/* Outer card — full width, centers the dynamic image wrapper */}
+      <div className="w-full overflow-hidden rounded-2xl bg-slate-950 ring-1 ring-white/10">
 
-        {/* All slides stacked — outer key never changes so the element stays
-            mounted; the active/idle class swap is what drives the animation.
-            Each slide is its own GPU layer via will-change in the CSS class. */}
-        {IMAGES.map((image, i) => (
-          <div
-            key={i === current ? `active-${animKey}` : image.src}
-            className={[
-              "absolute inset-0",
-              i === current ? "gallery-slide-active" : "gallery-slide-idle",
-            ].join(" ")}
-            style={{ zIndex: i === current ? 2 : 1 }}
-          >
-            <Image
-              loader={cloudinaryLoader}
-              src={image.src}
-              alt={image.alt}
-              fill
-              sizes="100vw"
-              quality={90}
-              priority={i === 0}
-              className="object-cover"
-            />
-          </div>
-        ))}
-
-        {/* Autoplay progress bar */}
-        <div className="absolute inset-x-0 top-0 z-30 h-[2px] bg-slate-800/60">
+        {/* Progress bar — sits above the image wrapper, outside the stacking context */}
+        <div className="relative h-[2px] bg-slate-800/60">
           <div
             key={current}
             className="h-full bg-cyan-500/70 gallery-progress"
@@ -177,44 +152,75 @@ export default function GallerySection() {
           />
         </div>
 
-        {/* Bottom vignette */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent z-10" />
-
-        {/* HUD corner accents */}
-        <div className="pointer-events-none absolute left-3 top-3 z-20 h-6 w-6 border-l-2 border-t-2 border-cyan-400/60" />
-        <div className="pointer-events-none absolute right-3 top-3 z-20 h-6 w-6 border-r-2 border-t-2 border-cyan-400/60" />
-        <div className="pointer-events-none absolute bottom-3 left-3 z-20 h-6 w-6 border-b-2 border-l-2 border-cyan-400/60" />
-        <div className="pointer-events-none absolute bottom-3 right-3 z-20 h-6 w-6 border-b-2 border-r-2 border-cyan-400/60" />
-
-        {/* Prev button */}
-        <button
-          onClick={handlePrev}
-          aria-label="Previous image"
-          className="absolute left-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2.5 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+        {/* Dynamic image wrapper — shaped exactly to the current image's aspect ratio.
+            Because the box IS the right shape, object-cover fills it with zero
+            cropping AND zero letterboxing. max-h caps it on tall/portrait images. */}
+        <div
+          className="relative mx-auto w-full max-h-[80vh] overflow-hidden"
+          style={{ aspectRatio: `${img.width} / ${img.height}` }}
         >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
+          {/* All slides stacked — only the active one animates */}
+          {IMAGES.map((image, i) => (
+            <div
+              key={i === current ? `active-${animKey}` : image.src}
+              className={[
+                "absolute inset-0",
+                i === current ? "gallery-slide-active" : "gallery-slide-idle",
+              ].join(" ")}
+              style={{ zIndex: i === current ? 2 : 1 }}
+            >
+              <Image
+                loader={cloudinaryLoader}
+                src={image.src}
+                alt={image.alt}
+                fill
+                sizes="100vw"
+                quality={90}
+                priority={i === 0}
+                className="object-cover"
+              />
+            </div>
+          ))}
 
-        {/* Next button */}
-        <button
-          onClick={handleNext}
-          aria-label="Next image"
-          className="absolute right-3 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2.5 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
+          {/* Bottom vignette */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent z-10" />
 
-        {/* Caption bar */}
-        <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-4 border-t border-white/10 bg-slate-900/75 px-5 py-3 backdrop-blur-md">
+          {/* HUD corner accents — hug the dynamic image bounds */}
+          <div className="pointer-events-none absolute left-3 top-3 z-20 h-6 w-6 border-l-2 border-t-2 border-cyan-400/60" />
+          <div className="pointer-events-none absolute right-3 top-3 z-20 h-6 w-6 border-r-2 border-t-2 border-cyan-400/60" />
+          <div className="pointer-events-none absolute bottom-3 left-3 z-20 h-6 w-6 border-b-2 border-l-2 border-cyan-400/60" />
+          <div className="pointer-events-none absolute bottom-3 right-3 z-20 h-6 w-6 border-b-2 border-r-2 border-cyan-400/60" />
+
+          {/* Prev button */}
+          <button
+            onClick={handlePrev}
+            aria-label="Previous image"
+            className="absolute left-2 sm:left-3 md:left-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2 sm:p-2.5 md:p-3 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+          >
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+          </button>
+
+          {/* Next button */}
+          <button
+            onClick={handleNext}
+            aria-label="Next image"
+            className="absolute right-2 sm:right-3 md:right-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2 sm:p-2.5 md:p-3 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+          >
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          </button>
+        </div>
+
+        {/* Caption bar — outside the image wrapper, always full card width */}
+        <div className="flex items-center justify-between gap-2 sm:gap-4 border-t border-white/10 bg-slate-900/80 px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 backdrop-blur-md">
           <div className="min-w-0">
-            <p className="truncate text-[16px] font-bold uppercase tracking-[0.15em] text-cyan-400">
+            <p className="text-[10px] sm:text-xs md:text-sm lg:text-base font-bold uppercase tracking-[0.15em] text-cyan-400">
               {img.caption}
             </p>
-            <p className="mt-0.5 truncate text-s text-slate-400">{img.sub}</p>
+            <p className="mt-0.5 text-[9px] sm:text-[10px] md:text-xs lg:text-sm text-slate-300">{img.sub}</p>
           </div>
 
           {/* Dot indicators */}
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="hidden md:flex shrink-0 items-center gap-1.5">
             {IMAGES.map((_, i) => (
               <button
                 key={i}

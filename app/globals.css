@@ -163,20 +163,20 @@ html {
 @keyframes gallery-enter {
   from {
     opacity: 0;
-    transform: scale(1.04) translateX(1.5%);
+    transform: scale(1.01) translateX(1%);
   }
   to {
     opacity: 1;
-    transform: scale(1.04) translateX(0%);
+    transform: scale(1.01) translateX(0%);
   }
 }
 
 /* Ken Burns: slow drift + scale while the slide is active.
-   Starts exactly where gallery-enter leaves off (scale 1.04)
+   Starts exactly where gallery-enter leaves off (scale 1.01)
    so there is zero jump between the two animations. */
 @keyframes gallery-ken-burns {
-  from { transform: scale(1.04) translate(0%,    0%);    }
-  to   { transform: scale(1.09) translate(-0.8%, -0.4%); }
+  from { transform: scale(1.01) translate(0%,    0%);    }
+  to   { transform: scale(1.04) translate(-0.4%, -0.2%); }
 }
 
 /* Progress bar fill */
