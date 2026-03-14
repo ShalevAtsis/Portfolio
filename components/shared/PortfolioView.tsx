@@ -14,6 +14,7 @@ import AboutSection from "@/components/sections/AboutSection";
 import CleanExperience from "@/components/sections/CleanExperience";
 import CleanSkills from "@/components/sections/CleanSkills";
 import CleanProjects from "@/components/sections/CleanProjects";
+import GallerySection from "@/components/sections/GallerySection";
 import PersonalWorld from "@/components/sections/PersonalWorld";
 import ContactSection from "@/components/sections/ContactSection";
 
@@ -34,6 +35,8 @@ export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
         <CleanSkills />
         <SectionDivider double />
         <CleanProjects />
+        <SectionDivider />
+        <GallerySection />
         <SectionDivider />
         <PersonalWorld />
         <SectionDivider />

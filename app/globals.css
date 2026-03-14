@@ -141,6 +141,22 @@ html {
   font-family: inherit;
 }
 
+/* Lightbox entrance animations */
+@keyframes lb-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes lb-scale {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+@keyframes lb-progress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
 /* Print overrides for Resume Mode */
 @media print {
   body {

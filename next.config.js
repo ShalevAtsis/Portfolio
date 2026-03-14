@@ -14,8 +14,15 @@ const nextConfig = {
   trailingSlash: true,
 
   images: {
-    unoptimized: true, // required for static export
+    // Custom loader delegates all optimisation to Cloudinary's CDN.
+    // This is the correct pattern for `output: 'export'` — the built-in
+    // Next.js image optimisation API requires a Node server and cannot run
+    // in a static export. The custom loader bypasses that restriction entirely.
+    loader: "custom",
+    loaderFile: "./lib/cloudinaryLoader.ts",
+    // remotePatterns are still respected for security when loader is 'custom'
     remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
     ],
   },

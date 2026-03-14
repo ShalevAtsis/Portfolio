@@ -102,6 +102,7 @@ const config: Config = {
         "hero-fade-up": "heroFadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both",
         "hero-slide-up": "heroSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both",
         "nav-slide-down": "navSlideDown 0.45s cubic-bezier(0.22,1,0.36,1) both",
+        "lb-crossfade": "lbCrossfade 0.6s cubic-bezier(0.22,1,0.36,1) both",
       },
       keyframes: {
         float: {
@@ -126,6 +127,10 @@ const config: Config = {
         navSlideDown: {
           "from": { opacity: "0", transform: "translateY(-20px)" },
           "to": { opacity: "1", transform: "translateY(0)" },
+        },
+        lbCrossfade: {
+          "from": { opacity: "0", transform: "scale(1.03)" },
+          "to":   { opacity: "1", transform: "scale(1)" },
         },
       },
     },
