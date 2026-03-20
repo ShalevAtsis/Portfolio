@@ -1,71 +1,71 @@
-# Shalev Atsis — AI/ML Portfolio
+# Shalev Atsis | Software Engineer
 
-A **Portfolio** (AI-focused, recruiter-optimized) and **Resume** (document-style, printable) site built with Next.js 14, Tailwind CSS, and Framer Motion. Positioned for AI engineering, applied ML, and LLM-based roles.
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Three.js](https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 
-**Strategy & concept:** See **[docs/PORTFOLIO_CONCEPT.md](./docs/PORTFOLIO_CONCEPT.md)** for full structure, recruiter psychology, copy guidelines, and feature rationale.
+**[🌍 Live Site: shalevatsis.dev](https://shalevatsis.dev)**
 
-## Project structure
+Experienced Software Engineer specializing in GenAI, Computer Vision, and complex system integrations. Proven track record of architecting performant, scalable front-end and full-stack solutions with an uncompromising standard for engineering quality and premium user experiences.
 
-```
-portfolio/
-├── app/
-│   ├── globals.css          # Global styles, smooth scroll, glass, A4
-│   ├── layout.tsx           # Root layout, fonts, ViewProvider
-│   └── page.tsx             # Fetches GitHub repos, Navbar + ViewSwitcher
-├── components/
-│   ├── Navbar.tsx           # Section links (About, Projects, Lab, Contact) + Resume toggle + socials
-│   ├── ViewSwitcher.tsx     # AnimatePresence; PortfolioView | ResumeView
-│   ├── PortfolioView.tsx    # Composes: Hero, About, Projects, Lab, Contact
-│   ├── sections/
-│   │   ├── HeroSection.tsx      # Headline, subhead, CTA, "Currently learning"
-│   │   ├── AboutSection.tsx     # Narrative + AI direction
-│   │   ├── ProjectsSection.tsx  # TechMarquee + SwellSight + repo grid
-│   │   ├── LabSection.tsx       # Experiments / small builds
-│   │   └── ContactSection.tsx   # Single CTA, open to opportunities
-│   ├── SwellSightCard.tsx   # Featured AI project + "Why I built this" thought process
-│   ├── RepoCard.tsx         # GitHub repo card
-│   ├── TechMarquee.tsx      # Scrolling tech stack
-│   └── ResumeView.tsx       # A4 resume, print/PDF
-├── content/
-│   └── copy.ts              # Hero, about, projects, lab, contact copy (edit here)
-├── context/
-│   └── ViewContext.tsx      # isResumeMode, toggleMode
-├── docs/
-│   └── PORTFOLIO_CONCEPT.md # Full concept: structure, psychology, copy, features
-├── lib/
-│   └── github.ts            # getPinnedRepos(username)
-├── tailwind.config.ts       # Cyber & Paper themes
-└── next.config.js
-```
+---
 
-**Views & state**
+## 🏗️ Architecture & Technical Feats
 
-- **State:** `context/ViewContext.tsx` — `isResumeMode` boolean and `toggleMode()`.
-- **Portfolio view:** `components/PortfolioView.tsx` (and SwellSightCard, RepoCard, TechMarquee).
-- **Resume view:** `components/ResumeView.tsx`.
-- **Integration:** `app/page.tsx` wraps the app in `ViewProvider`, renders `Navbar` and `ViewSwitcher`; `ViewSwitcher` uses `useView()` and `AnimatePresence` to switch between the two views.
+This portfolio is not just a digital business card; it is a demonstration of enterprise-grade engineering practices, strict architectural patterns, and deep knowledge of the modern web platform.
 
-## Run locally
+- **Custom Cloudinary Loader Engine**  
+  Bypassed standard Next.js image optimization constraints (which fail on `output: export`) by writing a custom loader that directly hooks into Cloudinary's CDN. It dynamically applies `q_auto` (perceptual quality algorithms) and `f_auto` format delivery, slashing bandwidth without relying on a Node.js runtime.
+
+- **Interactive 3D WebGL Visualization**  
+  Engineered a high-performance 3D globe utilizing `react-globe.gl` and Three.js. Real-time rendering of precise GPS coordinates handles complex data structures while maintaining a strict 60fps frame rate for geographical storytelling.
+
+- **Strict WCAG 2.1 AA Accessibility**  
+  Accessibility is not an afterthought, but an architectural requirement. The application features robust ARIA live regions for screen-reader announcements on dynamic state changes, rigorous keyboard focus management (including a functional UI-layer skip-to-content mechanism), and graceful motion degradation respecting the OS-level `prefers-reduced-motion` flag.
+
+- **Cinematic, Zero-Crop Renderings**  
+  Developed a continuous, responsive image slideshow engine utilizing mathematical dynamic aspect ratios (`aspect-ratio: width / height`). It actively prevents Continuous Layout Shifts (CLS) while ensuring complex images are never cropped, regardless of esoteric viewport dimensions.
+
+---
+
+## 🧠 Featured Engineering: SwellSight
+
+**SwellSight** demonstrates my capability to build and deploy end-to-end machine learning and computer vision architectures.
+
+It is a custom GenAI model engineered to process and analyze ocean wave parameters directly from unstructured beach camera images. This project showcases:
+- **Computer Vision Pipeline Development:** Handling noisy, real-world visual data streams.
+- **Machine Learning Integration:** Moving from Python/PyTorch research to a deployed, capable inference engine.
+- **Architectural Scalability:** Connecting deep learning backends with responsive, user-facing data presentation layers.
+
+---
+
+## 📬 Contact & Availability
+
+I am a Software Engineer available for a full-time role.
+
+- **LinkedIn:** [linkedin.com/in/shalev-atsis](https://www.linkedin.com/in/shalev-atsis/)
+- **GitHub:** [github.com/ShalevAtsis](https://github.com/ShalevAtsis)
+
+---
+
+## 💻 Getting Started
+
+Detailed instructions for cloning and running the repository locally.
 
 ```bash
+# Clone the repository
+git clone https://github.com/ShalevAtsis/Portfolio.git
+
+# Navigate into the project directory
+cd Portfolio
+
+# Install dependencies (requires Node.js 18+)
 npm install
+
+# Start the development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Use the navbar toggle to switch between **View: Interactive** (Portfolio) and **View: Resume**.
-
-## Customization
-
-- **Copy (hero, about, projects, lab, contact):** Edit `content/copy.ts`. Tune tone and "Currently learning" to your voice.
-- **Email:** Update in `components/Navbar.tsx` and `components/sections/ContactSection.tsx` (and ResumeView if needed).
-- **GitHub:** Repos are fetched for `ShalevAtsis` in `app/page.tsx` and `lib/github.ts`; change the username if needed.
-- **Lab items:** Add or edit experiments in `content/copy.ts` under `lab.items`; set `href` to real URLs when you have them.
-- **Themes:** Edit `tailwind.config.ts` (`cyber` and `paper` colors) and `app/globals.css` for visual tweaks.
-
-## Publish to GitHub Pages
-
-The site can be deployed to GitHub Pages via GitHub Actions. **See [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)** for step-by-step instructions to configure your repository and Pages source (Settings → Pages → Source: **GitHub Actions**). After that, every push to `main` will build and deploy automatically.
-
-## Resume / PDF
-
-In **Resume** mode, click **Download PDF** to open the print dialog and save as PDF. Print styles hide the navbar and the button.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
