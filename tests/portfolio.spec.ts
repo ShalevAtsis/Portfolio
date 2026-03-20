@@ -288,15 +288,12 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await expect(page.locator('#about')).toMatchAriaSnapshot(`
                 - paragraph: About Me
                 - heading "The TL;DR" [level=2]
-                - img
                 - paragraph: The Engineer
                 - heading "Building in parallel" [level=3]
                 - paragraph: /I'm a Software Engineer in motion/
-                - img
                 - paragraph: The Passion
                 - heading "At the AI frontier" [level=3]
                 - paragraph: /My deep interest lies at the intersection of AI/
-                - img
                 - paragraph: The Journey
                 - heading "An unconventional path" [level=3]
                 - paragraph: /My path to software wasn't a straight line/
@@ -431,13 +428,51 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
         test('skills ARIA snapshot matches all four categories', async ({ page }) => {
             await expect(page.locator('#skills')).toMatchAriaSnapshot(`
                 - paragraph: Programming
-                - text: Python TypeScript Java C++ SQL JavaScript NumPy Pandas Matplotlib React Node.js
+                - list:
+                  - listitem: Python
+                  - listitem: TypeScript
+                  - listitem: Java
+                  - listitem: C++
+                  - listitem: SQL
+                  - listitem: JavaScript
+                  - listitem: NumPy
+                  - listitem: Pandas
+                  - listitem: Matplotlib
+                  - listitem: React
+                  - listitem: Node.js
                 - paragraph: AI & Machine Learning
-                - text: PyTorch OpenCV HuggingFace Scikit-learn GenAI Diffusion Models Computer Vision Deep Learning
+                - list:
+                  - listitem: PyTorch
+                  - listitem: OpenCV
+                  - listitem: HuggingFace
+                  - listitem: Scikit-learn
+                  - listitem: GenAI
+                  - listitem: Diffusion Models
+                  - listitem: Computer Vision
+                  - listitem: Deep Learning
                 - paragraph: Cloud & DevOps
-                - text: AWS Docker CI/CD Pipelines Jenkins MongoDB Git Playwright Selenium Jira Postman
+                - list:
+                  - listitem: AWS
+                  - listitem: Docker
+                  - listitem: CI/CD Pipelines
+                  - listitem: Jenkins
+                  - listitem: MongoDB
+                  - listitem: Git
+                  - listitem: Playwright
+                  - listitem: Selenium
+                  - listitem: Jira
+                  - listitem: Postman
                 - paragraph: Concepts & Soft Skills
-                - text: Data Structures Algorithms OOP System Design Agile Methodologies Communication Networks Analytical Thinking Team Collaboration Fast Learning
+                - list:
+                  - listitem: Data Structures
+                  - listitem: Algorithms
+                  - listitem: OOP
+                  - listitem: System Design
+                  - listitem: Agile Methodologies
+                  - listitem: Communication Networks
+                  - listitem: Analytical Thinking
+                  - listitem: Team Collaboration
+                  - listitem: Fast Learning
             `);
         });
 

@@ -25,7 +25,7 @@ interface PortfolioViewProps {
 export default function PortfolioView({ repos: _repos }: PortfolioViewProps) {
   return (
     <OceanicBackground className="text-slate-900 antialiased dark:text-slate-100">
-      <main className="relative z-10 mx-auto max-w-5xl lg:max-w-6xl 2xl:max-w-screen-xl px-4 pb-32 sm:px-8 lg:px-12 lg:pb-40 2xl:px-16">
+      <main id="main-content" tabIndex={-1} className="relative z-10 mx-auto max-w-5xl lg:max-w-6xl 2xl:max-w-screen-xl px-4 pb-32 sm:px-8 lg:px-12 lg:pb-40 2xl:px-16 focus:outline-none">
         <CleanHero />
         <SectionDivider />
         <AboutSection />

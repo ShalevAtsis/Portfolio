@@ -62,7 +62,7 @@ const SOCIALS = [
 // ─── Desktop icon row ─────────────────────────────────────────────────────────
 
 const ICON_BTN =
-    "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 transition-[color,background,transform] duration-150 hover:scale-[1.08] active:scale-90";
+    "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 transition-[color,background,transform] duration-150 motion-reduce:transition-none hover:scale-[1.08] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950";
 
 const SEP = (
     <span
@@ -141,8 +141,9 @@ function MobileActions() {
                 className={[
                     "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
                     "text-slate-500 dark:text-slate-400",
-                    "transition-[color,background,transform] duration-150",
+                    "transition-[color,background,transform] duration-150 motion-reduce:transition-none",
                     "hover:scale-[1.08] active:scale-90",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950",
                     open
                         ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50"
                         : "hover:bg-slate-100 dark:hover:bg-slate-800",

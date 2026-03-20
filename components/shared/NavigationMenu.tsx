@@ -6,9 +6,16 @@
  * Uses ReactDOM.createPortal to escape all stacking contexts and guarantee
  * absolute visibility over WebGL globes and other 3D components.
  * Solid backgrounds only (no backdrop-filter) to prevent WebGL bleed-through.
+ *
+ * A11y features:
+ * - Focus trap: on open → first nav link receives focus; on close → burger button regains focus
+ * - Escape key closes menu and returns focus
+ * - focus-visible:ring-2 ring-cyan-400 on all interactive elements (WCAG 2.4.7)
+ * - aria-hidden on decorative glow (WCAG 1.1.1)
+ * - prefers-reduced-motion: nav-link entrance animation disabled (WCAG 2.3.3)
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
@@ -31,11 +38,23 @@ const STYLE = `
   opacity: 0;
   animation: linkSlideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
 }
+@media (prefers-reduced-motion: reduce) {
+  .nav-link-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
 `;
 
 export default function NavigationMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+
+    // Ref for burger to restore focus on close (WCAG 2.4.3)
+    const burgerRef = useRef<HTMLButtonElement>(null);
+    // Ref for the first nav link to receive focus on open (focus trap entry)
+    const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
     // Only render portal on client
     useEffect(() => {
@@ -54,7 +73,21 @@ export default function NavigationMenu() {
         };
     }, [isOpen]);
 
-    // Escape to close
+    // Focus management: move focus into the menu on open, return on close (WCAG 2.4.3)
+    useEffect(() => {
+        if (isOpen) {
+            // Small delay to allow overlay to become visible before shifting focus
+            const raf = requestAnimationFrame(() => {
+                firstLinkRef.current?.focus();
+            });
+            return () => cancelAnimationFrame(raf);
+        } else {
+            // Return focus to the trigger element (burger button)
+            burgerRef.current?.focus();
+        }
+    }, [isOpen]);
+
+    // Escape to close (WCAG 2.1.2)
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape" && isOpen) setIsOpen(false);
@@ -64,6 +97,9 @@ export default function NavigationMenu() {
     }, [isOpen]);
 
     const close = () => setIsOpen(false);
+
+    // Focus ring shared classes — WCAG 2.4.7 compliant (focus-visible only, no mouse ring)
+    const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2";
 
     // The full-screen overlay (rendered via Portal)
     const overlayContent = (
@@ -78,15 +114,15 @@ export default function NavigationMenu() {
                 "flex h-[100dvh] flex-col items-center justify-center",
                 // SOLID premium colours — NO transparency or backdrop-blur
                 "bg-white dark:bg-slate-950",
-                // Pure CSS fade-in/out
-                "transition-[opacity,visibility] duration-300",
+                // Pure CSS fade-in/out with motion-reduce override
+                "transition-[opacity,visibility] duration-300 motion-reduce:transition-none",
                 isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none",
             ].join(" ")}
         >
             <style dangerouslySetInnerHTML={{ __html: STYLE }} />
 
-            {/* Subtly animated ambient glow */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            {/* Subtly animated ambient glow — purely decorative */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div className="absolute -top-1/4 left-1/2 -translate-x-1/2 h-[50vh] w-[60vw] rounded-full bg-indigo-50 dark:bg-indigo-900/20 blur-3xl" />
             </div>
 
@@ -100,10 +136,12 @@ export default function NavigationMenu() {
                             onClick={close}
                             className={[
                                 "inline-flex h-9 w-9 items-center justify-center rounded-xl",
-                                "transition-[colors,transform] duration-150",
+                                "transition-[colors,transform] duration-150 motion-reduce:transition-none",
                                 "hover:scale-[1.08] active:scale-90",
                                 "text-slate-900 dark:text-slate-100",
                                 "hover:bg-slate-200/70 dark:hover:bg-slate-800/70",
+                                FOCUS_RING,
+                                "focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950",
                             ].join(" ")}
                         >
                             <X className="h-6 w-6" strokeWidth={1.5} />
@@ -118,11 +156,14 @@ export default function NavigationMenu() {
                     {NAV_LINKS.map(({ href, label, idx }, i) => (
                         <li key={href}>
                             <a
+                                ref={i === 0 ? firstLinkRef : undefined}
                                 href={href}
                                 onClick={close}
                                 className={[
-                                    "nav-link-enter group flex items-center justify-center gap-3 py-1.5 sm:py-2 focus:outline-none",
+                                    "nav-link-enter group flex items-center justify-center gap-3 py-1.5 sm:py-2",
                                     !isOpen && "hidden",
+                                    FOCUS_RING,
+                                    "focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 rounded-lg",
                                 ].join(" ")}
                                 style={{
                                     animationDelay: `${i * 50}ms`,
@@ -135,7 +176,7 @@ export default function NavigationMenu() {
                                 </span>
 
                                 {/* Label — Scaled down to fit mobile cleanly */}
-                                <span className="relative text-3xl font-black tracking-tighter text-slate-900 dark:text-white transition-[colors,transform] duration-300 group-hover:translate-x-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:text-[42px] md:text-[42px] lg:text-[50px]">
+                                <span className="relative text-3xl font-black tracking-tighter text-slate-900 dark:text-white transition-[colors,transform] duration-300 motion-reduce:transition-none group-hover:translate-x-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:text-[42px] md:text-[42px] lg:text-[50px]">
                                     {label}
                                 </span>
                             </a>
@@ -155,6 +196,7 @@ export default function NavigationMenu() {
         <>
             {/* ── Original Burger Button (in Navbar) ── */}
             <button
+                ref={burgerRef}
                 type="button"
                 aria-label="Open navigation menu"
                 aria-expanded={isOpen}
@@ -162,9 +204,11 @@ export default function NavigationMenu() {
                 onClick={() => setIsOpen(true)}
                 className={[
                     "inline-flex h-9 w-9 flex-col items-center justify-center gap-[5px] rounded-xl",
-                    "transition-[colors,transform] duration-150",
+                    "transition-[colors,transform] duration-150 motion-reduce:transition-none",
                     "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800",
                     "hover:scale-[1.08] active:scale-90",
+                    FOCUS_RING,
+                    "focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950",
                 ].join(" ")}
             >
                 <span className="block h-[1.5px] w-[18px] rounded-full bg-current" />

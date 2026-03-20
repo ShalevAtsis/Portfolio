@@ -124,7 +124,7 @@ const pillVariants = {
 
 function Pill({ skill }: { skill: Skill }) {
     return (
-        <motion.span
+        <motion.li
             key={skill.label}
             layout
             variants={pillVariants}
@@ -137,7 +137,7 @@ function Pill({ skill }: { skill: Skill }) {
             className={`inline-flex cursor-default items-center rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${PILL_STYLES[skill.category]}`}
         >
             {skill.label}
-        </motion.span>
+        </motion.li>
     );
 }
 
@@ -196,8 +196,8 @@ export default function CleanSkills() {
                             "text-slate-900 placeholder:text-slate-400",
                             "dark:text-slate-100 dark:placeholder:text-slate-500",
                             "shadow-sm transition",
-                            "focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-400",
-                            "dark:focus:ring-emerald-400/40 dark:focus:border-emerald-500",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:border-emerald-400",
+                            "dark:focus-visible:ring-emerald-400/40 dark:focus-visible:border-emerald-500",
                         ].join(" ")}
                     />
                     {/* Clear button */}
@@ -211,7 +211,7 @@ export default function CleanSkills() {
                                 type="button"
                                 aria-label="Clear search"
                                 onClick={() => setQuery("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
                             >
                                 <X className="h-3.5 w-3.5" strokeWidth={2} />
                             </motion.button>
@@ -246,13 +246,13 @@ export default function CleanSkills() {
                                     <p className={`mb-4 text-xs font-bold uppercase tracking-widest ${TITLE_STYLES[group.category]}`}>
                                         {group.title}
                                     </p>
-                                    <motion.div layout className="flex flex-wrap gap-2">
+                                    <motion.ul layout className="flex flex-wrap gap-2">
                                         <AnimatePresence mode="popLayout">
                                             {group.skills.map((skill) => (
                                                 <Pill key={skill.label} skill={skill} />
                                             ))}
                                         </AnimatePresence>
-                                    </motion.div>
+                                    </motion.ul>
                                 </HoverEffectCard>
                             </motion.div>
                         ))}

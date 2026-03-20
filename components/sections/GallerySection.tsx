@@ -98,6 +98,12 @@ export default function GallerySection() {
   const [animKey, setAnimKey] = useState(0); // increments to force animation restart
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Detect reduced-motion preference — if true, skip autoplay entirely (WCAG 2.3.3)
+  const prefersReducedMotion =
+    typeof window !== "undefined"
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false;
+
   const resetTimer = useCallback((callback: () => void) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(callback, AUTOPLAY_MS);
@@ -111,10 +117,12 @@ export default function GallerySection() {
   const next = useCallback(() => advance((i) => (i + 1) % IMAGES.length), [advance]);
   const prev = useCallback(() => advance((i) => (i - 1 + IMAGES.length) % IMAGES.length), [advance]);
 
+  // Only run autoplay if the user hasn't requested reduced motion
   useEffect(() => {
+    if (prefersReducedMotion) return;
     timerRef.current = setTimeout(next, AUTOPLAY_MS);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [current, next]);
+  }, [current, next, prefersReducedMotion]);
 
   const handlePrev = useCallback(() => { prev(); resetTimer(next); }, [prev, next, resetTimer]);
   const handleNext = useCallback(() => { next(); resetTimer(next); }, [next, resetTimer]);
@@ -125,6 +133,9 @@ export default function GallerySection() {
   }, [next, resetTimer]);
 
   const img = IMAGES[current];
+
+  // Focus ring shared classes
+  const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2";
 
   return (
     <section id="gallery" className="py-16 sm:py-20 md:py-24 lg:py-32 scroll-mt-20">
@@ -143,8 +154,8 @@ export default function GallerySection() {
       {/* Outer card — full width, centers the dynamic image wrapper */}
       <div className="w-full overflow-hidden rounded-2xl bg-slate-950 ring-1 ring-white/10">
 
-        {/* Progress bar — sits above the image wrapper, outside the stacking context */}
-        <div className="relative h-[2px] bg-slate-800/60">
+        {/* Progress bar — decorative, hidden from AT */}
+        <div className="relative h-[2px] bg-slate-800/60" aria-hidden="true">
           <div
             key={current}
             className="h-full bg-cyan-500/70 gallery-progress"
@@ -152,9 +163,7 @@ export default function GallerySection() {
           />
         </div>
 
-        {/* Dynamic image wrapper — shaped exactly to the current image's aspect ratio.
-            Because the box IS the right shape, object-cover fills it with zero
-            cropping AND zero letterboxing. max-h caps it on tall/portrait images. */}
+        {/* Dynamic image wrapper — shaped exactly to the current image's aspect ratio */}
         <div
           className="relative mx-auto w-full max-h-[80vh] overflow-hidden"
           style={{ aspectRatio: `${img.width} / ${img.height}` }}
@@ -182,20 +191,27 @@ export default function GallerySection() {
             </div>
           ))}
 
-          {/* Bottom vignette */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent z-10" />
+          {/* Bottom vignette — decorative */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent z-10" />
 
-          {/* HUD corner accents — hug the dynamic image bounds */}
-          <div className="pointer-events-none absolute left-3 top-3 z-20 h-6 w-6 border-l-2 border-t-2 border-cyan-400/60" />
-          <div className="pointer-events-none absolute right-3 top-3 z-20 h-6 w-6 border-r-2 border-t-2 border-cyan-400/60" />
-          <div className="pointer-events-none absolute bottom-3 left-3 z-20 h-6 w-6 border-b-2 border-l-2 border-cyan-400/60" />
-          <div className="pointer-events-none absolute bottom-3 right-3 z-20 h-6 w-6 border-b-2 border-r-2 border-cyan-400/60" />
+          {/* HUD corner accents — purely decorative */}
+          <div aria-hidden="true" className="pointer-events-none absolute left-3 top-3 z-20 h-6 w-6 border-l-2 border-t-2 border-cyan-400/60" />
+          <div aria-hidden="true" className="pointer-events-none absolute right-3 top-3 z-20 h-6 w-6 border-r-2 border-t-2 border-cyan-400/60" />
+          <div aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 z-20 h-6 w-6 border-b-2 border-l-2 border-cyan-400/60" />
+          <div aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 z-20 h-6 w-6 border-b-2 border-r-2 border-cyan-400/60" />
 
           {/* Prev button */}
           <button
             onClick={handlePrev}
             aria-label="Previous image"
-            className="absolute left-2 sm:left-3 md:left-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2 sm:p-2.5 md:p-3 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+            className={[
+              "absolute left-2 sm:left-3 md:left-4 top-1/2 z-30 -translate-y-1/2",
+              "rounded-full bg-slate-800/80 p-2 sm:p-2.5 md:p-3",
+              "text-slate-300 ring-1 ring-white/10",
+              "transition hover:bg-slate-700 hover:text-white motion-reduce:transition-none",
+              FOCUS_RING,
+              "focus-visible:ring-offset-slate-800",
+            ].join(" ")}
           >
             <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
@@ -204,14 +220,32 @@ export default function GallerySection() {
           <button
             onClick={handleNext}
             aria-label="Next image"
-            className="absolute right-2 sm:right-3 md:right-4 top-1/2 z-30 -translate-y-1/2 rounded-full bg-slate-800/80 p-2 sm:p-2.5 md:p-3 text-slate-300 ring-1 ring-white/10 transition hover:bg-slate-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+            className={[
+              "absolute right-2 sm:right-3 md:right-4 top-1/2 z-30 -translate-y-1/2",
+              "rounded-full bg-slate-800/80 p-2 sm:p-2.5 md:p-3",
+              "text-slate-300 ring-1 ring-white/10",
+              "transition hover:bg-slate-700 hover:text-white motion-reduce:transition-none",
+              FOCUS_RING,
+              "focus-visible:ring-offset-slate-800",
+            ].join(" ")}
           >
             <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
 
-        {/* Caption bar — outside the image wrapper, always full card width */}
-        <div className="flex items-center justify-between gap-2 sm:gap-4 border-t border-white/10 bg-slate-900/80 px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 backdrop-blur-md">
+        {/*
+          Caption bar — WCAG 1.3.1 Live Region
+          role="status" + aria-live="polite" + aria-atomic="true":
+          When the slide changes, screen readers will announce the full caption
+          text as a single, atomic unit. aria-label provides additional context.
+        */}
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-label={`Image ${current + 1} of ${IMAGES.length}: ${img.caption}`}
+          className="flex items-center justify-between gap-2 sm:gap-4 border-t border-white/10 bg-slate-900/80 px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 backdrop-blur-md"
+        >
           <div className="min-w-0">
             <p className="text-[10px] sm:text-xs md:text-sm lg:text-base font-bold uppercase tracking-[0.15em] text-cyan-400">
               {img.caption}
@@ -220,17 +254,20 @@ export default function GallerySection() {
           </div>
 
           {/* Dot indicators */}
-          <div className="hidden md:flex shrink-0 items-center gap-1.5">
+          <div className="hidden md:flex shrink-0 items-center gap-1.5" role="group" aria-label="Gallery slide indicators">
             {IMAGES.map((_, i) => (
               <button
                 key={i}
-                aria-label={`Go to image ${i + 1}`}
+                aria-label={`Go to image ${i + 1}${i === current ? " (current)" : ""}`}
+                aria-current={i === current ? "true" : undefined}
                 onClick={() => handleDot(i)}
                 className={[
-                  "rounded-full transition-all duration-300",
+                  "rounded-full transition-all duration-300 motion-reduce:transition-none",
                   i === current
                     ? "h-1.5 w-5 bg-cyan-400"
                     : "h-1.5 w-1.5 bg-slate-600 hover:bg-slate-400",
+                  FOCUS_RING,
+                  "focus-visible:ring-offset-slate-900",
                 ].join(" ")}
               />
             ))}

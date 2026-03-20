@@ -112,7 +112,7 @@ function NodeIcon({ kind }: { kind: EntryKind }) {
     const Icon = kind === "education" ? GraduationCap : Briefcase;
     const s = nodeStyle[kind];
     return (
-        <span className={["relative z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full ring-2 shadow-sm transition-transform duration-300 group-hover:scale-110", s.icon, s.iconDark].join(" ")}>
+        <span aria-hidden="true" className={["relative z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full ring-2 shadow-sm transition-transform duration-300 group-hover:scale-110", s.icon, s.iconDark].join(" ")}>
             <Icon className="h-5 w-5" strokeWidth={1.75} />
         </span>
     );
@@ -134,7 +134,7 @@ export default function CleanExperience() {
                 {/* ── Background Spine Line ── */}
                 <div
                     className="absolute bottom-0 left-[26px] top-6 w-[2px] rounded-full bg-gradient-to-b from-slate-200 via-slate-200/80 to-transparent dark:from-slate-700/80 dark:via-slate-700/40"
-                    aria-hidden
+                    aria-hidden="true"
                 />
 
                 <div className="space-y-6 lg:space-y-12">
@@ -185,7 +185,7 @@ export default function CleanExperience() {
                                     <ul className="mt-5 space-y-3">
                                         {entry.bullets.map((b) => (
                                             <li key={b} className="flex items-start gap-3 text-[0.9375rem] leading-relaxed text-slate-600 dark:text-slate-400">
-                                                <span className={`mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full transition-transform duration-300 group-hover:scale-125 ${s.bullet} ${s.bulletDark}`} aria-hidden />
+                                                <span className={`mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full transition-transform duration-300 group-hover:scale-125 ${s.bullet} ${s.bulletDark}`} aria-hidden="true" />
                                                 <span>{b}</span>
                                             </li>
                                         ))}

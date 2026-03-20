@@ -32,7 +32,7 @@ export default function CleanHero() {
                     background:
                         "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 70%)",
                 }}
-                aria-hidden
+                aria-hidden="true"
             />
 
             <div className="flex max-w-4xl flex-col items-center gap-y-6">
@@ -41,7 +41,7 @@ export default function CleanHero() {
                 <div className="animate-hero-fade-up" style={{ animationDelay: "0ms" }}>
                     <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse dark:border-emerald-500 dark:bg-emerald-950/80 dark:text-emerald-300 dark:shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                         <span className="relative flex h-2.5 w-2.5">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 dark:bg-emerald-500" />
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 dark:bg-emerald-500" aria-hidden="true" />
                             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                         </span>
                         Open to opportunities
@@ -91,7 +91,7 @@ export default function CleanHero() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Message on WhatsApp"
-                        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/20 transition-[transform,box-shadow] duration-200 hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[#25D366]/40 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:w-auto"
+                        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/20 transition-[transform,box-shadow] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[#25D366]/40 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:w-auto"
                     >
                         <MessageCircle className="h-4 w-4 transition-transform group-hover:scale-110" strokeWidth={2.5} />
                         WhatsApp Me
@@ -104,7 +104,7 @@ export default function CleanHero() {
                             href={asset("/Shalev_Atsis_CV.pdf")}
                             download="Shalev_Atsis_CV.pdf"
                             aria-label="Download CV"
-                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200/50 bg-indigo-50/50 px-6 py-3 text-sm font-semibold text-indigo-700 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 hover:scale-[1.04] hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-100 active:scale-[0.97] dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:border-indigo-500/40 dark:hover:bg-indigo-500/20 sm:w-auto"
+                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200/50 bg-indigo-50/50 px-6 py-3 text-sm font-semibold text-indigo-700 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-100 active:scale-[0.97] dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:border-indigo-500/40 dark:hover:bg-indigo-500/20 sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                         >
                             <Download className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" strokeWidth={2.5} />
                             Download CV
@@ -114,7 +114,7 @@ export default function CleanHero() {
                         <a
                             href={EMAIL}
                             aria-label="Send email to Shalevatsis@gmail.com"
-                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200/50 bg-violet-50/50 px-6 py-3 text-sm font-semibold text-violet-700 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 hover:scale-[1.04] hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-100 active:scale-[0.97] dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:border-violet-500/40 dark:hover:bg-violet-500/20 sm:w-auto"
+                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200/50 bg-violet-50/50 px-6 py-3 text-sm font-semibold text-violet-700 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-100 active:scale-[0.97] dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:border-violet-500/40 dark:hover:bg-violet-500/20 sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                         >
                             <Mail className="h-4 w-4 transition-transform group-hover:scale-110" strokeWidth={2.5} />
                             Email
@@ -128,7 +128,7 @@ export default function CleanHero() {
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="GitHub Profile"
-                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200/50 bg-slate-50/50 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 hover:scale-[1.04] hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-100 active:scale-[0.97] dark:border-slate-700/50 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-700"
+                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200/50 bg-slate-50/50 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-100 active:scale-[0.97] dark:border-slate-700/50 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2"
                         >
                             <Github className="h-5 w-5 text-slate-600 transition-colors duration-300 group-hover:text-black dark:text-slate-400 dark:group-hover:text-white" strokeWidth={2} />
                         </a>
@@ -138,7 +138,7 @@ export default function CleanHero() {
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="LinkedIn Profile"
-                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200/50 bg-blue-50/50 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 hover:scale-[1.04] hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100 active:scale-[0.97] dark:border-blue-500/20 dark:bg-blue-900/20 dark:hover:border-blue-500/40 dark:hover:bg-blue-900/40"
+                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200/50 bg-blue-50/50 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100 active:scale-[0.97] dark:border-blue-500/20 dark:bg-blue-900/20 dark:hover:border-blue-500/40 dark:hover:bg-blue-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         >
                             <Linkedin className="h-5 w-5 text-blue-600 transition-colors duration-300 group-hover:text-[#0A66C2] dark:text-blue-400" strokeWidth={2} />
                         </a>

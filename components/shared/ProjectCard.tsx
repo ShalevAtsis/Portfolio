@@ -122,7 +122,8 @@ export default function ProjectCard({ project, index }: { project: Project; inde
                         <button
                             type="button"
                             onClick={() => setIsExpanded((v) => !v)}
-                            className="mt-2 self-start text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400 focus:outline-none focus-visible:underline"
+                            aria-label={isExpanded ? `Show less about ${project.name}` : `Read more about ${project.name}`}
+                            className="mt-2 self-start text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:rounded"
                         >
                             {isExpanded ? "Show less" : "Read more"}
                         </button>

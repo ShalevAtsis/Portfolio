@@ -206,6 +206,62 @@ html {
   will-change: transform;
 }
 
+/* ── Reduced Motion — WCAG 2.1 SC 2.3.3 ──────────────────────────────────── */
+/* All cinematic animations degrade gracefully to instant state changes for   */
+/* users who have configured "Reduce Motion" at the OS level.                 */
+@media (prefers-reduced-motion: reduce) {
+  /* Respect the user's preference: disable smooth scroll */
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Hero entrance animations */
+  .hero-item,
+  .hero-item--lcp {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Navbar slide-down entrance */
+  .animate-nav-slide-down,
+  .animate-slide-down {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Gallery slide animations — show active slide immediately, no Ken Burns */
+  .gallery-slide-active {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Gallery progress bar — hide since it's tied to animation timing */
+  .gallery-progress {
+    animation: none !important;
+    transform: scaleX(1) !important;
+  }
+
+  /* Navigation menu link entrance animation */
+  .nav-link-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Suppress Tailwind-generated transitions/animations globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Print overrides for Resume Mode */
 @media print {
   body {
