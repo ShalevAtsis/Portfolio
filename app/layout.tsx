@@ -49,10 +49,10 @@ export const metadata: Metadata = {
     siteName: "Shalev Atsis",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://res.cloudinary.com/ddyrg0nz5/image/upload/f_auto,q_auto,w_1200,h_630,c_fill/v1774023127/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Shalev Atsis - Premium Portfolio",
+        alt: "Shalev Atsis - Software Engineer & AI Developer Portfolio",
       },
     ],
     locale: "en_US",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     title: "Shalev Atsis · Software Engineer",
     description:
       "Experienced Software Engineer exploring the intersection of modern web development and Artificial Intelligence.",
-    images: ["/og-image.jpg"],
+    images: ["https://res.cloudinary.com/ddyrg0nz5/image/upload/f_auto,q_auto,w_1200,h_630,c_fill/v1774023127/og-image.png"],
   },
   icons: {
     // asset() dynamically prepends the basePath for static deployment
