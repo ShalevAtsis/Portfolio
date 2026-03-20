@@ -45,27 +45,7 @@ It is a custom GenAI model engineered to process and analyze ocean wave paramete
 
 I am a Software Engineer available for a full-time role.
 
-- **LinkedIn:** [linkedin.com/in/shalev-atsis](https://www.linkedin.com/in/shalev-atsis/)
+- **LinkedIn:** [linkedin.com/in/shalev-atsis-software-developer/](https://www.linkedin.com/in/shalev-atsis-software-developer/)
 - **GitHub:** [github.com/ShalevAtsis](https://github.com/ShalevAtsis)
 
 ---
-
-## 💻 Getting Started
-
-Detailed instructions for cloning and running the repository locally.
-
-```bash
-# Clone the repository
-git clone https://github.com/ShalevAtsis/Portfolio.git
-
-# Navigate into the project directory
-cd Portfolio
-
-# Install dependencies (requires Node.js 18+)
-npm install
-
-# Start the development server
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
