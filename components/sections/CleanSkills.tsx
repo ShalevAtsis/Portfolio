@@ -246,7 +246,7 @@ export default function CleanSkills() {
                                     <p className={`mb-4 text-xs font-bold uppercase tracking-widest ${TITLE_STYLES[group.category]}`}>
                                         {group.title}
                                     </p>
-                                    <motion.ul layout className="flex flex-wrap gap-2">
+                                    <motion.ul className="flex flex-wrap gap-2">
                                         <AnimatePresence mode="popLayout">
                                             {group.skills.map((skill) => (
                                                 <Pill key={skill.label} skill={skill} />

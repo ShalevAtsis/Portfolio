@@ -108,8 +108,12 @@ export default function ContactForm() {
     const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         handleChange(e);
         if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto'; // Reset to auto to calculate new height
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            // Buffer the write-read cycle to the next animation frame to prevent synchronous reflow
+            requestAnimationFrame(() => {
+                if (!textareaRef.current) return;
+                textareaRef.current.style.height = 'auto'; // Write
+                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Read triggers layout, handled safely
+            });
         }
     };
 

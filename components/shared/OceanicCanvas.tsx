@@ -91,14 +91,17 @@ export default function OceanicCanvas() {
         }));
 
         // ─── Resize ───────────────────────────────────────────────────────────────
+        let winW = window.innerWidth;
+        let winH = window.innerHeight;
+
         const resize = () => {
             dpr = window.devicePixelRatio || 1;
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            cvs.width = w * dpr;
-            cvs.height = h * dpr;
-            cvs.style.width = `${w}px`;
-            cvs.style.height = `${h}px`;
+            winW = window.innerWidth;
+            winH = window.innerHeight;
+            cvs.width = winW * dpr;
+            cvs.height = winH * dpr;
+            cvs.style.width = `${winW}px`;
+            cvs.style.height = `${winH}px`;
             cx.scale(dpr, dpr);
         };
         resize();
@@ -116,8 +119,8 @@ export default function OceanicCanvas() {
         let targetY = 0;
 
         const onMouseMove = (e: MouseEvent) => {
-            targetX = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
-            targetY = (e.clientY / window.innerHeight - 0.5) * 2; // -1 to 1
+            targetX = (e.clientX / winW - 0.5) * 2; // -1 to 1
+            targetY = (e.clientY / winH - 0.5) * 2; // -1 to 1
         };
         window.addEventListener("mousemove", onMouseMove);
 
