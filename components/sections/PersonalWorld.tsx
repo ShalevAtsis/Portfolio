@@ -96,7 +96,7 @@ function OceanCard() {
                             <button
                                 key={s.label}
                                 onClick={() => flyTo(s.lat, s.lng)}
-                                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 bg-emerald-500/10 text-emerald-300 ring-emerald-500/30 backdrop-blur-md shadow-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-emerald-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 bg-emerald-500/10 text-emerald-300 ring-emerald-500/30 backdrop-blur-md shadow-sm cursor-pointer transition duration-300 hover:scale-105 hover:bg-emerald-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                             >
                                 {s.label}
                             </button>
@@ -109,7 +109,7 @@ function OceanCard() {
                             <button
                                 key={s.label}
                                 onClick={() => flyTo(s.lat, s.lng)}
-                                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 bg-indigo-500/10 text-indigo-300 ring-indigo-500/30 backdrop-blur-md shadow-sm cursor-pointer transition-all duration-300 hover:scale-105 hover:bg-indigo-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 bg-indigo-500/10 text-indigo-300 ring-indigo-500/30 backdrop-blur-md shadow-sm cursor-pointer transition duration-300 hover:scale-105 hover:bg-indigo-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                             >
                                 {s.label}
                             </button>
@@ -136,7 +136,7 @@ function CinephileReaderCard() {
                     <button
                         key={t}
                         onClick={() => setTab(t)}
-                        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${tab === t
+                        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${tab === t
                             ? t === "cinema"
                                 ? "bg-indigo-500/15 text-indigo-600 dark:text-indigo-300"
                                 : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"

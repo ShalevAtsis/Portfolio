@@ -143,60 +143,82 @@ html {
 
 /* Lightbox entrance animations */
 @keyframes lb-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes lb-scale {
-  from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 @keyframes lb-progress {
-  from { width: 0%; }
-  to   { width: 100%; }
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
 }
 
 /* ── Gallery slideshow ───────────────────────────────────────────────────── */
 
-/* Cinematic entrance: fades in while drifting subtly from the right */
-@keyframes gallery-enter {
-  from {
+/* Unified Cinematic Entrance & Ken Burns */
+/* 0% to 15% is the entrance (roughly 1 second out of 7 seconds total) */
+/* 15% to 100% is the slow Ken Burns drift */
+@keyframes gallery-cinematic {
+  0% {
     opacity: 0;
     transform: scale(1.01) translateX(1%);
   }
-  to {
+
+  15% {
     opacity: 1;
     transform: scale(1.01) translateX(0%);
   }
-}
 
-/* Ken Burns: slow drift + scale while the slide is active.
-   Starts exactly where gallery-enter leaves off (scale 1.01)
-   so there is zero jump between the two animations. */
-@keyframes gallery-ken-burns {
-  from { transform: scale(1.01) translate(0%,    0%);    }
-  to   { transform: scale(1.04) translate(-0.4%, -0.2%); }
+  100% {
+    opacity: 1;
+    transform: scale(1.04) translate(-0.4%, -0.2%);
+  }
 }
 
 /* Progress bar fill */
 @keyframes gallery-progress {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
 }
 
-/* Active slide: entrance fires once, then Ken Burns takes over seamlessly */
+/* Active slide: ONE continuous animation to enforce GPU compositing */
 .gallery-slide-active {
   opacity: 1;
-  animation:
-    gallery-enter     0.95s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
-    gallery-ken-burns 6s   ease-out                               0.95s forwards;
-  will-change: opacity, transform;
+  animation: gallery-cinematic 7s ease-out forwards;
+  will-change: transform, opacity;
 }
 
 /* Idle slides: invisible, no animation cost */
 .gallery-slide-idle {
   opacity: 0;
+  visibility: hidden;
+  /* Added to completely remove from render tree when idle */
   will-change: opacity;
 }
 
@@ -210,6 +232,7 @@ html {
 /* All cinematic animations degrade gracefully to instant state changes for   */
 /* users who have configured "Reduce Motion" at the OS level.                 */
 @media (prefers-reduced-motion: reduce) {
+
   /* Respect the user's preference: disable smooth scroll */
   html {
     scroll-behavior: auto !important;

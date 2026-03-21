@@ -71,7 +71,7 @@ export default function ProjectCard({ project, index }: { project: Project; inde
                             aria-label={`View ${project.name} on GitHub`}
                             tabIndex={-1}
                             className={[
-                                "group relative flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold transition-all duration-300",
+                                "group relative flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold transition duration-300",
                                 "bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:ring-1 hover:ring-emerald-200",
                                 "dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 dark:hover:ring-1 dark:hover:ring-emerald-800",
                             ].join(" ")}

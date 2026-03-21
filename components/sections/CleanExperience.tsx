@@ -158,7 +158,7 @@ export default function CleanExperience() {
                                 </div>
 
                                 <HoverEffectCard
-                                    className={`relative z-20 flex-1 rounded-2xl border border-slate-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 ease-out group-hover:-translate-y-1 ${s.borderHover} ${s.shadowHover} dark:border-slate-800/60 dark:bg-slate-900/60`}
+                                    className={`relative z-20 flex-1 rounded-2xl border border-slate-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-sm transition duration-300 ease-out group-hover:-translate-y-1 ${s.borderHover} ${s.shadowHover} dark:border-slate-800/60 dark:bg-slate-900/60`}
                                     spotlightColor={s.spotlight}
                                 >
                                     <div className="flex flex-col gap-y-2 sm:flex-row sm:items-start sm:justify-between">

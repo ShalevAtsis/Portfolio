@@ -113,7 +113,7 @@ export default function ContactForm() {
         }
     };
 
-    const inputBaseStyle = "bg-slate-950/50 border transition-all rounded-xl p-3.5 text-slate-100 placeholder:text-slate-500 w-full outline-none";
+    const inputBaseStyle = "bg-slate-950/50 border transition rounded-xl p-3.5 text-slate-100 placeholder:text-slate-500 w-full outline-none";
     const inputNormalStyle = "border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500";
     const inputErrorStyle = "border-red-500/50 focus:border-red-500 focus:ring-1 focus:ring-red-500";
 
@@ -209,7 +209,7 @@ export default function ContactForm() {
                             disabled={isSubmitting}
                             whileHover={!isSubmitting ? { scale: 0.98 } : {}}
                             whileTap={!isSubmitting ? { scale: 0.96 } : {}}
-                            className="bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20 rounded-xl w-full py-3.5 font-bold text-white transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2 block"
+                            className="bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20 rounded-xl w-full py-3.5 font-bold text-white transition-opacity disabled:opacity-70 disabled:cursor-not-allowed mt-2 block"
                         >
                             {isSubmitting ? "Sending..." : "Send Message"}
                         </motion.button>

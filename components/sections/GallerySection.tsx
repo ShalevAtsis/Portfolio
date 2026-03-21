@@ -262,7 +262,7 @@ export default function GallerySection() {
                 aria-current={i === current ? "true" : undefined}
                 onClick={() => handleDot(i)}
                 className={[
-                  "rounded-full transition-all duration-300 motion-reduce:transition-none",
+                  "rounded-full transition-colors duration-300 motion-reduce:transition-none",
                   i === current
                     ? "h-1.5 w-5 bg-cyan-400"
                     : "h-1.5 w-1.5 bg-slate-600 hover:bg-slate-400",
