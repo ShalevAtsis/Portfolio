@@ -9,6 +9,9 @@
 const nextConfig = {
   output: "export",
 
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'clsx', 'tailwind-merge'],
+  },
   // GitHub Pages serves files without a trailing slash by default,
   // but static export works best with it on.
   trailingSlash: true,

@@ -1,8 +1,10 @@
 "use client";
 
 import { useDebug } from "@/lib/hooks";
-import TerminalOverlay from "@/components/shared/TerminalOverlay";
+import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
+
+const TerminalOverlay = dynamic(() => import("@/components/shared/TerminalOverlay"), { ssr: false });
 
 export default function DebugLayoutWrapper({
   children,

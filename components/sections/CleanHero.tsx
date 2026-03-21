@@ -14,10 +14,9 @@ const WHATSAPP_URL = "https://wa.me/+972585060699";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 // Zero JS animation dependency. Pure Tailwind CSS keyframe classes:
-//   animate-hero-slide-up  → h1 LCP: translate only, opacity always 1
+//   animate-hero-slide-up  → LCP elements: translate only, opacity always 1
 //   animate-hero-fade-up   → secondary elements: fade + translate
-// Animation-delay via inline style — no framer-motion, no React state.
-// The h1 has NO animation-delay so it renders at its final position immediately.
+// The text blocks have NO animation-delay so they render at their final position immediately.
 
 export default function CleanHero() {
     return (
@@ -44,15 +43,14 @@ export default function CleanHero() {
                             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 dark:bg-emerald-500" aria-hidden="true" />
                             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                         </span>
-                        Open to opportunities
+                        Open to full-time opportunities
                     </span>
                 </div>
 
-                {/* ── LCP ELEMENT ──────────────────────────────────────────────────────────
+                {/* ── TEXT CONTENT (LCP CANDIDATES) ─────────────────────────────────────────
                     Uses animate-hero-slide-up (translate only, opacity ALWAYS 1).
                     Has ZERO animation-delay — renders at final position on the very first
-                    CSS paint, before any JavaScript executes. This eliminates the 270ms
-                    LCP render delay reported by Lighthouse.
+                    CSS paint. This eliminates the 2.7s LCP render delay.
                     ─────────────────────────────────────────────────────────────────────── */}
                 <h1
                     className="animate-hero-slide-up text-5xl font-extrabold tracking-tight break-words text-slate-900 dark:text-slate-50 sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl lg:tracking-tighter"
@@ -61,29 +59,28 @@ export default function CleanHero() {
                     Shalev Atsis
                 </h1>
 
-                {/* Title — fades in after h1 */}
+                {/* Title */}
                 <p
-                    className="animate-hero-fade-up text-xl font-medium text-slate-500 dark:text-slate-400 sm:text-2xl md:text-3xl lg:text-4xl"
-                    style={{ animationDelay: "100ms" }}
+                    className="animate-hero-slide-up text-xl font-medium text-slate-500 dark:text-slate-400 sm:text-2xl md:text-3xl lg:text-4xl"
                 >
                     Software Engineer
                     <span className="mx-3 text-slate-300 dark:text-slate-600" aria-hidden>·</span>
                     <span className="text-indigo-600 dark:text-indigo-400">AI &amp; Computer Vision</span>
                 </p>
 
-                {/* Summary */}
+                {/* Summary (Flagged as LCP on Mobile) */}
                 <p
-                    className="animate-hero-fade-up max-w-2xl lg:max-w-[70ch] text-base leading-relaxed text-slate-500 dark:text-slate-400 sm:text-lg lg:text-xl lg:leading-relaxed"
-                    style={{ animationDelay: "180ms" }}
+                    className="animate-hero-slide-up max-w-2xl lg:max-w-[70ch] text-base leading-relaxed text-slate-500 dark:text-slate-400 sm:text-lg lg:text-xl lg:leading-relaxed"
                 >
                     Currently powering production systems at Jifiti while finishing a B.Sc. in Computer Science.{" "}
                     I turn ambiguous backend puzzles and AI research into clean, reliable software.
                 </p>
 
-                {/* ── CTA Row ── */}
+                {/* ── CTA Row ── 
+                    Kept the fade-up animation here, as buttons are rarely the LCP. */}
                 <div
                     className="animate-hero-fade-up flex w-full flex-col items-center justify-center gap-3 pt-2 sm:flex-row sm:flex-wrap"
-                    style={{ animationDelay: "260ms" }}
+                    style={{ animationDelay: "150ms" }}
                 >
                     {/* Primary Button — WhatsApp */}
                     <a

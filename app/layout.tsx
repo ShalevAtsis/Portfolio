@@ -2,19 +2,22 @@ import type { Metadata } from "next";
 import { Inter, Lora } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/shared/Providers";
-import ScrollToTop from "@/components/shared/ScrollToTop";
 import { DebugProvider } from "@/context/DebugContext";
 import DebugLayoutWrapper from "@/components/layout/DebugLayoutWrapper";
+import dynamic from "next/dynamic";
 import { asset } from "@/lib/basePath";
+import ScrollToTop from "@/components/shared/ScrollToTop";
 
 const inter = Inter({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"], // Stripped non-essential weights
   variable: "--font-sans",
   display: "swap",   // paint text immediately with fallback, swap when loaded
   preload: true,     // emits <link rel=preload> in <head> for zero-delay font start
 });
 const lora = Lora({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-serif",
   display: "swap",
   preload: true,
@@ -88,8 +91,30 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        {/* Critical CSS for Hero LCP Element to paint immediately without waiting for main CSS file */}
+        <style
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `
+              @keyframes heroSlideUp {
+                from { transform: translateY(14px); }
+                to { transform: translateY(0); }
+              }
+              @keyframes heroFadeUp {
+                from { opacity: 0; transform: translateY(18px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+              .animate-hero-slide-up {
+                animation: heroSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+              }
+              .animate-hero-fade-up {
+                animation: heroFadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+              }
+            `
+          }}
+        />
       </head>
-      <body className="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 font-sans antialiased overflow-x-hidden transition-colors duration-300" suppressHydrationWarning>
+      <body className="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 font-sans antialiased overflow-x-hidden" suppressHydrationWarning>
         {/* ── Skip to Content — WCAG 2.4.1 Bypass Blocks ──────────────────────────
             Visually hidden until keyboard-focused. Appears as a premium cyan pill
             at the very top of the viewport for Tab-key users, letting them skip
@@ -105,14 +130,16 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <DebugProvider>
-          <DebugLayoutWrapper>
-            <Providers>
-                <ScrollToTop />
-                {children}
-              </Providers>
-          </DebugLayoutWrapper>
-        </DebugProvider>
+        <Providers>
+          <div className="flex min-h-screen flex-col transition-colors duration-300">
+            <DebugProvider>
+              <DebugLayoutWrapper>
+                  <ScrollToTop />
+                  {children}
+              </DebugLayoutWrapper>
+            </DebugProvider>
+          </div>
+        </Providers>
       </body>
     </html>
   );
