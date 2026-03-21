@@ -333,10 +333,11 @@ function NowPlayingCard() {
 
             {/* Progress bar — live */}
             <div className="mt-4">
-                <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="h-1 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 origin-left">
                     <motion.div
-                        className="h-full rounded-full bg-emerald-500"
-                        animate={{ width: `${progress}%` }}
+                        className="h-full w-full rounded-full bg-emerald-500 origin-left"
+                        style={{ originX: 0 }}
+                        animate={{ scaleX: progress / 100 }}
                         transition={{ duration: 0.25, ease: "linear" }}
                     />
                 </div>

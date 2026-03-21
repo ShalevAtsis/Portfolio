@@ -158,8 +158,8 @@ export default function TerminalOverlay() {
             {/* Success progress */}
             {showSuccess && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 className="mt-4"
               >
                 <p className="mb-2 text-emerald-400">

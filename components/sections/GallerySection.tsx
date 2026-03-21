@@ -126,7 +126,7 @@ export default function GallerySection() {
 
   const handlePrev = useCallback(() => { prev(); resetTimer(next); }, [prev, next, resetTimer]);
   const handleNext = useCallback(() => { next(); resetTimer(next); }, [next, resetTimer]);
-  const handleDot  = useCallback((i: number) => {
+  const handleDot = useCallback((i: number) => {
     setCurrent(i);
     setAnimKey((k) => k + 1);
     resetTimer(next);

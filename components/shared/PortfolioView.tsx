@@ -9,14 +9,16 @@ import BugTrigger from "@/components/shared/BugTrigger";
 // Only CleanHero must be eagerly loaded — it contains the LCP element
 import CleanHero from "@/components/sections/CleanHero";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
-// Regular static imports for all sections to ensure immediate rendering
-import AboutSection from "@/components/sections/AboutSection";
-import CleanExperience from "@/components/sections/CleanExperience";
-import CleanSkills from "@/components/sections/CleanSkills";
-import CleanProjects from "@/components/sections/CleanProjects";
-import GallerySection from "@/components/sections/GallerySection";
-import PersonalWorld from "@/components/sections/PersonalWorld";
-import ContactSection from "@/components/sections/ContactSection";
+import dynamic from "next/dynamic";
+
+// Dynamic imports for below-the-fold sections
+const AboutSection = dynamic(() => import("@/components/sections/AboutSection"));
+const CleanExperience = dynamic(() => import("@/components/sections/CleanExperience"));
+const CleanSkills = dynamic(() => import("@/components/sections/CleanSkills"));
+const CleanProjects = dynamic(() => import("@/components/sections/CleanProjects"));
+const GallerySection = dynamic(() => import("@/components/sections/GallerySection"));
+const PersonalWorld = dynamic(() => import("@/components/sections/PersonalWorld"));
+const ContactSection = dynamic(() => import("@/components/sections/ContactSection"));
 
 interface PortfolioViewProps {
   repos: GitHubRepo[];
