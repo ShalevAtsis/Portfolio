@@ -22,7 +22,8 @@ export default function CleanHero() {
     return (
         <section
             id="hero"
-            className="relative flex flex-col items-center px-4 pt-24 pb-8 text-center md:pt-32 md:pb-16 lg:pt-40 lg:pb-20"
+            className="relative flex flex-col justify-center items-center px-4 pt-24 pb-8 text-center md:pt-32 md:pb-16 lg:pt-40 lg:pb-20"
+            style={{ minHeight: "80vh" }}
         >
             {/* Ambient glow */}
             <div

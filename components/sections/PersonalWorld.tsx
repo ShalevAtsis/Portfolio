@@ -129,7 +129,10 @@ function CinephileReaderCard() {
     const [tab, setTab] = useState<"cinema" | "books">("cinema");
 
     return (
-        <div className="flex flex-col rounded-2xl border border-slate-200/60 bg-white/60 p-5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/70">
+        <div 
+            className="flex flex-col rounded-2xl border border-slate-200/60 bg-white/60 p-5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/70"
+            style={{ minHeight: 380 }}
+        >
             {/* Tab toggle */}
             <div className="mb-4 flex gap-2">
                 {(["cinema", "books"] as const).map((t) => (
@@ -264,7 +267,10 @@ function NowPlayingCard() {
     };
 
     return (
-        <div className="flex flex-col rounded-2xl border border-slate-200/60 bg-white/60 p-5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/70">
+        <div 
+            className="flex flex-col rounded-2xl border border-slate-200/60 bg-white/60 p-5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/70"
+            style={{ minHeight: 380 }}
+        >
             <CardLabel icon={<Music2 className="h-3 w-3" />} label="Now Playing" color="text-emerald-600 dark:text-emerald-400" />
 
             {/* Album art + vinyl */}
@@ -401,7 +407,10 @@ function SuggestionCard() {
     const reset = () => { setState("idle"); setInput(""); };
 
     return (
-        <div className="col-span-1 md:col-span-2 lg:col-span-4 rounded-2xl border border-slate-200/60 bg-white/60 p-6 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/70">
+        <div 
+            className="col-span-1 md:col-span-2 lg:col-span-4 rounded-2xl border border-slate-200/60 bg-white/60 p-6 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/70"
+            style={{ minHeight: 300 }}
+        >
             <div className="mx-auto max-w-2xl">
                 <CardLabel icon={<Sparkles className="h-3 w-3" />} label="AI Suggestion Engine" color="text-violet-600 dark:text-violet-400" />
 
@@ -519,6 +528,7 @@ function AISharkCard() {
                 alt="Hammerhead shark — AI CV scan"
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority
                 className="absolute inset-0 object-cover transition-transform duration-700 ease-out"
                 style={{ transform: hovered ? "scale(1.05)" : "scale(1)" }}
             />

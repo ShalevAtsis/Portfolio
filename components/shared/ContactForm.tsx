@@ -122,7 +122,7 @@ export default function ContactForm() {
     const inputErrorStyle = "border-red-500/50 focus:border-red-500 focus:ring-1 focus:ring-red-500";
 
     return (
-        <div className="w-full bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div className="w-full bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 sm:p-8" style={{ minHeight: 520 }}>
             <AnimatePresence mode="wait">
                 {!isSuccess ? (
                     <motion.form

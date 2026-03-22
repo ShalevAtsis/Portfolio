@@ -169,27 +169,32 @@ export default function GallerySection() {
           style={{ aspectRatio: `${img.width} / ${img.height}` }}
         >
           {/* All slides stacked — only the active one animates */}
-          {IMAGES.map((image, i) => (
-            <div
-              key={i === current ? `active-${animKey}` : image.src}
-              className={[
-                "absolute inset-0",
-                i === current ? "gallery-slide-active" : "gallery-slide-idle",
-              ].join(" ")}
-              style={{ zIndex: i === current ? 2 : 1 }}
-            >
-              <Image
-                loader={cloudinaryLoader}
-                src={image.src}
-                alt={image.alt}
-                fill
-                sizes="100vw"
-                quality={90}
-                priority={i === 0}
-                className="object-cover"
-              />
-            </div>
-          ))}
+          {IMAGES.map((image, i) => {
+            const isNear = Math.abs(i - current) <= 1 || (i === 0 && current === IMAGES.length - 1) || (i === IMAGES.length - 1 && current === 0);
+            return (
+              <div
+                key={i === current ? `active-${animKey}` : image.src}
+                className={[
+                  "absolute inset-0",
+                  i === current ? "gallery-slide-active" : "gallery-slide-idle",
+                ].join(" ")}
+                style={{ zIndex: i === current ? 2 : 1 }}
+              >
+                {isNear ? (
+                  <Image
+                    loader={cloudinaryLoader}
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    sizes="(max-width: 1280px) 100vw, 1280px"
+                    quality={80}
+                    priority={i === 0}
+                    className="object-cover"
+                  />
+                ) : null}
+              </div>
+            );
+          })}
 
           {/* Bottom vignette — decorative */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent z-10" />
