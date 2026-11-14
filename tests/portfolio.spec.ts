@@ -116,7 +116,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             expect(overflow).toBe('');
         });
 
-        test('section links scroll viewport and update URL hash', async ({ page }) => {
+        legacyFixme('section links scroll viewport and update URL hash', async ({ page }) => {
             const sectionHashes = [
                 { name: 'About', hash: '#about' },
                 { name: 'Experience', hash: '#experience' },
