@@ -1,40 +1,37 @@
-import { test, expect, isVisualProject, volatileRegions } from './fixtures';
-import { Navbar } from './pages/Navbar';
-import { HeroSection } from './pages/HeroSection';
-import { AboutSection } from './pages/AboutSection';
-import { ExperienceSection } from './pages/ExperienceSection';
-import { SkillsSection } from './pages/SkillsSection';
-import { ProjectsSection } from './pages/ProjectsSection';
-import { PersonalWorldSection } from './pages/PersonalWorldSection';
-import { ContactSection } from './pages/ContactSection';
-import { ResumeView } from './pages/ResumeView';
+import { test, expect, openHome, showSection, hasCompactNav, isVisualProject, visualOptions } from './fixtures';
+import {
+    URLS,
+    Navbar,
+    HeroSection,
+    AboutSection,
+    ExperienceSection,
+    SkillsSection,
+    ProjectsSection,
+    PersonalWorldSection,
+    ContactSection,
+    AgentConsole,
+    ResumeView,
+} from './pages';
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Shared test data (single source of truth for URLs and copy)
+//  Shared test data. Keep in sync with lib/content.ts and lib/nav.ts.
 // ─────────────────────────────────────────────────────────────────────────────
-const URLS = {
-    portfolio: '/', // Uses baseURL from playwright.config.ts
-    whatsapp: 'https://wa.me/+972585060699',
-    github: 'https://github.com/ShalevAtsis',
-    linkedin: 'https://www.linkedin.com/in/shalev-atsis-software-developer/',
-    email: 'mailto:Shalevatsis@gmail.com',
-    cv: '/Shalev_Atsis_CV.pdf',
-} as const;
+const SECTIONS = [
+    { name: 'About', hash: '#about' },
+    { name: 'Experience', hash: '#experience' },
+    { name: 'Skills', hash: '#skills' },
+    { name: 'Projects', hash: '#projects' },
+    { name: 'Gallery', hash: '#gallery' },
+    { name: 'Personal World', hash: '#personal-world' },
+    { name: 'Contact', hash: '#contact' },
+] as const;
 
 const PROJECTS = ['SwellSight', 'Anomalyze', 'Multithreaded TCP Chat', 'E2E DevOps Pipeline', 'Titanic ML Flow', 'LeetCode Architecture'] as const;
 const EXPERIENCE_JOBS = ['QA AI Automation Engineer', 'Automation Engineer', 'Tier 2 Software Support Engineer', 'B.Sc. Computer Science', 'Software QA Engineer', 'Command and Control System Operator'] as const;
 const EXPERIENCE_COMPANIES = ['High Lander', 'Jifiti', 'Holon Institute of Technology (HIT)', 'Hartech Technologies', 'Israeli Navy'] as const;
-
-// Tests that time out against the pre-redesign UI: the full-page 2D canvas and the
-// software-rendered globe starve the main thread in headless browsers, so clicks
-// in the lower sections never become actionable. They are rewritten and re-enabled
-// together with the redesign (see IMPROVEMENT_PLAN.md, Phases 2-4).
-const legacyFixme = test.fixme;
-
-// ─────────────────────────────────────────────────────────────────────────────
+const SKILL_CATEGORIES = ['Test Automation & QA', 'AI & Machine Learning', 'Programming', 'Cloud & DevOps', 'Concepts & Soft Skills'] as const;
 
 test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
-
     let navbar: Navbar;
     let hero: HeroSection;
     let about: AboutSection;
@@ -43,6 +40,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
     let projects: ProjectsSection;
     let world: PersonalWorldSection;
     let contact: ContactSection;
+    let agent: AgentConsole;
     let resume: ResumeView;
 
     test.beforeEach(async ({ page }) => {
@@ -54,193 +52,155 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
         projects = new ProjectsSection(page);
         world = new PersonalWorldSection(page);
         contact = new ContactSection(page);
+        agent = new AgentConsole(page);
         resume = new ResumeView(page);
 
-        await page.goto(URLS.portfolio);
-        await expect(hero.headingFirstFrame).toBeVisible({ timeout: 10_000 });
-        // Wait for hydration (ViewProvider sets data-view in an effect) so clicks are never lost.
-        await expect(page.locator('html')).toHaveAttribute('data-view', 'portfolio', { timeout: 15_000 });
+        await openHome(page);
+        await expect(hero.heading).toBeVisible();
     });
 
     // ═══════════════════════════════════════════════════════════════════════
     //  1. NAVBAR
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Navbar', () => {
-
-        test('renders all social icon links with correct hrefs', async ({ page }) => {
-            await expect(navbar.getSocialLink('github').first()).toHaveAttribute('href', URLS.github);
-            await expect(navbar.getSocialLink('linkedin').first()).toHaveAttribute('href', URLS.linkedin);
-            await expect(navbar.getSocialLink('email').first()).toHaveAttribute('href', URLS.email);
-            await expect(navbar.getSocialLink('whatsapp').first()).toHaveAttribute('href', URLS.whatsapp);
+        test('social links are filled in after hydration with the correct hrefs', async () => {
+            await expect(navbar.socialLink('github')).toHaveAttribute('href', URLS.github);
+            await expect(navbar.socialLink('linkedin')).toHaveAttribute('href', URLS.linkedin);
+            await expect(navbar.socialLink('email')).toHaveAttribute('href', URLS.email);
+            await expect(navbar.socialLink('whatsapp')).toHaveAttribute('href', URLS.whatsapp);
         });
 
-        test('hamburger menu opens and exposes all section links', async ({ page }) => {
-            await expect(navbar.menuButton).toBeVisible();
-            await navbar.openMenu();
-            await expect(navbar.overlay).toBeVisible();
+        test('contact details are not present in the server-rendered HTML', async ({ request }) => {
+            const html = await (await request.get('/')).text();
+            expect(html).not.toContain('Shalevatsis@gmail.com');
+            expect(html).not.toContain('972585060699');
+        });
 
-            // All seven section links must be present with correct anchors
-            const sections = ['About', 'Experience', 'Skills', 'Projects', 'Gallery', 'Personal World', 'Contact'] as const;
-            for (const section of sections) {
-                await expect(navbar.overlay.getByRole('link', { name: section })).toBeVisible();
+        test('desktop: inline section links navigate and update the URL hash', async ({ page }) => {
+            test.skip(hasCompactNav(page), 'inline links exist on large screens only');
+            for (const { name, hash } of SECTIONS) {
+                await navbar.inlineLink(name).click();
+                await expect(page).toHaveURL(new RegExp(`${hash}$`));
+                await expect(page.locator(hash)).toBeInViewport();
             }
+        });
 
-            // Links are numbered 01…07
+        test('compact: burger opens a sheet with all numbered section links', async ({ page }) => {
+            test.skip(!hasCompactNav(page), 'the burger menu exists on small screens only');
+            await navbar.menuButton.click();
+            await expect(navbar.overlay).toBeVisible();
+            for (const { name } of SECTIONS) {
+                await expect(navbar.overlay.getByRole('link', { name })).toBeVisible();
+            }
             await expect(navbar.overlay.getByRole('list')).toContainText('01About02Experience03Skills04Projects05Gallery06Personal World07Contact');
         });
 
-        test('hamburger menu closes correctly and removes scroll lock', async ({ page }) => {
-            await navbar.openMenu();
+        test('compact: sheet locks scrolling, closes, and returns focus to the burger', async ({ page }) => {
+            test.skip(!hasCompactNav(page), 'the burger menu exists on small screens only');
+            expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+
+            await navbar.menuButton.click();
             await expect(navbar.overlay).toBeVisible();
+            expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden');
 
-            let overflow = await page.evaluate(() => document.body.style.overflow);
-            expect(overflow).toBe('hidden');
-
-            await navbar.closeMenu();
-            await expect(navbar.overlay).not.toBeVisible();
-
-            overflow = await page.evaluate(() => document.body.style.overflow);
-            expect(overflow).toBe('');
+            await navbar.closeMenuButton.click();
+            await expect(navbar.overlay).toBeHidden();
+            expect(await page.evaluate(() => document.body.style.overflow)).toBe('');
+            await expect(navbar.menuButton).toBeFocused();
         });
 
-        test('scroll lock is applied on open and released on close', async ({ page }) => {
-            let overflow = await page.evaluate(() => document.body.style.overflow);
-            expect(overflow).not.toBe('hidden');
-
-            await navbar.openMenu();
-            overflow = await page.evaluate(() => document.body.style.overflow);
-            expect(overflow).toBe('hidden');
-
-            await navbar.closeMenu();
-            overflow = await page.evaluate(() => document.body.style.overflow);
-            expect(overflow).toBe('');
+        test('compact: Escape closes the sheet', async ({ page }) => {
+            test.skip(!hasCompactNav(page), 'the burger menu exists on small screens only');
+            await navbar.menuButton.click();
+            await expect(navbar.overlay).toBeVisible();
+            await page.keyboard.press('Escape');
+            await expect(navbar.overlay).toBeHidden();
         });
 
-        legacyFixme('section links scroll viewport and update URL hash', async ({ page }) => {
-            const sectionHashes = [
-                { name: 'About', hash: '#about' },
-                { name: 'Experience', hash: '#experience' },
-                { name: 'Skills', hash: '#skills' },
-                { name: 'Projects', hash: '#projects' },
-                { name: 'Gallery', hash: '#gallery' },
-                { name: 'Personal World', hash: '#personal-world' },
-                { name: 'Contact', hash: '#contact' },
-            ];
-
-            for (const { name, hash } of sectionHashes) {
-                await navbar.openMenu();
+        test('compact: sheet links navigate and update the URL hash', async ({ page }) => {
+            test.skip(!hasCompactNav(page), 'the burger menu exists on small screens only');
+            for (const { name, hash } of SECTIONS) {
+                await navbar.menuButton.click();
                 await navbar.overlay.getByRole('link', { name }).click();
-                await expect(page).toHaveURL(new RegExp(hash));
+                await expect(page).toHaveURL(new RegExp(`${hash}$`));
+                await expect(navbar.overlay).toBeHidden();
             }
         });
 
-        test('theme toggle switches dark/light class on <html> element', async ({ page }) => {
+        test('theme toggle switches the dark class on <html>', async ({ page }) => {
             const html = page.locator('html');
-            const initialClass = (await html.getAttribute('class')) ?? '';
-            const isInitiallyDark = initialClass.includes('dark');
-
-            await navbar.toggleTheme();
-            if (isInitiallyDark) {
-                await expect(html).not.toHaveClass(/dark/);
-            } else {
-                await expect(html).toHaveClass(/dark/);
-            }
-
-            // Revert
-            await navbar.toggleTheme();
-            if (isInitiallyDark) {
-                await expect(html).toHaveClass(/dark/);
-            } else {
-                await expect(html).not.toHaveClass(/dark/);
-            }
+            await expect(html).toHaveClass(/dark/); // dark is the default theme
+            await navbar.themeToggle.click();
+            await expect(html).not.toHaveClass(/dark/);
+            await navbar.themeToggle.click();
+            await expect(html).toHaveClass(/dark/);
         });
 
-        test('view-mode toggle switches between Portfolio and Resume views', async ({ page }) => {
-            await expect(navbar.viewModeToggle).toBeVisible();
-            const isResume = await navbar.viewModeToggle.getAttribute('aria-checked') === 'true';
-
-            await navbar.toggleViewMode();
-            await expect(navbar.viewModeToggle).toHaveAttribute('aria-checked', isResume ? 'false' : 'true');
-
-            // Revert
-            await navbar.toggleViewMode();
-            await expect(navbar.viewModeToggle).toHaveAttribute('aria-checked', isResume ? 'true' : 'false');
+        test('view-mode toggle switches between Portfolio and Resume views', async () => {
+            await expect(navbar.viewModeToggle).toHaveAttribute('aria-checked', 'false');
+            await navbar.viewModeToggle.click();
+            await expect(navbar.viewModeToggle).toHaveAttribute('aria-checked', 'true');
+            await navbar.viewModeToggle.click();
+            await expect(navbar.viewModeToggle).toHaveAttribute('aria-checked', 'false');
         });
 
-        legacyFixme('clicking brand name scrolls viewport to top', async ({ page }) => {
-            // Scroll down first
-            await page.evaluate(() => window.scrollTo(0, 1000));
-            let scrollY = await page.evaluate(() => window.scrollY);
-            expect(scrollY).toBeGreaterThan(500);
-
-            // Click brand name (using the POM navbar object if available, or direct locator)
-            // The Navbar class in POM likely has a locator for the brand name, but looking at previous snippets:
-            // I'll check Navbar POM first.
-            await page.getByRole('link', { name: 'Shalev Atsis' }).click();
-
-            // Wait for smooth scroll
-            await page.waitForTimeout(1000);
-
-            scrollY = await page.evaluate(() => window.scrollY);
-            expect(scrollY).toBeLessThan(100);
+        test('clicking the brand name scrolls back to the top', async ({ page }) => {
+            await showSection(page, 'skills');
+            await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+            await navbar.brandLink.click();
+            await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 8000 }).toBeLessThan(50);
         });
 
-        test('[PIXEL] navbar screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveScreenshot('navbar.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
-            });
+        test('skip link is the first focusable element and targets the main content', async ({ page, browserName }) => {
+            test.skip(browserName === 'webkit', 'WebKit does not Tab to links by default');
+            await page.keyboard.press('Tab');
+            const skip = page.getByRole('link', { name: 'Skip to content' });
+            await expect(skip).toBeFocused();
+            await expect(skip).toHaveAttribute('href', '#main-content');
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  2. HERO SECTION
+    //  2. HERO + OCEAN SHADER
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Hero Section', () => {
-
-        test('renders status badge, heading, and subtitle', async () => {
+        test('renders status badge and heading', async () => {
             await expect(hero.statusBadge).toBeVisible();
-            await expect(hero.headingFirstFrame).toBeVisible();
+            await expect(hero.heading).toBeVisible();
         });
 
-        test('all CTA links are visible with correct hrefs', async () => {
+        test('all CTA links have the correct hrefs', async () => {
             await expect(hero.whatsappButton).toHaveAttribute('href', URLS.whatsapp);
             await expect(hero.downloadCVButton).toHaveAttribute('href', URLS.cv);
-            await expect(hero.getSocialLinkInHero('email')).toHaveAttribute('href', URLS.email);
-            await expect(hero.getSocialLinkInHero('github')).toHaveAttribute('href', URLS.github);
-            await expect(hero.getSocialLinkInHero('linkedin')).toHaveAttribute('href', URLS.linkedin);
+            await expect(hero.link('email')).toHaveAttribute('href', URLS.email);
+            await expect(hero.link('github')).toHaveAttribute('href', URLS.github);
+            await expect(hero.link('linkedin')).toHaveAttribute('href', URLS.linkedin);
         });
 
-        test('WhatsApp link opens external page in new tab', async ({ page }) => {
+        test('WhatsApp link opens in a new tab', async ({ page }) => {
             const popupPromise = page.waitForEvent('popup');
             await hero.whatsappButton.click();
-            const popup = await popupPromise;
-            await expect(popup).toBeDefined();
+            expect((await popupPromise).url()).toContain('wa.me');
         });
 
         test('Download CV triggers a file download', async ({ page }) => {
             const downloadPromise = page.waitForEvent('download');
             await hero.downloadCVButton.click();
-            const download = await downloadPromise;
-            expect(download.suggestedFilename()).toContain('CV');
+            expect((await downloadPromise).suggestedFilename()).toContain('CV');
         });
 
-        test('GitHub link opens external page in new tab', async ({ page }) => {
-            const popupPromise = page.waitForEvent('popup');
-            await hero.getSocialLinkInHero('github').click();
-            const popup = await popupPromise;
-            expect(popup.url()).toContain('github.com');
-        });
-
-        test('LinkedIn link opens external page in new tab', async ({ page }) => {
-            const popupPromise = page.waitForEvent('popup');
-            await hero.getSocialLinkInHero('linkedin').click();
-            const popup = await popupPromise;
-            expect(popup.url()).toContain('linkedin.com');
+        test('GitHub and LinkedIn links open in a new tab', async ({ page }) => {
+            for (const name of ['github', 'linkedin'] as const) {
+                const popupPromise = page.waitForEvent('popup');
+                await hero.link(name).click();
+                const popup = await popupPromise;
+                expect(popup.url()).toContain(`${name}.com`);
+                await popup.close();
+            }
         });
 
         test('hero ARIA snapshot matches expected structure', async ({ page }) => {
+            await expect(hero.whatsappButton).toHaveAttribute('href', URLS.whatsapp);
             await expect(page.locator('#hero')).toMatchAriaSnapshot(`
                 - text: Open To Opportunities
                 - heading "Shalev Atsis" [level=1]
@@ -248,659 +208,574 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
                 - paragraph: /AI-driven quality engineering for autonomous aviation at High Lander/
                 - link "Message on WhatsApp":
                   - /url: https://wa.me/+972585060699
-                  - img
-                  - text: ""
                 - link "Download CV":
                   - /url: /Shalev_Atsis_CV.pdf
-                  - img
-                  - text: ""
-                - link "Send email to Shalevatsis@gmail.com":
+                - link "Send email":
                   - /url: mailto:Shalevatsis@gmail.com
-                  - img
-                  - text: ""
                 - link "GitHub Profile":
                   - /url: https://github.com/ShalevAtsis
-                  - img
                 - link "LinkedIn Profile":
                   - /url: https://www.linkedin.com/in/shalev-atsis-software-developer/
-                  - img
             `);
         });
 
-        test('[PIXEL] hero section screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.locator('#hero')).toHaveScreenshot('hero-section.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
-            });
+        test('ocean backdrop is decorative and its canvas mounts', async () => {
+            await expect(hero.oceanBackdrop).toHaveAttribute('aria-hidden', 'true');
+            await expect(hero.oceanCanvas).toBeAttached();
+            await expect(hero.oceanCanvas).toHaveAttribute('aria-hidden', 'true');
+            // Either WebGL2 is available and a frame was drawn, or the CSS fallback stays visible.
+            await expect(hero.oceanCanvas).toHaveAttribute('data-state', /^(webgl|fallback)$/, { timeout: 15_000 });
+        });
+
+        test('ocean shader animates while the hero is on screen and pauses off screen', async ({ page }) => {
+            // Headless browsers use a software renderer, which the site treats as "no WebGL";
+            // ?ocean=webgl forces the real shader so its loop can be verified.
+            await page.goto('/?ocean=webgl');
+            await expect(hero.oceanCanvas).toHaveAttribute('data-state', /^(webgl|fallback)$/, { timeout: 15_000 });
+            test.skip((await hero.oceanCanvas.getAttribute('data-state')) !== 'webgl', 'WebGL2 is not available in this browser');
+            await expect(hero.oceanCanvas).toHaveAttribute('data-running', 'true');
+            await showSection(page, 'skills');
+            await expect(hero.oceanCanvas).toHaveAttribute('data-running', 'false');
+        });
+
+        test('hero content recedes (scale + fade) as the page scrolls', async ({ page }) => {
+            const content = hero.heading.locator('xpath=ancestor::div[1]');
+            await page.evaluate(() => window.scrollTo(0, window.innerHeight * 0.6));
+            await expect.poll(async () => Number(await content.evaluate((el) => getComputedStyle(el).opacity))).toBeLessThan(0.6);
+        });
+    });
+
+    test.describe('Reduced motion', () => {
+        test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
+        test('ocean renders a still frame without an animation loop', async ({ page }) => {
+            await page.goto('/?ocean=webgl');
+            await expect(hero.oceanCanvas).toHaveAttribute('data-state', /^(webgl|fallback)$/, { timeout: 15_000 });
+            await expect(hero.oceanCanvas).toHaveAttribute('data-running', 'false');
+            await page.waitForTimeout(500);
+            await expect(hero.oceanCanvas).toHaveAttribute('data-running', 'false');
+        });
+
+        test('hero does not transform on scroll and the About statement is a plain paragraph', async ({ page }) => {
+            const content = hero.heading.locator('xpath=ancestor::div[1]');
+            await page.evaluate(() => window.scrollTo(0, window.innerHeight * 0.6));
+            await page.waitForTimeout(300);
+            expect(Number(await content.evaluate((el) => getComputedStyle(el).opacity))).toBe(1);
+
+            await showSection(page, 'about');
+            const statement = about.section.getByText(/I build software you can trust/);
+            await expect(statement).toBeVisible();
+            expect(Number(await statement.evaluate((el) => getComputedStyle(el).opacity))).toBe(1);
+        });
+
+        test('agent console shows its text instantly and still fixes the site', async () => {
+            await agent.open();
+            await expect(agent.transcript).toContainText('Tell me what to do in plain language');
+            await agent.ask('fix the site');
+            await expect(agent.toast).toBeVisible();
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  3. ABOUT SECTION
+    //  3. ABOUT
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('About Section', () => {
-
         test.beforeEach(async ({ page }) => {
-            await page.goto('#about');
+            await showSection(page, 'about');
         });
 
-        test('renders all three story cards', async () => {
-            await expect(about.engineerCard).toBeVisible();
-            await expect(about.passionCard).toBeVisible();
-            await expect(about.journeyCard).toBeVisible();
+        test('renders the heading, the statement, and all three story cards', async () => {
+            await expect(about.heading).toBeVisible();
+            await expect(about.section).toContainText('I build software you can trust in places where failure is not an option');
+            for (const label of ['The Engineer', 'The Passion', 'The Journey']) {
+                await expect(about.label(label)).toBeVisible();
+            }
+            for (const title of ['Engineering trust in AI', 'At the AI frontier', 'An unconventional path']) {
+                await expect(about.cardHeading(title)).toBeVisible();
+            }
         });
 
-        test('each card has a correct sub-heading', async () => {
-            await expect(about.getCardHeading('Engineering trust in AI')).toBeVisible();
-            await expect(about.getCardHeading('At the AI frontier')).toBeVisible();
-            await expect(about.getCardHeading('An unconventional path')).toBeVisible();
+        test('statement words light up with scroll', async () => {
+            const lastWord = about.section.locator('p span', { hasText: /^fly\.\s*$/ });
+            await about.section.getByText('I build software', { exact: false }).first().scrollIntoViewIfNeeded();
+            await expect.poll(async () => Number(await lastWord.evaluate((el) => getComputedStyle(el).opacity))).toBeLessThan(0.5);
+            await about.cardHeading('Engineering trust in AI').scrollIntoViewIfNeeded();
+            await expect.poll(async () => Number(await lastWord.evaluate((el) => getComputedStyle(el).opacity))).toBeGreaterThan(0.9);
         });
 
-        test('about ARIA snapshot matches expected content', async ({ page }) => {
-            await expect(page.locator('#about')).toMatchAriaSnapshot(`
-                - paragraph: About Me
-                - heading "The TL;DR" [level=2]
-                - paragraph: The Engineer
-                - heading "Engineering trust in AI" [level=3]
-                - paragraph: /AI-driven quality engineering at High Lander/
-                - paragraph: The Passion
-                - heading "At the AI frontier" [level=3]
-                - paragraph: /My deep interest lies at the intersection of AI/
-                - paragraph: The Journey
-                - heading "An unconventional path" [level=3]
-                - paragraph: /My path to software wasn't a straight line/
-            `);
-        });
-
-        test('[PIXEL] about section screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.locator('#about')).toHaveScreenshot('about-section.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
-            });
+        test('content reflects the current facts', async () => {
+            await expect(about.section).toContainText('High Lander');
+            await expect(about.section).toContainText('Honor Graduate, GPA 94');
+            await expect(about.section).toContainText('14-person platoon');
+            await expect(about.section).not.toContainText('on track to graduate');
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  4. EXPERIENCE SECTION
+    //  4. EXPERIENCE
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Experience Section', () => {
-
         test.beforeEach(async ({ page }) => {
-            await page.goto('#experience');
+            await showSection(page, 'experience');
         });
 
         test('section heading is visible', async () => {
             await expect(experience.heading).toBeVisible();
         });
 
-        test('all job titles are visible', async () => {
-            for (const title of EXPERIENCE_JOBS) {
-                await expect(experience.getJobTitle(title)).toBeVisible();
+        test('all job titles and organisations are present', async () => {
+            for (const title of EXPERIENCE_JOBS) await expect(experience.jobTitle(title)).toBeVisible();
+            for (const company of EXPERIENCE_COMPANIES) await expect(experience.company(company)).toBeVisible();
+        });
+
+        test('entries contain the expected facts', async () => {
+            await expect(experience.section).toContainText('AI-driven quality engineering for autonomous aviation');
+            await expect(experience.section).toContainText('Cut manual regression time by 30%');
+            await expect(experience.section).toContainText('Investigated production incidents');
+            await expect(experience.section).toContainText('Honor Graduate · GPA 94');
+            await expect(experience.section).toContainText('14-person specialist platoon');
+            await expect(experience.section).toContainText('Sep 2026 – Present');
+        });
+
+        test('stat counters settle on their real values', async () => {
+            const stats = experience.section.locator('dl');
+            await stats.scrollIntoViewIfNeeded();
+            for (const value of ['50+', '70', '14', '94']) {
+                await expect(stats.locator('dd', { hasText: new RegExp(`^${value.replace('+', '\\+')}$`) })).toBeVisible({ timeout: 8000 });
             }
         });
 
-        test('all company names are visible', async () => {
-            for (const company of EXPERIENCE_COMPANIES) {
-                await expect(experience.getCompanyName(company).first()).toBeVisible();
-            }
-        });
-
-        test('current and previous roles contain expected bullet points', async ({ page }) => {
-            await expect(page.locator('#experience')).toContainText('AI-driven quality engineering for autonomous aviation');
-            await expect(page.locator('#experience')).toContainText('Cut manual regression time by 30%');
-            await expect(page.locator('#experience')).toContainText('Investigated production incidents');
-            await expect(page.locator('#experience')).toContainText('Honor Graduate · GPA 94');
-            await expect(page.locator('#experience')).toContainText('14-person specialist platoon');
-        });
-
-        test('experience ARIA snapshot matches full section', async ({ page }) => {
-            await expect(page.locator('#experience')).toMatchAriaSnapshot(`
+        test('experience ARIA snapshot matches the timeline order', async () => {
+            await expect(experience.section).toMatchAriaSnapshot(`
                 - heading "Experience & Education" [level=2]
-                - paragraph: /From naval operations to AI quality engineering/
-                - heading "QA AI Automation Engineer" [level=3]
-                - paragraph: High Lander
-                - text: /Current Sep \\d+ – Present/
                 - list:
-                  - listitem: /AI-driven quality engineering for autonomous aviation/
-                  - listitem: /Validate AI and computer-vision algorithms/
-                  - listitem: /Playwright, TypeScript, and Python/
-                - heading "Automation Engineer" [level=3]
-                - paragraph: Jifiti
-                - list:
-                  - listitem: /Playwright and TypeScript E2E/
-                  - listitem: /Cut manual regression time by 30%/
-                  - listitem: /CI\\/CD/
-                - heading "Tier 2 Software Support Engineer" [level=3]
-                - paragraph: Jifiti
-                - heading "B.Sc. Computer Science" [level=3]
-                - paragraph: Holon Institute of Technology (HIT)
-                - text: /Honor Graduate · GPA 94 Oct \\d+ – Jun \\d+/
-                - heading "Software QA Engineer" [level=3]
-                - paragraph: Hartech Technologies
-                - list:
-                  - listitem: /Ran \\d+\\+ field tests/
-                - heading "Command and Control System Operator" [level=3]
-                - paragraph: Israeli Navy
-                - list:
-                  - listitem: /Operated radar, sonar, and electronic warfare systems/
-                  - listitem: /Coordinated multi-platform intelligence integration/
-                  - listitem: /Commanded a \\d+-person crew/
+                  - listitem:
+                    - article:
+                      - heading "QA AI Automation Engineer" [level=3]
+                      - paragraph: High Lander
+                  - listitem:
+                    - article:
+                      - heading "Automation Engineer" [level=3]
+                      - paragraph: Jifiti
+                  - listitem:
+                    - article:
+                      - heading "Tier 2 Software Support Engineer" [level=3]
+                      - paragraph: Jifiti
+                  - listitem:
+                    - article:
+                      - heading "B.Sc. Computer Science" [level=3]
+                      - paragraph: Holon Institute of Technology (HIT)
+                  - listitem:
+                    - article:
+                      - heading "Software QA Engineer" [level=3]
+                      - paragraph: Hartech Technologies
+                  - listitem:
+                    - article:
+                      - heading "Command and Control System Operator" [level=3]
+                      - paragraph: Israeli Navy
             `);
-        });
-
-        test('[PIXEL] experience section screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.locator('#experience')).toHaveScreenshot('experience-section.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
-            });
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  5. SKILLS SECTION
+    //  5. SKILLS
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Skills Section', () => {
-
         test.beforeEach(async ({ page }) => {
-            await page.goto('#skills');
+            await showSection(page, 'skills');
         });
 
-        test('all four skill categories are visible', async () => {
-            await expect(skills.getCategoryHeading('Programming')).toBeVisible();
-            await expect(skills.getCategoryHeading('AI & Machine Learning')).toBeVisible();
-            await expect(skills.getCategoryHeading('Cloud & DevOps')).toBeVisible();
-            await expect(skills.getCategoryHeading('Concepts & Soft Skills')).toBeVisible();
+        test('all five skill categories are visible', async () => {
+            for (const category of SKILL_CATEGORIES) await expect(skills.category(category)).toBeVisible();
         });
 
-        test('key skills are visible in their categories', async ({ page }) => {
-            await expect(page.locator('#skills')).toContainText('Python');
-            await expect(page.locator('#skills')).toContainText('TypeScript');
-            await expect(page.locator('#skills')).toContainText('PyTorch');
-            await expect(page.locator('#skills')).toContainText('OpenCV');
-            await expect(page.locator('#skills')).toContainText('Docker');
-            await expect(page.locator('#skills')).toContainText('AWS');
+        test('key skills are listed, with test automation up front', async () => {
+            for (const skill of ['Playwright', 'TypeScript', 'Python', 'PyTorch', 'OpenCV', 'Docker', 'AWS']) {
+                await expect(skills.skill(skill)).toHaveCount(1);
+            }
+            await expect(skills.section.getByRole('link', { name: /See the tests/ })).toHaveAttribute('href', /ShalevAtsis\/Portfolio\/tree\/main\/tests/);
         });
 
-        test('filter input narrows skills by query "Py"', async ({ page }) => {
-            await skills.filterSkills('Py');
-            // Only Python-related skills should remain
-            await expect(page.locator('#skills')).toContainText('Python');
-            await expect(page.locator('#skills')).toContainText('PyTorch');
-            // NumPy should appear because it contains "Py" match
-            await expect(page.locator('#skills')).toContainText('NumPy');
+        test('filter narrows skills by query "Py"', async () => {
+            await skills.filterInput.fill('Py');
+            await expect(skills.skill('Python')).toHaveCount(1);
+            await expect(skills.skill('PyTorch')).toHaveCount(1);
+            await expect(skills.skill('NumPy')).toHaveCount(1);
+            await expect(skills.skill('Docker')).toHaveCount(0);
         });
 
-        test('filter input narrows skills by specific query "Python"', async ({ page }) => {
-            await skills.filterSkills('Python');
-            await expect(page.locator('#skills')).toContainText('Python');
-            // Non-matching skills should be absent
-            await expect(page.locator('#skills')).not.toContainText('Docker');
-            await expect(page.locator('#skills')).not.toContainText('AWS');
-        });
-
-        test('skills ARIA snapshot matches all four categories', async ({ page }) => {
-            await expect(page.locator('#skills')).toMatchAriaSnapshot(`
-                - paragraph: Programming
-                - list:
-                  - listitem: Python
-                  - listitem: TypeScript
-                  - listitem: Java
-                  - listitem: C++
-                  - listitem: SQL
-                  - listitem: JavaScript
-                  - listitem: NumPy
-                  - listitem: Pandas
-                  - listitem: Matplotlib
-                  - listitem: React
-                  - listitem: Node.js
-                - paragraph: AI & Machine Learning
-                - list:
-                  - listitem: PyTorch
-                  - listitem: OpenCV
-                  - listitem: HuggingFace
-                  - listitem: Scikit-learn
-                  - listitem: GenAI
-                  - listitem: Diffusion Models
-                  - listitem: Computer Vision
-                  - listitem: Deep Learning
-                - paragraph: Cloud & DevOps
-                - list:
-                  - listitem: AWS
-                  - listitem: Docker
-                  - listitem: CI/CD Pipelines
-                  - listitem: Jenkins
-                  - listitem: MongoDB
-                  - listitem: Git
-                  - listitem: Playwright
-                  - listitem: Selenium
-                  - listitem: Jira
-                  - listitem: Postman
-                - paragraph: Concepts & Soft Skills
-                - list:
-                  - listitem: Data Structures
-                  - listitem: Algorithms
-                  - listitem: OOP
-                  - listitem: System Design
-                  - listitem: Agile Methodologies
-                  - listitem: Communication Networks
-                  - listitem: Analytical Thinking
-                  - listitem: Team Collaboration
-                  - listitem: Fast Learning
-            `);
-        });
-
-        test('[PIXEL] skills section screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.locator('#skills')).toHaveScreenshot('skills-section.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
-            });
+        test('filter shows an empty state and can be cleared', async () => {
+            await skills.filterInput.fill('zzzz');
+            await expect(skills.section).toContainText('No skills match');
+            await skills.section.getByRole('button', { name: 'Clear search' }).click();
+            await expect(skills.filterInput).toHaveValue('');
+            await expect(skills.skill('Docker')).toHaveCount(1);
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  6. PROJECTS SECTION
+    //  6. PROJECTS
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Projects Section', () => {
-
         test.beforeEach(async ({ page }) => {
-            await page.goto('#projects');
+            await showSection(page, 'projects');
         });
 
         test('section heading is visible', async () => {
             await expect(projects.heading).toBeVisible();
         });
 
-        test('all six project cards are visible', async () => {
-            for (const projectName of PROJECTS) {
-                await expect(projects.getProjectCardHeading(projectName)).toBeVisible();
+        test('all six projects render exactly once, each with a GitHub link', async () => {
+            await expect(projects.cards).toHaveCount(PROJECTS.length);
+            for (const name of PROJECTS) {
+                await expect(projects.card(name)).toHaveCount(1);
+                await expect(projects.sourceLink(name)).toHaveAttribute('href', /^https:\/\/github\.com\/ShalevAtsis\//);
+                await expect(projects.sourceLink(name)).toHaveAttribute('target', '_blank');
             }
         });
 
-        legacyFixme('project ARIA snapshot includes all six projects with GitHub links', async ({ page }) => {
-            await expect(page.locator('#projects')).toMatchAriaSnapshot(`
-                - heading "Featured Projects" [level=2]
-                - paragraph: /A selection of personal and academic builds/
-                - link "View SwellSight on GitHub":
-                  - /url: https://github.com/ShalevAtsis/SwellSight_Colab
-                  - img
-                - link "View SwellSight on GitHub":
-                  - /url: https://github.com/ShalevAtsis/SwellSight_Colab
-                  - img
-                - paragraph: /AI-powered system that analyzes beach cam footage/
-                - button "Read more"
-                - text: Python PyTorch DINOv2 OpenCV HuggingFace ControlNet
-                - link "View Anomalyze on GitHub":
-                  - /url: https://github.com/ShalevAtsis/Anomalyze
-                  - img
-                - link "View Anomalyze on GitHub":
-                  - /url: https://github.com/ShalevAtsis/Anomalyze
-                  - img
-                - paragraph: /Advanced AI-powered web security scanner/
-                - button "Read more"
-                - text: React Node.js Docker Express MongoDB DevSecOps
-                - link "View Multithreaded TCP Chat on GitHub":
-                  - /url: https://github.com/ShalevAtsis/Multithreaded-TCP-Chat
-                  - img
-                - link "View Multithreaded TCP Chat on GitHub":
-                  - /url: https://github.com/ShalevAtsis/Multithreaded-TCP-Chat
-                  - img
-                - paragraph: /A multithreaded chat server implemented in Python/
-                - button "Read more"
-                - text: Python TCP/IP Sockets Multithreading Client-Server
-                - link "View E2E DevOps Pipeline on GitHub":
-                  - /url: https://github.com/ShalevAtsis/DevOps-Project
-                  - img
-                - link "View E2E DevOps Pipeline on GitHub":
-                  - /url: https://github.com/ShalevAtsis/DevOps-Project
-                  - img
-                - paragraph: /An automated end-to-end DevOps pipeline/
-                - button "Read more"
-                - text: Jenkins Docker Selenium Gatling Tomcat CI/CD
-                - link "View Titanic ML Flow on GitHub":
-                  - /url: https://github.com/ShalevAtsis/Machine-Learning-Flow
-                  - img
-                - link "View Titanic ML Flow on GitHub":
-                  - /url: https://github.com/ShalevAtsis/Machine-Learning-Flow
-                  - img
-                - paragraph: /Machine Learning flow project predicting Titanic/
-                - button "Read more"
-                - text: Python Scikit-Learn Pandas Seaborn Classification
-                - link "View LeetCode Architecture on GitHub":
-                  - /url: https://github.com/ShalevAtsis/LeetCode
-                  - img
-                - link "View LeetCode Architecture on GitHub":
-                  - /url: https://github.com/ShalevAtsis/LeetCode
-                  - img
-                - paragraph: /A structured repository containing optimized solutions/
-                - button "Read more"
-                - text: Python C Algorithms Data Structures Graphs
-            `);
+        test('SwellSight showcase shows its description and metrics', async () => {
+            const card = projects.card('SwellSight');
+            await expect(card).toContainText('AI-powered system that analyzes beach cam footage');
+            await expect(card).toContainText('direction accuracy');
+            await card.locator('dl').scrollIntoViewIfNeeded();
+            await expect(card.locator('dd', { hasText: /^92%$/ })).toBeVisible({ timeout: 8000 });
+            for (const step of ['Depth extraction', 'Synthetic data', 'Real-time analysis']) {
+                await expect(card).toContainText(step);
+            }
         });
 
-        test('"Read more" expands SwellSight description and "Show less" collapses it', async ({ page }) => {
-            await page.getByRole('button', { name: 'Read more' }).first().click();
-            await expect(page.locator('#projects')).toContainText(
-                'AI-powered system that analyzes beach cam footage to extract wave height, direction, and breaking type.'
-            );
-
-            await page.getByRole('button', { name: 'Show less' }).click();
-            // Card still contains the truncated text (not collapsed to nothing)
-            await expect(page.locator('#projects')).toContainText('AI-powered system');
-        });
-
-        test('hover reveals GitHub link on SwellSight card', async () => {
-            await projects.hoverProjectCard('SwellSight');
-            const link = projects.getProjectExternalLink('SwellSight');
-            await expect(link).toBeVisible();
-        });
-
-        test('hover reveals GitHub link on Anomalyze card', async () => {
-            await projects.hoverProjectCard('Anomalyze');
-            const link = projects.getProjectExternalLink('Anomalyze');
-            await expect(link).toBeVisible();
-        });
-
-        test('SwellSight GitHub link opens external page in new tab', async ({ page }) => {
+        test('SwellSight GitHub link opens in a new tab', async ({ page }) => {
             const popupPromise = page.waitForEvent('popup');
-            await page.getByRole('link', { name: 'View SwellSight on GitHub' }).nth(1).click();
-            const popup = await popupPromise;
-            expect(popup.url()).toContain('ShalevAtsis/SwellSight');
+            await projects.sourceLink('SwellSight').click();
+            expect((await popupPromise).url()).toContain('ShalevAtsis/SwellSight');
         });
 
-        test('[PIXEL] projects section screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.locator('#projects')).toHaveScreenshot('projects-section.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
+        test('desktop: vertical scroll drives the pinned horizontal gallery', async ({ page }) => {
+            test.skip(hasCompactNav(page), 'the pinned gallery exists on large screens only');
+            const track = projects.section.locator('ul:has([data-gallery-item])');
+            await expect(track).toBeAttached();
+            const xOf = () => track.evaluate((el) => new DOMMatrixReadOnly(getComputedStyle(el).transform).m41);
+
+            await track.evaluate((el) => {
+                const outer = el.parentElement!.parentElement!;
+                window.scrollTo(0, outer.getBoundingClientRect().top + window.scrollY);
             });
+            await expect.poll(xOf).toBeGreaterThan(-5);
+
+            await track.evaluate((el) => {
+                const outer = el.parentElement!.parentElement!;
+                window.scrollTo(0, outer.getBoundingClientRect().bottom + window.scrollY - window.innerHeight);
+            });
+            await expect.poll(xOf).toBeLessThan(-200);
+            await expect(projects.card('LeetCode Architecture')).toBeInViewport();
+        });
+
+        test('compact: projects stack vertically', async ({ page }) => {
+            test.skip(!hasCompactNav(page), 'small screens only');
+            await expect(projects.section.locator('[data-gallery-item]')).toHaveCount(0);
+            await projects.card('Anomalyze').scrollIntoViewIfNeeded();
+            await expect(projects.card('Anomalyze')).toBeInViewport();
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  7. PERSONAL WORLD SECTION
+    //  7. GALLERY
+    // ═══════════════════════════════════════════════════════════════════════
+    test.describe('Gallery Section', () => {
+        test('shows seven captioned field photos with alt text', async ({ page }) => {
+            await showSection(page, 'gallery');
+            const figures = page.locator('#gallery figure');
+            await expect(figures).toHaveCount(7);
+            await expect(page.locator('#gallery img[alt=""]')).toHaveCount(0);
+            await expect(page.locator('#gallery')).toContainText('Autonomous UAV Field Test');
+            await expect(page.locator('#gallery')).toContainText('Official System Handover');
+        });
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  8. PERSONAL WORLD
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Personal World Section', () => {
-
         test.beforeEach(async ({ page }) => {
-            await page.goto('#personal-world');
+            await showSection(page, 'personal-world');
         });
 
-        test('globe canvas renders', async () => {
-            // The canvas takes longer to render as it waits for next/dynamic + dataloads
-            await expect(world.globeContainer).toBeAttached({ timeout: 20000 });
+        test('globe card mounts with surf and dive spot controls', async () => {
+            await expect(world.globe).toBeAttached();
+            await expect(world.section.getByRole('group', { name: 'Surf spots' }).getByRole('button')).toHaveCount(6);
+            await expect(world.section.getByRole('group', { name: 'Dive spots' }).getByRole('button')).toHaveCount(7);
+            // Clicking a spot must never throw, with or without WebGL.
+            await world.section.getByRole('button', { name: 'Galapagos' }).click();
         });
 
-        test('Cinema and Library panel buttons are visible', async () => {
-            await expect(world.cinemaPanelButton).toBeVisible();
-            await expect(world.libraryPanelButton).toBeVisible();
+        test('Cinema and Library tabs switch content', async () => {
+            await expect(world.cinemaButton).toHaveAttribute('aria-pressed', 'true');
+            await expect(world.section).toContainText('Shutter Island');
+            await world.libraryButton.click();
+            await expect(world.libraryButton).toHaveAttribute('aria-pressed', 'true');
+            await expect(world.section).toContainText('Currently Reading');
+            await expect(world.section).toContainText('The Lean Startup');
+            await expect(world.section).toContainText("Can't Hurt Me");
         });
 
-        test('Now Playing widget is visible with Bad Bunny track', async () => {
-            await expect(world.nowPlayingWidget).toBeVisible();
-            await expect(world.getAudioPlayerTarget('Bad Bunny')).toBeVisible();
-            await expect(world.getAudioPlayerTarget('Baile Inolvidable')).toBeVisible();
+        test('Now Playing shows the Bad Bunny track and never autoplays', async ({ page }) => {
+            await expect(world.section.getByText('Now Playing')).toBeVisible();
+            await expect(world.section.getByText('Baile Inolvidable')).toBeVisible();
+            await expect(world.section.getByText('Bad Bunny', { exact: true })).toBeVisible();
+            await expect(world.playButton).toBeVisible();
+            await expect(world.seekSlider).toBeVisible();
+            // No audio element is created (and nothing is downloaded) before the first click.
+            await expect(navbar.miniPlayer).toHaveCount(0);
+            expect(await page.evaluate(() => performance.getEntriesByType('resource').some((r) => r.name.endsWith('.mp3')))).toBe(false);
         });
 
-        test('AI species classifier card is visible', async ({ page }) => {
-            await expect(world.sectionLocator.getByText('[AI TARGET ACQUIRED]')).toBeVisible();
-            await expect(world.sectionLocator.getByText('Species: Hammerhead Shark')).toBeVisible();
+        test('Play/Pause works and reveals the navbar mini-player', async ({ browserName }) => {
+            test.skip(browserName === 'webkit', 'MP3 playback is not available in headless WebKit on Linux');
+            await world.playButton.click();
+            await expect(world.pauseButton).toBeVisible();
+            await expect(navbar.miniPlayer).toBeVisible();
+            await expect(navbar.miniPlayer).toHaveAttribute('aria-pressed', 'true');
+            await world.pauseButton.click();
+            await expect(world.playButton).toBeVisible();
+            await expect(navbar.miniPlayer).toHaveAttribute('aria-pressed', 'false');
         });
 
-        test('AI Suggestion Engine widget is visible', async () => {
-            await expect(world.aiSuggestionEngine).toBeVisible();
-            await expect(world.aiSuggestionInput).toBeVisible();
+        test('AI species classifier card is visible', async () => {
+            await expect(world.section.getByText('[AI TARGET ACQUIRED]')).toBeVisible();
+            await expect(world.section.getByText('Species: Hammerhead Shark')).toBeVisible();
+            await expect(world.section.getByText(/AI Species Classifier/)).toBeVisible();
         });
 
-        legacyFixme('Library panel reveals reading list', async ({ page }) => {
-            await world.openLibraryPanel();
-                        await expect(page.locator('#personal-world')).toMatchAriaSnapshot(`
-                - paragraph: Currently Reading
-                - paragraph: 📖 The Lean Startup
-                - paragraph: Eric Ries
-                - paragraph: Read
-                - text: /✓ The Power of Habit ✓ Can't Hurt Me/
-            `);
-        });
-
-        legacyFixme('Play/Pause toggle works on Now Playing widget', async ({ page }) => {
-            await page.getByRole('button', { name: 'Play' }).click();
-            await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
-            await page.getByRole('button', { name: 'Pause' }).click();
-            await expect(page.getByRole('button', { name: 'Play' })).toBeVisible();
-        });
-
-        legacyFixme('AI Suggestion Engine accepts a suggestion and confirms match', async ({ page }) => {
-            await world.submitAiSuggestion('The Wolf of Wall Street');
-            await expect(page.getByText('Match Confirmed!')).toBeVisible();
+        test('suggestion box is honest about being human-powered and accepts a suggestion', async ({ page }) => {
+            await expect(world.section.getByText('AI Suggestion Engine')).toBeVisible();
+            await expect(world.section).toContainText('no model involved');
+            await world.suggestionInput.fill('The Wolf of Wall Street');
+            await world.suggestionSend.click();
             await expect(page.getByText('Added to my backlog')).toBeVisible();
-
             await page.getByRole('button', { name: 'Suggest something else' }).click();
-            await expect(world.aiSuggestionInput).toBeVisible();
-        });
-
-        legacyFixme('AI Suggestion Engine accepts a second suggestion', async ({ page }) => {
-            await world.submitAiSuggestion('The Lion King');
-            await expect(page.getByText('Match Confirmed!')).toBeVisible();
-        });
-
-        test('[PIXEL] personal world section screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.locator('#personal-world')).toHaveScreenshot('personal-world-section.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
-            });
+            await expect(world.suggestionInput).toBeVisible();
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  8. CONTACT SECTION
+    //  9. CONTACT
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Contact Section', () => {
-
         test.beforeEach(async ({ page }) => {
-            await page.goto('#contact');
+            await showSection(page, 'contact');
         });
 
-        test('all five CTA links are visible', async () => {
-            await expect(contact.whatsappLink).toBeVisible();
-            await expect(contact.emailButton).toBeVisible();
-            await expect(contact.linkedinLink).toBeVisible();
-            await expect(contact.githubLink).toBeVisible();
-            await expect(contact.downloadCvLink).toBeVisible();
-        });
-
-        test('CTA links have correct hrefs', async () => {
+        test('closing headline and all five channels are visible with correct hrefs', async () => {
+            await expect(contact.heading).toBeVisible();
             await expect(contact.whatsappLink).toHaveAttribute('href', URLS.whatsapp);
-            await expect(contact.emailButton).toHaveAttribute('href', URLS.email);
+            await expect(contact.emailLink).toHaveAttribute('href', URLS.email);
             await expect(contact.linkedinLink).toHaveAttribute('href', URLS.linkedin);
             await expect(contact.githubLink).toHaveAttribute('href', URLS.github);
             await expect(contact.downloadCvLink).toHaveAttribute('href', URLS.cv);
+            await expect(contact.section.getByRole('link', { name: 'Start a conversation' })).toHaveAttribute('href', URLS.whatsapp);
         });
 
-        legacyFixme('WhatsApp CTA opens external page in new tab', async ({ page }) => {
-            const popupPromise = page.waitForEvent('popup');
-            await contact.whatsappLink.click();
-            const popup = await popupPromise;
-            expect(popup.url()).toContain('wa.me');
+        test('external channels open in a new tab', async ({ page }) => {
+            for (const [link, host] of [[contact.whatsappLink, 'wa.me'], [contact.linkedinLink, 'linkedin.com'], [contact.githubLink, 'github.com']] as const) {
+                const popupPromise = page.waitForEvent('popup');
+                await link.click();
+                const popup = await popupPromise;
+                expect(popup.url()).toContain(host);
+                await popup.close();
+            }
         });
 
-        legacyFixme('LinkedIn CTA opens external page in new tab', async ({ page }) => {
-            const popupPromise = page.waitForEvent('popup');
-            await contact.linkedinLink.click();
-            const popup = await popupPromise;
-            expect(popup.url()).toContain('linkedin.com');
-        });
-
-        legacyFixme('GitHub CTA opens external page in new tab', async ({ page }) => {
-            const popupPromise = page.waitForEvent('popup');
-            await contact.githubLink.click();
-            const popup = await popupPromise;
-            expect(popup.url()).toContain('github.com');
-        });
-
-        test('contact form fields are visible with correct placeholders', async ({ page }) => {
-            await expect(contact.nameInput).toBeVisible();
-            await expect(contact.emailInput).toBeVisible();
-            await expect(contact.companyInput).toBeVisible();
-            await expect(contact.messageInput).toBeVisible();
-            await expect(contact.sendButton).toBeVisible();
-
+        test('form fields are labelled and have placeholders', async () => {
             await expect(contact.nameInput).toHaveAttribute('placeholder', /John Doe/);
             await expect(contact.emailInput).toHaveAttribute('placeholder', /john@example.com/);
+            await expect(contact.companyInput).toBeVisible();
             await expect(contact.messageInput).toHaveAttribute('placeholder', /Tell me about your project/);
+            await expect(contact.sendButton).toBeVisible();
         });
 
-        legacyFixme('contact form fills, submits, and shows success message', async ({ page }) => {
-            await contact.fillContactForm({
-                name: 'Sydney Sweeney',
-                email: 'test@example.com',
-                company: 'Google',
-                message: 'I love your portfolio!',
-            });
-
-            // Verify filled values before submit
-            await expect(contact.nameInput).toHaveValue('Sydney Sweeney');
-            await expect(contact.emailInput).toHaveValue('test@example.com');
-            await expect(contact.messageInput).toHaveValue('I love your portfolio!');
-
-            await contact.submitForm();
-            await expect(page.getByText('Message sent successfully!')).toBeVisible();
-            await expect(page.locator('#contact')).toContainText('Message sent successfully!');
+        test('empty submit shows accessible validation errors and sends nothing', async ({ page }) => {
+            let sent = false;
+            page.on('request', (r) => { if (r.url().includes('web3forms')) sent = true; });
+            await contact.sendButton.click();
+            await expect(contact.section.getByRole('alert').filter({ hasText: 'Name is required' })).toBeVisible();
+            await expect(contact.section.getByRole('alert').filter({ hasText: 'Email is required' })).toBeVisible();
+            await expect(contact.section.getByRole('alert').filter({ hasText: 'Message is required' })).toBeVisible();
+            await expect(contact.nameInput).toHaveAttribute('aria-invalid', 'true');
+            expect(sent).toBe(false);
         });
 
-        test('contact form ARIA snapshot matches expected structure', async ({ page }) => {
-            await expect(page.locator('#contact')).toMatchAriaSnapshot(`
-                - paragraph: Let's Talk
-                - heading "Get in Touch" [level=2]
-                - paragraph: /Whether you have a project in mind/
-                - link "WhatsApp":
-                  - /url: https://wa.me/+972585060699
-                  - img
-                  - text: WhatsApp Fastest response
-                - link "Email":
-                  - /url: mailto:Shalevatsis@gmail.com
-                  - img
-                  - text: Email Shalevatsis@gmail.com
-                - link "LinkedIn":
-                  - /url: https://www.linkedin.com/in/shalev-atsis-software-developer/
-                  - img
-                  - text: LinkedIn Let's connect
-                - link "GitHub":
-                  - /url: https://github.com/ShalevAtsis
-                  - img
-                  - text: GitHub Explore my code
-                - link "Download CV":
-                  - /url: /Shalev_Atsis_CV.pdf
-                  - img
-                  - text: Download CV Get my full resume (PDF)
-                - text: Name
-                - textbox "Name":
-                  - /placeholder: John Doe/
-                - text: Email Address
-                - textbox "Email Address":
-                  - /placeholder: john@example.com/
-                - text: Company / LinkedIn Profile (Optional)
-                - textbox "Company / LinkedIn Profile (Optional)":
-                  - /placeholder: Optional/
-                - text: How can I help?
-                - textbox "How can I help?":
-                  - /placeholder: Tell me about your project or opportunity.../
-                - button "Send Message"
-            `);
+        test('form fills, submits (mocked), and shows the success message', async ({ page }) => {
+            await contact.fill({ name: 'Ada Lovelace', email: 'test@example.com', company: 'Analytical Engines', message: 'I love your portfolio!' });
+            await expect(contact.nameInput).toHaveValue('Ada Lovelace');
+            const requestPromise = page.waitForRequest(/api\.web3forms\.com\/submit/);
+            await contact.sendButton.click();
+            const body = (await requestPromise).postDataJSON();
+            expect(body).toMatchObject({ name: 'Ada Lovelace', email: 'test@example.com', message: 'I love your portfolio!', botcheck: '' });
+            await expect(contact.section.getByText('Message sent successfully!')).toBeVisible();
         });
 
-        test('[PIXEL] contact section screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.locator('#contact')).toHaveScreenshot('contact-section.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
-            });
+        test('a failed submission tells the visitor instead of failing silently', async ({ page, context }) => {
+            await context.route(/api\.web3forms\.com/, (route) => route.fulfill({ status: 500, body: '{}' }));
+            await contact.fill({ name: 'Ada', email: 'ada@example.com', message: 'Hello' });
+            await contact.sendButton.click();
+            await expect(contact.section.getByRole('alert').filter({ hasText: 'the message was not sent' })).toBeVisible();
+            await expect(page.getByText('Message sent successfully!')).toHaveCount(0);
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  9. FOOTER & EASTER EGG TERMINAL
+    //  10. FOOTER & EASTER EGG: "MODEL HALLUCINATION" + AGENT CONSOLE
     // ═══════════════════════════════════════════════════════════════════════
-    test.describe('Footer & Easter Egg Debug Terminal', () => {
-
+    test.describe('Footer & Agent Console easter egg', () => {
         test('footer copyright text is visible', async ({ page }) => {
             await expect(page.getByRole('contentinfo')).toContainText(`Shalev Atsis · Software Engineer · ${new Date().getFullYear()}`);
         });
 
-        test('easter egg button is visible and triggers terminal overlay', async ({ page }) => {
-            await expect(page.getByRole('button', { name: /Trigger debug mode/i })).toBeVisible();
-            await page.getByRole('button', { name: /Trigger debug mode/i }).click();
-
-            await expect(page.getByText('[ 0.000000] Booting kernel... fingers crossed.')).toBeVisible();
-            await expect(page.getByText(/TIP: type 'help'/)).toBeVisible();
-            await expect(page.getByRole('textbox', { name: 'Enter command…' })).toBeVisible();
+        test('trigger makes the page hallucinate without touching the real content', async ({ page }) => {
+            await agent.open();
+            await expect(page.locator('.debug-chaos-wrapper')).toHaveAttribute('data-broken', 'true');
+            // Real heading text stays in the DOM and the accessibility tree.
+            await expect(hero.heading).toHaveText(/Shalev Atsis/);
+            // The scrambled layer is decorative.
+            const glitch = page.locator('#hero h1 .hallucination');
+            await expect(glitch).toHaveAttribute('aria-hidden', 'true');
+            await expect(glitch).toHaveText('Shalev Atlas', { timeout: 8000 });
+            await expect(page.getByText('temperature: 1.9').first()).toBeVisible();
+            await expect(page.getByRole('status').filter({ hasText: 'pretending its AI model is hallucinating' })).toBeAttached();
         });
 
-        test('terminal responds to "help" command with suggestions', async ({ page }) => {
-            await page.getByRole('button', { name: /Trigger debug mode/i }).click();
-            await page.getByRole('textbox', { name: 'Enter command…' }).fill('help');
-            await page.getByRole('textbox', { name: 'Enter command…' }).press('Enter');
-            await expect(page.getByText('Have you tried: sudo fix-site')).toBeVisible();
-            await expect(page.locator('body')).toContainText('sudo fix-site --force (classic, never fails)');
+        test('console streams a model-style trace and focuses the prompt', async () => {
+            await agent.open();
+            await expect(agent.prompt).toBeFocused();
+            await expect(agent.transcript).toContainText('thinking…');
+            await expect(agent.transcript).toContainText('tool: read_file(layout.tsx)', { timeout: 10_000 });
+            await expect(agent.transcript).toContainText('confidence: 0.42', { timeout: 10_000 });
         });
 
-        test('terminal "sudo fix-site --force" restores the system', async ({ page }) => {
-            await page.getByRole('button', { name: /Trigger debug mode/i }).click();
-            await page.getByRole('textbox', { name: 'Enter command…' }).fill('sudo fix-site --force');
-            await page.getByRole('textbox', { name: 'Enter command…' }).press('Enter');
-            await expect(page.getByRole('button', { name: /System Restored/i })).toBeVisible();
+        test('"help" answers with hints in the agent\'s voice', async () => {
+            await agent.open();
+            await agent.ask('help');
+            await expect(agent.transcript).toContainText('ask me to fix, restore, or undo the hallucination');
+            await expect(agent.transcript).toContainText('sudo fix-site --force still works');
         });
 
-        test('terminal ARIA snapshot matches boot sequence', async ({ page }) => {
-            await page.getByRole('button', { name: /Trigger debug mode/i }).click();
-            await expect(page.locator('body')).toMatchAriaSnapshot(`
-                - text: /system_recovery — CRITICAL \\[ \\d+\\.\\d+\\] Booting kernel/
-                - textbox "Enter command…"
-            `);
+        test('an unrelated prompt gets a self-aware refusal, not a fix', async ({ page }) => {
+            await agent.open();
+            await agent.ask('write me a poem');
+            await expect(agent.transcript).toContainText('As a large language model I cannot render this footer');
+            await expect(page.locator('.debug-chaos-wrapper')).toHaveAttribute('data-broken', 'true');
         });
 
-        test('[PIXEL] footer screenshot matches baseline', async ({ page }, testInfo) => {
-            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
-            await expect(page.getByRole('contentinfo')).toHaveScreenshot('footer.png', {
-                maxDiffPixelRatio: 0.02,
-                mask: volatileRegions(page),
+        for (const prompt of ['please undo the hallucination', 'Can you REPAIR this?', 'rollback', 'sudo fix-site --force']) {
+            test(`natural-language prompt "${prompt}" restores the site`, async ({ page }) => {
+                await agent.open();
+                await agent.ask(prompt);
+                await expect(agent.transcript).toContainText('temperature: 0.2', { timeout: 10_000 });
+                await expect(agent.toast).toBeVisible({ timeout: 15_000 });
+                await expect(agent.toast).toContainText("The model has been reminded who's boss.");
+                await expect(agent.dialog).toBeHidden();
+                await expect(page.locator('.debug-chaos-wrapper')).toHaveAttribute('data-broken', 'false');
+                await expect(page.locator('.hallucination')).toHaveCount(0);
             });
+        }
+
+        test('suggested-prompt chip fixes the site (no typing needed on mobile)', async () => {
+            await agent.open();
+            await agent.chip('fix the site').click();
+            await expect(agent.toast).toBeVisible({ timeout: 15_000 });
+        });
+
+        test('reasoning can be skipped', async () => {
+            await agent.open();
+            await agent.ask('fix it');
+            await agent.dialog.getByRole('button', { name: 'skip reasoning' }).click();
+            await expect(agent.transcript).toContainText('headings: grounded in the DOM');
+            await expect(agent.toast).toBeVisible({ timeout: 10_000 });
+        });
+
+        test('Escape closes the console and returns focus to the trigger', async ({ page }) => {
+            await agent.open();
+            await expect(agent.prompt).toBeFocused();
+            await page.keyboard.press('Escape');
+            await expect(agent.dialog).toBeHidden();
+            await expect(agent.trigger).toBeFocused();
+            // Still hallucinating: the visitor can reopen the console and fix it.
+            await agent.trigger.click();
+            await expect(agent.dialog).toBeVisible();
+        });
+
+        test('focus is trapped inside the console', async ({ page, browserName }) => {
+            test.skip(browserName === 'webkit', 'WebKit does not Tab to buttons by default');
+            await agent.open();
+            await expect(agent.prompt).toBeFocused();
+            for (let i = 0; i < 12; i++) {
+                await page.keyboard.press('Tab');
+                expect(await agent.dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+            }
         });
     });
 
     // ═══════════════════════════════════════════════════════════════════════
-    //  10. RESUME VIEW
+    //  11. RESUME VIEW
     // ═══════════════════════════════════════════════════════════════════════
     test.describe('Resume View', () => {
-
-        test.beforeEach(async ({ page }) => {
-            await navbar.toggleViewMode();
-            await expect(page.getByText(/Interactive Resume/)).toBeVisible();
+        test.beforeEach(async () => {
+            await navbar.viewModeToggle.click();
+            await expect(resume.title).toBeVisible();
         });
 
-        test('resume view toggle shows "Interactive Resume" header', async ({ page }) => {
-            await expect(page.getByText(/Interactive Resume/)).toBeVisible();
-        });
-
-        test('Download PDF button triggers file download', async ({ page }) => {
+        test('Download PDF button triggers a file download', async ({ page }) => {
             const downloadPromise = page.waitForEvent('download');
             await resume.downloadButton.click();
-            const download = await downloadPromise;
-            expect(download.suggestedFilename()).toContain('CV');
+            expect((await downloadPromise).suggestedFilename()).toContain('CV');
         });
 
-        test('PDF object/iframe is embedded and attached to the DOM', async ({ page }) => {
+        test('PDF object is embedded', async () => {
             await expect(resume.pdfObject).toBeVisible({ timeout: 15_000 });
+            await expect(resume.pdfObject).toHaveAttribute('data', URLS.cv);
         });
 
-        test('toggling back to Portfolio returns to portfolio view', async ({ page }) => {
-            await navbar.toggleViewMode();
-            await expect(hero.headingFirstFrame).toBeVisible();
+        test('toggling back returns to the portfolio view', async () => {
+            await navbar.viewModeToggle.click();
+            await expect(hero.heading).toBeVisible();
         });
     });
 
+    // ═══════════════════════════════════════════════════════════════════════
+    //  12. PIXEL SNAPSHOTS (Desktop Chrome on Linux only)
+    //  Taken under prefers-reduced-motion so every animation is in its final
+    //  state; WebGL canvases are hidden (tests/visual.css) and counters masked.
+    // ═══════════════════════════════════════════════════════════════════════
+    test.describe('Pixel snapshots', () => {
+        test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
+        test.beforeEach(async ({}, testInfo) => {
+            test.skip(!isVisualProject(testInfo.project.name), 'pixel baselines exist for Desktop Chrome on Linux only');
+        });
+
+        test('[PIXEL] navbar', async ({ page }) => {
+            await expect(navbar.socialLink('email')).toHaveAttribute('href', URLS.email);
+            await expect(navbar.nav).toHaveScreenshot('navbar.png', visualOptions(page));
+        });
+
+        test('[PIXEL] hero section', async ({ page }) => {
+            await expect(hero.oceanCanvas).toHaveAttribute('data-state', /^(webgl|fallback)$/, { timeout: 15_000 });
+            await expect(page.locator('#hero')).toHaveScreenshot('hero-section.png', visualOptions(page));
+        });
+
+        for (const id of ['about', 'experience', 'skills', 'projects', 'personal-world', 'contact'] as const) {
+            test(`[PIXEL] ${id} section`, async ({ page }) => {
+                await showSection(page, id);
+                // Let lazy widgets (globe / fallback) settle before comparing.
+                if (id === 'personal-world') await expect(world.section.locator('[data-globe] > *').first()).toBeAttached();
+                if (id === 'contact') await expect(contact.emailLink).toHaveAttribute('href', URLS.email);
+                await expect(page.locator(`#${id}`)).toHaveScreenshot(`${id}-section.png`, visualOptions(page));
+            });
+        }
+
+        test('[PIXEL] footer', async ({ page }) => {
+            await expect(page.getByRole('contentinfo')).toHaveScreenshot('footer.png', visualOptions(page));
+        });
+    });
 });

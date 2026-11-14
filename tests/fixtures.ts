@@ -1,3 +1,4 @@
+import path from 'path';
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
 
 /** 1×1 transparent PNG used in place of remote images (Cloudinary, globe textures). */
@@ -53,8 +54,26 @@ export const test = base.extend<{ hermetic: void }>({
 
 export { expect };
 
+/** Open the home page and wait until React has hydrated, so no click is ever lost. */
+export async function openHome(page: Page) {
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-hydrated', 'true', { timeout: 20_000 });
+}
+
+/** Bring a section into view (triggers its scroll reveals) without relying on smooth scrolling. */
+export async function showSection(page: Page, id: string) {
+    await page.locator(`#${id}`).evaluate((el) => {
+        window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 56);
+    });
+}
+
+/** The burger menu exists below the `lg` breakpoint; desktop shows inline links. */
+export function hasCompactNav(page: Page): boolean {
+    return (page.viewportSize()?.width ?? 1280) < 1024;
+}
+
 /**
- * Pixel baselines exist for one project only (Desktop Chrome on Linux — the CI
+ * Pixel baselines exist for one project only (Desktop Chrome on Linux, the CI
  * platform). Elsewhere the comparison is skipped; regenerate baselines with
  * `npm run test:visual:update` (runs the official Playwright Docker image).
  */
@@ -62,7 +81,11 @@ export function isVisualProject(projectName: string): boolean {
     return projectName === 'Desktop Chrome' && (process.platform === 'linux' || !!process.env.PW_VISUAL);
 }
 
-/** Animated / remote-content regions that must never be part of a pixel diff. */
-export function volatileRegions(page: Page): Locator[] {
-    return [page.locator('canvas'), page.locator('video'), page.locator('img'), page.locator('[data-visual-mask]')];
+/** Shared options for pixel comparisons. */
+export function visualOptions(page: Page) {
+    return {
+        maxDiffPixelRatio: 0.02,
+        stylePath: path.join(__dirname, 'visual.css'),
+        mask: [page.locator('[data-visual-mask]')] as Locator[],
+    };
 }
