@@ -1,32 +1,41 @@
-name: Playwright Tests
+# Post-deploy smoke test against the live site. The suite is hermetic
+# (tests/fixtures.ts mocks Web3Forms and every external host), so it never
+# sends real e-mails. Pixel tests are skipped here; they run in CI on pull requests.
+
+name: Production smoke test
 on:
   workflow_run:
     workflows: ["Deploy to GitHub Pages"]
     types:
       - completed
   workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 30
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+      options: --ipc=host
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-      env:
-        PLAYWRIGHT_TEST_BASE_URL: https://shalevatsis.dev
-        # Add any other environment variables you need here
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - name: Run Playwright tests against production
+        run: npx playwright test --grep-invert "\[PIXEL\]"
+        env:
+          HOME: /root
+          PLAYWRIGHT_TEST_BASE_URL: https://shalevatsis.dev
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

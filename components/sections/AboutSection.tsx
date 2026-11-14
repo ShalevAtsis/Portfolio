@@ -27,15 +27,16 @@ const PILLARS: Pillar[] = [
   {
     icon: <Terminal className="h-6 w-6" strokeWidth={1.5} />,
     label: "The Engineer",
-    heading: "Building in parallel",
+    heading: "Engineering trust in AI",
     body: (
       <>
-        I&apos;m a Software Engineer in motion — simultaneously a{" "}
-        <Hi>Tier&nbsp;2 Support Engineer</Hi> at a high-availability{" "}
-        <Hi>Fintech SaaS</Hi> company (Jifiti) and a Computer Science student
-        at HIT, on track to graduate in 2026. Every week I debug{" "}
-        <Hi>production incidents</Hi> by day and study algorithms by night. I
-        genuinely enjoy both.
+        I&apos;m a Software Engineer working on{" "}
+        <Hi>AI-driven quality engineering</Hi> at High Lander, where uncrewed
+        aircraft share real airspace. I build the{" "}
+        <Hi>Playwright, TypeScript, and Python</Hi> frameworks that validate
+        computer-vision algorithms and real-time decision engines before they
+        fly. I hold a B.Sc. in Computer Science from HIT —{" "}
+        <Hi>Honor Graduate, GPA&nbsp;94</Hi>.
       </>
     ),
   },
@@ -62,10 +63,11 @@ const PILLARS: Pillar[] = [
     body: (
       <>
         My path to software wasn&apos;t a straight line. I led a{" "}
-        <Hi>15-person platoon</Hi> operating radar and EW systems at sea in the{" "}
+        <Hi>14-person platoon</Hi> operating radar and EW systems at sea in the{" "}
         <Hi>Israeli Navy</Hi>. I ran global field tests on drone software across
-        four countries. Now I investigate high-stakes{" "}
-        <Hi>Fintech incidents</Hi> under pressure. That arc means I&apos;m a
+        four countries. At Jifiti I investigated high-stakes{" "}
+        <Hi>Fintech incidents</Hi> and cut manual regression time by 30% with
+        automation. That arc means I&apos;m a
         calm problem-solver, a fast learner in unfamiliar domains, and someone
         who has operated in high-stakes environments long before writing
         production code.

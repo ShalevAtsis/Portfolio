@@ -5,70 +5,9 @@ import { Briefcase, GraduationCap } from "lucide-react";
 import { fadeInUpVariants, springSnappy } from "@/lib/motion";
 import FadeInUp from "@/components/ui/FadeInUp";
 import HoverEffectCard from "@/components/ui/HoverEffectCard";
+import { EXPERIENCE, type EntryKind } from "@/lib/content";
 
-type EntryKind = "work" | "education";
-
-interface TimelineEntry {
-    id: string;
-    kind: EntryKind;
-    role: string;
-    org: string;
-    period: string;
-    badge?: string;
-    bullets: string[];
-}
-
-const ENTRIES: TimelineEntry[] = [
-    {
-        id: "jifiti",
-        kind: "work",
-        role: "Tier 2 Software Support Engineer",
-        org: "Jifiti",
-        period: "Aug 2025 – Present",
-        badge: "Current",
-        bullets: [
-            "Investigate production incidents on a high-availability Fintech SaaS platform — from initial triage to root cause, using SQL and deep log analysis.",
-            "Built Python analytics pipelines to surface business insights from transaction and traffic data.",
-            "Collaborate embedded in an R\u0026D Agile squad, validating backend fixes through CI/CD pipelines before they ship.",
-        ],
-    },
-    {
-        id: "hit",
-        kind: "education",
-        role: "B.Sc. Computer Science (In Progress)",
-        org: "Holon Institute of Technology (HIT)",
-        period: "Oct 2023 – June 2026",
-        badge: "GPA 90",
-        bullets: [
-            "Specialising in Artificial Intelligence and Computer Vision — coursework spans Deep Learning, Algorithms, Databases, and Communication Networks.",
-            "Applying classroom ML theory directly to side projects: PyTorch, OpenCV, diffusion models, and real-world data pipelines.",
-        ],
-    },
-    {
-        id: "hartech",
-        kind: "work",
-        role: "Software QA Specialist",
-        org: "Hartech Technologies",
-        period: "Nov 2021 – Dec 2022",
-        bullets: [
-            "Ran 50+ field tests across international sites for drone (UAV) and UGV Command-and-Control software.",
-            "Delivered on-site client training and system integration support in multiple countries.",
-            "Identified and resolved defects in C2 systems alongside cross-functional engineering teams.",
-        ],
-    },
-    {
-        id: "navy",
-        kind: "work",
-        role: "C2 System Operator & Team Lead",
-        org: "Israeli Navy",
-        period: "Feb 2019 – Oct 2021",
-        bullets: [
-            "Operated radar, sonar, and electronic warfare systems aboard a 3rd Fleet naval vessel in real-time operational conditions.",
-            "Coordinated multi-platform intelligence integration with Air Force units (UAVs, jets) under pressure.",
-            "Led a 70-person crew and a 15-person specialist platoon — accountability was non-negotiable.",
-        ],
-    },
-];
+const ENTRIES = EXPERIENCE;
 
 // Work → Emerald   |   Education → Violet
 const nodeStyle: Record<EntryKind, {
@@ -126,7 +65,7 @@ export default function CleanExperience() {
                     Experience &amp; Education
                 </h2>
                 <p className="mt-3 text-slate-500 dark:text-slate-400">
-                    From naval operations to software engineering — built on systems thinking.
+                    From naval operations to AI quality engineering — built on systems thinking.
                 </p>
             </FadeInUp>
 

@@ -89,6 +89,8 @@ const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
             // Tilt the globe slightly for a better angle
             globeRef.current.pointOfView({ altitude: 2.2 }, 0);
         }
+        // The globe instance appears asynchronously (dynamic import), so re-run when the ref fills.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [globeRef.current, dimensions.width]);
 
     // Pause rotation when interacting/hovering

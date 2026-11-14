@@ -12,7 +12,7 @@ export class ExperienceSection {
     }
 
     getJobTitle(title: string): Locator {
-        return this.sectionLocator.getByRole('heading', { level: 3, name: title });
+        return this.sectionLocator.getByRole('heading', { level: 3, name: title, exact: true });
     }
 
     getCompanyName(company: string): Locator {

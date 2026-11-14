@@ -1,14 +1,15 @@
-# Shalev Atsis | Software Engineer
+# Shalev Atsis | Software Engineer · AI Engineer
 
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![CI](https://github.com/ShalevAtsis/Portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/ShalevAtsis/Portfolio/actions/workflows/ci.yml)
+[![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Three.js](https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
-[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
 
 **[🌍 Live Site: shalevatsis.dev](https://shalevatsis.dev)**
 
-Experienced Software Engineer specializing in GenAI, Computer Vision, and complex system integrations. Proven track record of architecting performant, scalable front-end and full-stack solutions with an uncompromising standard for engineering quality and premium user experiences.
+Software Engineer and AI Engineer. I currently build AI-driven quality engineering for autonomous aviation at High Lander: validating computer-vision algorithms and real-time decision engines with Playwright, TypeScript, and Python. B.Sc. Computer Science (HIT), Honor Graduate, GPA 94.
 
 ---
 
@@ -20,10 +21,13 @@ This portfolio is not just a digital business card; it is a demonstration of ent
   Bypassed standard Next.js image optimization constraints (which fail on `output: export`) by writing a custom loader that directly hooks into Cloudinary's CDN. It dynamically applies `q_auto` (perceptual quality algorithms) and `f_auto` format delivery, slashing bandwidth without relying on a Node.js runtime.
 
 - **Interactive 3D WebGL Visualization**  
-  Engineered a high-performance 3D globe utilizing `react-globe.gl` and Three.js. Real-time rendering of precise GPS coordinates handles complex data structures while maintaining a strict 60fps frame rate for geographical storytelling.
+  A 3D globe built with `react-globe.gl` (Three.js under the hood) plots surf and dive spots from GPS coordinates. It is lazy-mounted only when it approaches the viewport, so it costs nothing on first load.
 
 - **Strict WCAG 2.1 AA Accessibility**  
   Accessibility is not an afterthought, but an architectural requirement. The application features robust ARIA live regions for screen-reader announcements on dynamic state changes, rigorous keyboard focus management (including a functional UI-layer skip-to-content mechanism), and graceful motion degradation respecting the OS-level `prefers-reduced-motion` flag.
+
+- **Hermetic Playwright suite (Page Object Model)**  
+  `tests/` holds a POM suite that runs on Desktop, Tablet, and Mobile against the static export. Every external host is mocked (`tests/fixtures.ts`), so CI never sends real e-mails or depends on third-party uptime. Pixel baselines are generated in the official Playwright Docker image and compared on Linux only.
 
 - **Cinematic, Zero-Crop Renderings**  
   Developed a continuous, responsive image slideshow engine utilizing mathematical dynamic aspect ratios (`aspect-ratio: width / height`). It actively prevents Continuous Layout Shifts (CLS) while ensuring complex images are never cropped, regardless of esoteric viewport dimensions.
@@ -43,9 +47,22 @@ It is a custom GenAI model engineered to process and analyze ocean wave paramete
 
 ## 📬 Contact & Availability
 
-I am a Software Engineer available for a full-time role.
+I am open to hearing about software and AI engineering opportunities.
 
 - **LinkedIn:** [linkedin.com/in/shalev-atsis-software-developer/](https://www.linkedin.com/in/shalev-atsis-software-developer/)
 - **GitHub:** [github.com/ShalevAtsis](https://github.com/ShalevAtsis)
 
 ---
+
+## 🛠️ Development
+
+```bash
+npm ci
+npm run dev                 # http://localhost:3000
+npm run lint && npm run typecheck
+npm run build               # static export to ./out
+npm test                    # Playwright (Desktop, Tablet, Mobile)
+npm run test:visual:update  # regenerate Linux pixel baselines (Docker)
+```
+
+Deployment notes live in [GITHUB_PAGES_SETUP.md](GITHUB_PAGES_SETUP.md); performance numbers in [docs/perf.md](docs/perf.md).

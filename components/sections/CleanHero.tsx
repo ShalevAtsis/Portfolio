@@ -66,15 +66,15 @@ export default function CleanHero() {
                 >
                     Software Engineer
                     <span className="mx-3 text-slate-300 dark:text-slate-600" aria-hidden>·</span>
-                    <span className="text-indigo-600 dark:text-indigo-400">AI &amp; Computer Vision</span>
+                    <span className="text-indigo-600 dark:text-indigo-400">AI Engineer</span>
                 </p>
 
                 {/* Summary (Flagged as LCP on Mobile) */}
                 <p
                     className="animate-hero-slide-up max-w-2xl lg:max-w-[70ch] text-base leading-relaxed text-slate-500 dark:text-slate-400 sm:text-lg lg:text-xl lg:leading-relaxed"
                 >
-                    Currently powering production systems at Jifiti while finishing a B.Sc. in Computer Science.{" "}
-                    I turn ambiguous backend puzzles and AI research into clean, reliable software.
+                    Building AI-driven quality engineering for autonomous aviation at High Lander.{" "}
+                    I turn AI research, computer vision, and test automation into software you can trust.
                 </p>
 
                 {/* ── CTA Row ── 
