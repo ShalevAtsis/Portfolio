@@ -1,39 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
+import { scrollToTarget } from "@/lib/scroll";
+import { FOCUS_RING } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
-/**
- * BrandName — Client Component
- * ─────────────────────────────────────────────────────────────────────────────
- * Renders the brand name and handles smooth scroll to top on click.
- */
+/** Brand link: scrolls back to the top when already on the home page. */
 export default function BrandName() {
-    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        // If we're already on the home page, prevent default Link behavior and scroll top
-        if (window.location.pathname === "/") {
-            e.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-            });
-            // Optionally clear the hash if any
-            if (window.location.hash) {
-                window.history.pushState("", document.title, window.location.pathname);
-            }
-        }
-    };
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (window.location.pathname !== "/") return;
+    e.preventDefault();
+    scrollToTarget(0);
+    if (window.location.hash) {
+      window.history.pushState(null, "", window.location.pathname);
+    }
+  };
 
-    return (
-        <Link
-            href="/"
-            onClick={handleClick}
-            className="block whitespace-nowrap text-sm font-extrabold tracking-tight text-slate-900
-                 transition-colors duration-150 hover:text-indigo-600
-                 dark:text-slate-50 dark:hover:text-indigo-400
-                 sm:text-base md:text-lg"
-        >
-            Shalev Atsis
-        </Link>
-    );
+  return (
+    <Link
+      href="/"
+      onClick={handleClick}
+      className={cn(
+        "whitespace-nowrap rounded-md px-1 text-[15px] font-semibold tracking-tight text-ink transition-opacity hover:opacity-70",
+        FOCUS_RING
+      )}
+    >
+      Shalev Atsis
+    </Link>
+  );
 }

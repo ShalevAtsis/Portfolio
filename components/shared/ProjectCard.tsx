@@ -1,142 +1,84 @@
-"use client";
+import type { ReactNode } from "react";
+import { Github, Star } from "lucide-react";
+import BentoCard from "@/components/ui/BentoCard";
+import { FOCUS_RING } from "@/components/ui/Button";
+import type { ProjectData } from "@/lib/content";
+import type { GitHubRepo } from "@/lib/github";
+import { cn } from "@/lib/cn";
 
-import { useState } from "react";
-import { Github, ExternalLink } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import HoverEffectCard from "@/components/ui/HoverEffectCard";
-import { fadeInUpVariants, springSnappy } from "@/lib/motion";
-import type { Project } from "@/lib/types/components";
-
-// ─── Skill badge pill ─────────────────────────────────────────────────────────
-
-function SkillBadge({ label }: { label: string }) {
-    return (
-        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
-            {label}
-        </span>
-    );
+export function SkillChip({ label }: { label: string }) {
+  return (
+    <li className="rounded-full border border-hairline bg-ink/[0.06] px-3 py-1 text-xs font-medium text-ink">{label}</li>
+  );
 }
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
+/** Language + stars from the GitHub API (or the static fallback). */
+export function RepoMeta({ repo }: { repo?: GitHubRepo }) {
+  if (!repo?.language && !repo?.stargazers_count) return null;
+  return (
+    <p className="flex items-center gap-3 text-xs text-ink-2">
+      {repo.language && (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-accent" aria-hidden />
+          {repo.language}
+        </span>
+      )}
+      {repo.stargazers_count > 0 && (
+        <span className="inline-flex items-center gap-1" data-visual-mask>
+          <Star className="h-3 w-3" strokeWidth={2} aria-hidden />
+          <span className="sr-only">Stars:</span>
+          {repo.stargazers_count}
+        </span>
+      )}
+    </p>
+  );
+}
 
-export default function ProjectCard({ project, index }: { project: Project; index: number }) {
-    const [isExpanded, setIsExpanded] = useState(false);
+interface ProjectCardProps {
+  project: ProjectData;
+  repo?: GitHubRepo;
+  icon: ReactNode;
+  className?: string;
+}
 
-    return (
-        <motion.div
-            // ── Scroll-reveal entrance ──
-            variants={fadeInUpVariants}
-            transition={{ ...springSnappy, delay: index * 0.06 }}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            // ── layout prop drives smooth height transition on expand ──
-            layout
-            className="h-full"         // ← ensures all grid cells stretch equally
-        >
-            <HoverEffectCard
-                spotlightColor={project.accentColor ?? "rgba(99,102,241,0.09)"}
-                className="h-full rounded-2xl"
-            >
-                {/*
-                 * flex-col + h-full: the card fills its grid cell top-to-bottom.
-                 * This means every card header aligns at the top and every
-                 * footer badge row aligns at the bottom — regardless of text length.
-                 */}
-                <motion.div
-                    layout
-                    className={[
-                        "flex h-full flex-col gap-4 rounded-2xl p-6",
-                        "border border-slate-200/60 bg-white/70 backdrop-blur-sm",
-                        "dark:border-slate-700/60 dark:bg-slate-900/60",
-                        "transition-colors duration-300",
-                    ].join(" ")}
-                >
-                    {/* ── Header row — project icon + external link ── */}
-                    <div className="flex items-center justify-between">
-                        <a
-                            href={project.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`View ${project.name} on GitHub`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
-                        >
-                            {project.icon ?? <Github className="h-5 w-5" strokeWidth={1.75} />}
-                        </a>
-                        <a
-                            href={project.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`View ${project.name} on GitHub`}
-                            tabIndex={-1}
-                            className={[
-                                "group relative flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold transition duration-300",
-                                "bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:ring-1 hover:ring-emerald-200",
-                                "dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 dark:hover:ring-1 dark:hover:ring-emerald-800",
-                            ].join(" ")}
-                        >
-                            <span className="hidden sm:block">View Source</span>
-                            <Github className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" strokeWidth={2.5} />
-                        </a>
-                    </div>
+export default function ProjectCard({ project, repo, icon, className }: ProjectCardProps) {
+  return (
+    <BentoCard interactive className={cn("h-full", className)}>
+      <article data-project-card className="flex h-full flex-col gap-5 p-7 md:p-8">
+        <div className="flex items-center justify-between">
+          <span aria-hidden className="flex h-11 w-11 items-center justify-center rounded-full bg-accent/10 text-accent">
+            {icon}
+          </span>
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`View ${project.name} on GitHub`}
+            className={cn(
+              "inline-flex h-10 items-center gap-2 rounded-full border border-hairline bg-ink/[0.06] px-4 text-sm font-medium text-ink transition-colors hover:bg-ink/[0.12]",
+              FOCUS_RING
+            )}
+          >
+            <Github className="h-4 w-4" strokeWidth={2} aria-hidden />
+            Source
+          </a>
+        </div>
 
-                    {/* ── Title ── */}
-                    <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        tabIndex={-1}
-                        aria-hidden
-                    >
-                        <h3 className="text-xl font-semibold leading-snug text-slate-900 dark:text-slate-50">
-                            {project.name}
-                        </h3>
-                    </a>
+        <div>
+          <h3 className="text-2xl font-semibold tracking-[-0.02em] text-ink">{project.name}</h3>
+          <div className="mt-2">
+            <RepoMeta repo={repo} />
+          </div>
+        </div>
 
-                    {/* ── Description + Read more toggle ── */}
-                    {/*
-                     * flex-1 here is the symmetry key:
-                     * it makes the description block grow to fill the available
-                     * vertical space, so the skill badges below always sit at
-                     * the same row across sibling cards in the same grid row.
-                     */}
-                    <div className="flex flex-1 flex-col">
-                        <AnimatePresence initial={false}>
-                            <motion.p
-                                key={isExpanded ? "expanded" : "collapsed"}
-                                layout
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className={[
-                                    "text-sm leading-relaxed text-slate-500 dark:text-slate-400",
-                                    isExpanded ? "" : "line-clamp-3",
-                                ].join(" ")}
-                            >
-                                {project.description}
-                            </motion.p>
-                        </AnimatePresence>
+        <p className="flex-1 text-[15px] leading-relaxed text-ink-2">{project.description}</p>
 
-                        <button
-                            type="button"
-                            onClick={() => setIsExpanded((v) => !v)}
-                            aria-label={isExpanded ? `Show less about ${project.name}` : `Read more about ${project.name}`}
-                            className="mt-2 self-start text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:rounded"
-                        >
-                            {isExpanded ? "Show less" : "Read more"}
-                        </button>
-                    </div>
-
-                    {/* ── Skills footer — mt-auto guarantees bottom alignment ── */}
-                    <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
-                        {project.skills.map((skill) => (
-                            <SkillBadge key={skill} label={skill} />
-                        ))}
-                    </div>
-                </motion.div>
-            </HoverEffectCard>
-        </motion.div>
-    );
+        <ul className="flex flex-wrap gap-1.5" aria-label={`${project.name} tech stack`}>
+          {project.skills.map((skill) => (
+            <SkillChip key={skill} label={skill} />
+          ))}
+        </ul>
+      </article>
+    </BentoCard>
+  );
 }

@@ -1,255 +1,196 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { CARD_SURFACE } from "@/components/ui/BentoCard";
+import { BUTTON_VARIANTS, FOCUS_RING } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
-type FormErrors = {
-    name?: string;
-    email?: string;
-    message?: string;
-};
+type FormErrors = { name?: string; email?: string; message?: string };
+type Status = "idle" | "submitting" | "success" | "error";
+
+const INPUT =
+  "w-full rounded-2xl border bg-elevated/70 px-4 py-3.5 text-[16px] text-ink outline-none transition-shadow placeholder:text-ink-2/80 focus-visible:ring-2";
+const INPUT_OK = "border-hairline focus-visible:ring-accent";
+const INPUT_ERROR = "border-[#ff453a]/60 focus-visible:ring-[#ff453a]";
+const LABEL = "mb-1.5 block text-sm font-medium text-ink";
 
 export default function ContactForm() {
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        company: "",
-        message: "",
-        botcheck: false, // Honeypot field
+  const [formData, setFormData] = useState({ name: "", email: "", company: "", message: "", botcheck: false });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState<Status>("idle");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const validate = (): boolean => {
+    const next: FormErrors = {};
+    if (!formData.name.trim()) next.name = "Name is required";
+    if (!formData.email.trim()) next.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) next.email = "Please enter a valid email address";
+    if (!formData.message.trim()) next.message = "Message is required";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    // Honeypot: real users never see or tick this field. Pretend success, send nothing.
+    if (formData.botcheck) {
+      setStatus("success");
+      return;
+    }
+
+    setStatus("submitting");
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "",
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          message: formData.message,
+          subject: "New Contact Form Submission from Portfolio",
+          from_name: "Portfolio Contact Form",
+          category: "Contact Form",
+          botcheck: "",
+        }),
+      });
+      setStatus(response.status === 200 ? "success" : "error");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    if (errors[name as keyof FormErrors]) setErrors((prev) => ({ ...prev, [name]: undefined }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
+
+  // Auto-grow the textarea (write then read inside one animation frame).
+  const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleChange(e);
+    requestAnimationFrame(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
     });
-    const [errors, setErrors] = useState<FormErrors>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+  };
 
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-    const validateForm = (): boolean => {
-        const newErrors: FormErrors = {};
-        let isValid = true;
-
-        if (!formData.name.trim()) {
-            newErrors.name = "Name is required";
-            isValid = false;
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email.trim()) {
-            newErrors.email = "Email is required";
-            isValid = false;
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = "Please enter a valid email address";
-            isValid = false;
-        }
-
-        if (!formData.message.trim()) {
-            newErrors.message = "Message is required";
-            isValid = false;
-        }
-
-        setErrors(newErrors);
-        return isValid;
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // If validation fails, stop here
-        if (!validateForm()) return;
-
-        // Honeypot: real users never see or tick this field. Pretend success, send nothing.
-        if (formData.botcheck) {
-            setIsSuccess(true);
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        try {
-            const response = await fetch("https://api.web3forms.com/submit", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-
-                },
-                body: JSON.stringify({
-                    access_key: process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "",
-                    name: formData.name,
-                    email: formData.email,
-                    company: formData.company,
-                    message: formData.message,
-                    subject: "New Contact Form Submission from Portfolio",
-                    from_name: "Portfolio Contact Form",
-                    category: "Contact Form",
-                    botcheck: ""
-                }),
-            });
-
-            if (response.status === 200) {
-                setIsSuccess(true);
-            } else {
-                console.error("Form submission failed with status:", response.status);
-            }
-        } catch (error) {
-            console.error("Form submission error", error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-
-        // Clear the specific error when user starts typing
-        if (errors[name as keyof FormErrors]) {
-            setErrors((prev) => ({ ...prev, [name]: undefined }));
-        }
-
-        if (type === "checkbox") {
-            const checked = (e.target as HTMLInputElement).checked;
-            setFormData((prev) => ({ ...prev, [name]: checked }));
-        } else {
-            setFormData((prev) => ({ ...prev, [name]: value }));
-        }
-    };
-
-    const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        handleChange(e);
-        if (textareaRef.current) {
-            // Buffer the write-read cycle to the next animation frame to prevent synchronous reflow
-            requestAnimationFrame(() => {
-                if (!textareaRef.current) return;
-                textareaRef.current.style.height = 'auto'; // Write
-                textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Read triggers layout, handled safely
-            });
-        }
-    };
-
-    const inputBaseStyle = "bg-slate-950/50 border transition rounded-xl p-3.5 text-slate-100 placeholder:text-slate-500 w-full outline-none";
-    const inputNormalStyle = "border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500";
-    const inputErrorStyle = "border-red-500/50 focus:border-red-500 focus:ring-1 focus:ring-red-500";
-
-    return (
-        <div className="w-full bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 sm:p-8" style={{ minHeight: 520 }}>
-            <AnimatePresence mode="wait">
-                {!isSuccess ? (
-                    <motion.form
-                        key="form"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        onSubmit={handleSubmit}
-                        className="space-y-4"
-                        noValidate // Disable native HTML5 validation to use our custom UI
-                    >
-                        {/* Honeypot Field */}
-                        <input
-                            type="checkbox"
-                            name="botcheck"
-                            className="hidden"
-                            style={{ display: 'none' }}
-                            tabIndex={-1}
-                            autoComplete="off"
-                            aria-hidden="true"
-                            checked={formData.botcheck}
-                            onChange={handleChange}
-                        />
-
-                        <div>
-                            <label htmlFor="name" className="text-sm font-medium text-slate-300 mb-1.5 block">
-                                Name
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                placeholder="John Doe"
-                                className={`${inputBaseStyle} ${errors.name ? inputErrorStyle : inputNormalStyle}`}
-                            />
-                            {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
-                        </div>
-
-                        <div>
-                            <label htmlFor="email" className="text-sm font-medium text-slate-300 mb-1.5 block">
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="john@example.com"
-                                className={`${inputBaseStyle} ${errors.email ? inputErrorStyle : inputNormalStyle}`}
-                            />
-                            {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
-                        </div>
-
-                        <div>
-                            <label htmlFor="company" className="text-sm font-medium text-slate-300 mb-1.5 block">
-                                Company / LinkedIn Profile <span className="text-slate-500 font-normal">(Optional)</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="company"
-                                name="company"
-                                value={formData.company}
-                                onChange={handleChange}
-                                placeholder="Optional"
-                                className={`${inputBaseStyle} ${inputNormalStyle}`}
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="message" className="text-sm font-medium text-slate-300 mb-1.5 block">
-                                How can I help?
-                            </label>
-                            <textarea
-                                id="message"
-                                name="message"
-                                ref={textareaRef}
-                                rows={4}
-                                value={formData.message}
-                                onInput={handleTextareaInput}
-                                placeholder="Tell me about your project or opportunity..."
-                                className={`${inputBaseStyle} ${errors.message ? inputErrorStyle : inputNormalStyle} resize-none min-h-[100px] overflow-hidden`}
-                            />
-                            {errors.message && <p className="text-xs text-red-400 mt-1">{errors.message}</p>}
-                        </div>
-
-                        <motion.button
-                            type="submit"
-                            disabled={isSubmitting}
-                            whileHover={!isSubmitting ? { scale: 0.98 } : {}}
-                            whileTap={!isSubmitting ? { scale: 0.96 } : {}}
-                            className="bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20 rounded-xl w-full py-3.5 font-bold text-white transition-opacity disabled:opacity-70 disabled:cursor-not-allowed mt-2 block"
-                        >
-                            {isSubmitting ? "Sending..." : "Send Message"}
-                        </motion.button>
-                    </motion.form>
-                ) : (
-                    <motion.div
-                        key="success"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex flex-col items-center justify-center text-center py-12"
-                    >
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                            className="h-16 w-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mb-6"
-                        >
-                            <CheckCircle2 strokeWidth={2.5} className="h-8 w-8" />
-                        </motion.div>
-                        <h3 className="text-xl font-bold text-slate-100 mb-2">Message sent successfully!</h3>
-                        <p className="text-slate-400">I&apos;ll be in touch soon.</p>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+  return (
+    <div className={cn(CARD_SURFACE, "min-h-[560px] p-6 sm:p-9")}>
+      {status === "success" ? (
+        <div className="flex min-h-[480px] flex-col items-center justify-center text-center" role="status">
+          <span className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#30d158]/15 text-[#30d158]">
+            <CheckCircle2 strokeWidth={2} className="h-8 w-8" aria-hidden />
+          </span>
+          <h3 className="text-2xl font-semibold tracking-[-0.02em] text-ink">Message sent successfully!</h3>
+          <p className="mt-2 text-ink-2">I&apos;ll be in touch soon.</p>
         </div>
-    );
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          {/* Honeypot */}
+          <input
+            type="checkbox"
+            name="botcheck"
+            className="hidden"
+            style={{ display: "none" }}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            checked={formData.botcheck}
+            onChange={handleChange}
+          />
+
+          <div>
+            <label htmlFor="name" className={LABEL}>Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              autoComplete="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="John Doe"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
+              className={cn(INPUT, errors.name ? INPUT_ERROR : INPUT_OK)}
+            />
+            {errors.name && <p id="name-error" role="alert" className="mt-1.5 text-sm text-[#ff6961]">{errors.name}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="email" className={LABEL}>Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="john@example.com"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              className={cn(INPUT, errors.email ? INPUT_ERROR : INPUT_OK)}
+            />
+            {errors.email && <p id="email-error" role="alert" className="mt-1.5 text-sm text-[#ff6961]">{errors.email}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="company" className={LABEL}>
+              Company / LinkedIn Profile <span className="font-normal text-ink-2">(Optional)</span>
+            </label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              autoComplete="organization"
+              value={formData.company}
+              onChange={handleChange}
+              placeholder="Optional"
+              className={cn(INPUT, INPUT_OK)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="message" className={LABEL}>How can I help?</label>
+            <textarea
+              id="message"
+              name="message"
+              ref={textareaRef}
+              rows={4}
+              value={formData.message}
+              onChange={handleTextareaInput}
+              placeholder="Tell me about your project or opportunity..."
+              aria-invalid={!!errors.message}
+              aria-describedby={errors.message ? "message-error" : undefined}
+              className={cn(INPUT, errors.message ? INPUT_ERROR : INPUT_OK, "min-h-[120px] resize-none overflow-hidden")}
+            />
+            {errors.message && <p id="message-error" role="alert" className="mt-1.5 text-sm text-[#ff6961]">{errors.message}</p>}
+          </div>
+
+          <button
+            type="submit"
+            disabled={status === "submitting"}
+            className={cn(BUTTON_VARIANTS.primary, FOCUS_RING, "w-full py-3.5 disabled:cursor-not-allowed disabled:opacity-60")}
+          >
+            {status === "submitting" ? "Sending..." : "Send Message"}
+          </button>
+
+          {status === "error" && (
+            <p role="alert" className="text-sm text-[#ff6961]">
+              Something went wrong and the message was not sent. Please try again, or reach me on WhatsApp or e-mail.
+            </p>
+          )}
+        </form>
+      )}
+    </div>
+  );
 }

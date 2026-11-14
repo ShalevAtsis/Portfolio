@@ -34,3 +34,6 @@ test-results.json
 test_errors.txt
 test_failures.txt
 spec_err.txt
+
+# local tooling
+.claude/

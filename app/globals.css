@@ -2,279 +2,171 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   Space-separated RGB channels so Tailwind can apply alpha: bg-surface/70.
+   Dark is the default theme; .dark is set on <html> by next-themes.        */
+:root {
+  --canvas: 251 251 253;      /* #fbfbfd */
+  --surface: 255 255 255;
+  --elevated: 245 245 247;    /* #f5f5f7 */
+  --ink: 29 29 31;            /* #1d1d1f */
+  --ink-2: 100 100 105;       /* 5.6:1 on canvas */
+  --accent: 0 102 204;        /* #0066cc: text-safe Apple blue (5.6:1) */
+  --accent-fill: 0 113 227;   /* #0071e3 */
+  --hairline: rgb(0 0 0 / 0.09);
+  --shadow-strength: 0.18;
+  color-scheme: light;
+}
+
+.dark {
+  --canvas: 0 0 0;            /* #000 */
+  --surface: 17 17 19;        /* #111113 */
+  --elevated: 28 28 30;       /* #1c1c1e */
+  --ink: 245 245 247;         /* #f5f5f7 */
+  --ink-2: 142 142 147;       /* 6.3:1 on black */
+  --accent: 41 151 255;       /* #2997ff */
+  --accent-fill: 0 113 227;   /* #0071e3 */
+  --hairline: rgb(255 255 255 / 0.08);
+  --shadow-strength: 0.7;
+  color-scheme: dark;
+}
+
 @layer base {
+  html {
+    /* Lenis drives smooth scrolling; native smooth scroll would fight it. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
 
-  /* Prevent the bare white HTML canvas from flashing through */
-  html,
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-canvas text-ink antialiased;
+    font-feature-settings: "ss01", "cv11";
+    /* clip (not hidden) keeps the document as the scroll container for Lenis and position: sticky */
+    overflow-x: clip;
   }
 
-  .dark html,
-  .dark body,
-  html.dark,
-  body.dark {
-    @apply bg-slate-950 text-slate-50;
-  }
-
-  /* Kill the browser's blue/white tap-highlight on buttons & links */
   * {
     -webkit-tap-highlight-color: transparent;
   }
-}
 
-html {
-  scroll-behavior: smooth;
-}
-
-/* Staggered entrance animations for hero items.
-   hero-item        — full fade-up (opacity + translate), for secondary elements.
-   hero-item--lcp   — translate only (NO opacity), for the LCP candidate <h1>
-                      so Lighthouse can always measure it as a paint candidate. */
-@keyframes hero-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  ::selection {
+    background: rgb(var(--accent-fill) / 0.35);
   }
 }
 
-@keyframes hero-slide-up {
-  from {
-    transform: translateY(18px);
+/* Lenis recommended styles */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 
-  to {
-    transform: translateY(0);
-  }
-}
-
-.hero-item {
-  animation: hero-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/* LCP element variant — never hides the element behind opacity:0 */
-.hero-item--lcp {
-  animation: hero-slide-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.hero-item-1 {
-  animation-delay: 0ms;
-}
-
-.hero-item-2 {
-  animation-delay: 80ms;
-}
-
-.hero-item-3 {
-  animation-delay: 160ms;
-}
-
-.hero-item-4 {
-  animation-delay: 240ms;
-}
-
-
-/* Navbar entrance */
-@keyframes nav-slide-down {
-  from {
-    opacity: 0;
-    transform: translateY(-24px);
+  /* Headline gradient: full ink fading to 60% ink. */
+  .text-gradient {
+    background-image: linear-gradient(180deg, rgb(var(--ink)) 30%, rgb(var(--ink) / 0.6) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .glass {
+    @apply border border-hairline bg-surface/70 backdrop-blur-xl backdrop-saturate-150;
   }
 }
 
-.animate-slide-down {
-  animation: nav-slide-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+/* ── Page backdrop: static glows + very light grain ───────────────────────── */
+.page-backdrop {
+  background:
+    radial-gradient(60rem 36rem at 85% -5%, rgb(var(--accent-fill) / 0.10), transparent 60%),
+    radial-gradient(48rem 30rem at 0% 35%, rgb(var(--accent-fill) / 0.06), transparent 60%),
+    radial-gradient(56rem 34rem at 100% 78%, rgb(var(--accent-fill) / 0.07), transparent 60%);
 }
 
-:root {
-  --cyber-bg: #0a0e17;
-  --cyber-accent: #06b6d4;
-  --paper-bg: #f8f9fa;
-  --paper-text: #212529;
+.page-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  mix-blend-mode: overlay;
 }
 
-/* Removed rigid overrides here to let Tailwind responsive classes manage global theme colors. */
-
-/* Glassmorphism base (used in Resume navbar) */
-.glass {
-  @apply backdrop-blur-xl border border-cyber-border/50 bg-cyber-surface;
+/* ── Ocean: CSS fallback under the WebGL shader ───────────────────────────── */
+.ocean-gradient {
+  background:
+    radial-gradient(120% 70% at 50% 108%, #0a3a7a 0%, #06214a 32%, #020b1a 62%, #000 100%);
 }
 
-/* Link underline: expands from center to edges on hover */
-.link-underline {
-  @apply relative inline-block;
+.ocean-gradient-deep {
+  background: linear-gradient(180deg, #000 0%, #020b1a 30%, #041a3a 70%, #020b1a 100%);
 }
 
-.link-underline::after {
-  content: "";
-  @apply absolute bottom-0 left-1/2 h-px w-0 -translate-x-1/2 bg-current transition-[width] duration-300 ease-out;
+:root:not(.dark) .ocean-gradient {
+  background:
+    radial-gradient(120% 70% at 50% 108%, #8fc2f2 0%, #c4dffa 34%, #e9f2fd 62%, #fbfbfd 100%);
 }
 
-.link-underline:hover::after {
-  @apply w-full;
+:root:not(.dark) .ocean-gradient-deep {
+  background: linear-gradient(180deg, #fbfbfd 0%, #e3effc 30%, #cfe4fb 70%, #e9f2fd 100%);
 }
 
-/* Resume A4 proportion (≈ 1.414) */
+.ocean-wave {
+  animation: wave-drift linear infinite;
+  will-change: transform;
+}
+
+/* ── Hero entrance (CSS only: runs before hydration) ──────────────────────── */
+.hero-word {
+  display: inline-block;
+  animation: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Transform-only variant for the LCP paragraph: never hidden behind opacity. */
+.hero-slide {
+  animation: hero-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-fade {
+  animation: hero-fade 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Easter egg: "model hallucination" ────────────────────────────────────── */
+@keyframes glitch-jitter {
+  0%, 100% { transform: translate(0, 0) skewX(0deg); }
+  20% { transform: translate(-1px, 0.5px) skewX(-1.5deg); }
+  40% { transform: translate(1.5px, -0.5px) skewX(1deg); }
+  60% { transform: translate(-0.5px, 0) skewX(0.5deg); }
+  80% { transform: translate(1px, 0.5px) skewX(-0.5deg); }
+}
+
+.hallucination {
+  text-shadow: -0.035em 0 rgb(255 45 85 / 0.75), 0.035em 0 rgb(41 151 255 / 0.85);
+  animation: glitch-jitter 0.9s steps(5) infinite;
+}
+
+/* Subtle chromatic offset on the whole page while hallucinating. Transform-free
+   on the wrapper itself so position: sticky / fixed descendants keep working. */
+.debug-chaos-wrapper[data-broken="true"] :is(p, li, a, span, label) {
+  text-shadow: -0.5px 0 rgb(255 45 85 / 0.35), 0.5px 0 rgb(41 151 255 / 0.4);
+}
+
+/* ── Resume ───────────────────────────────────────────────────────────────── */
 .a4-proportion {
   aspect-ratio: 1 / 1.414;
   max-width: 210mm;
 }
 
-/* Debug / Chaos state */
-.debug-chaos-wrapper[data-broken="true"] {
-  transform: rotate(-0.8deg);
-  filter: invert(1) hue-rotate(180deg);
-  font-family: "Courier New", Courier, monospace !important;
-}
-
-.debug-chaos-wrapper[data-broken="true"] * {
-  font-family: inherit;
-}
-
-/* Lightbox entrance animations */
-@keyframes lb-fade {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes lb-scale {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes lb-progress {
-  from {
-    width: 0%;
-  }
-
-  to {
-    width: 100%;
-  }
-}
-
-/* ── Gallery slideshow ───────────────────────────────────────────────────── */
-
-/* Unified Cinematic Entrance & Ken Burns */
-/* 0% to 15% is the entrance (roughly 1 second out of 7 seconds total) */
-/* 15% to 100% is the slow Ken Burns drift */
-@keyframes gallery-cinematic {
-  0% {
-    opacity: 0;
-    transform: scale(1.01) translateX(1%);
-  }
-
-  15% {
-    opacity: 1;
-    transform: scale(1.01) translateX(0%);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1.04) translate(-0.4%, -0.2%);
-  }
-}
-
-/* Progress bar fill */
-@keyframes gallery-progress {
-  from {
-    transform: scaleX(0);
-  }
-
-  to {
-    transform: scaleX(1);
-  }
-}
-
-/* Active slide: ONE continuous animation to enforce GPU compositing */
-.gallery-slide-active {
-  opacity: 1;
-  animation: gallery-cinematic 7s ease-out forwards;
-  will-change: transform, opacity;
-}
-
-/* Idle slides: invisible, no animation cost */
-.gallery-slide-idle {
-  opacity: 0;
-  visibility: hidden;
-  /* Added to completely remove from render tree when idle */
-  will-change: opacity;
-}
-
-.gallery-progress {
-  animation: gallery-progress linear forwards;
-  transform-origin: left;
-  will-change: transform;
-}
-
-/* ── Reduced Motion — WCAG 2.1 SC 2.3.3 ──────────────────────────────────── */
-/* All cinematic animations degrade gracefully to instant state changes for   */
-/* users who have configured "Reduce Motion" at the OS level.                 */
+/* ── Reduced motion (WCAG 2.3.3) ──────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-
-  /* Respect the user's preference: disable smooth scroll */
-  html {
-    scroll-behavior: auto !important;
-  }
-
-  /* Hero entrance animations */
-  .hero-item,
-  .hero-item--lcp {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  /* Navbar slide-down entrance */
-  .animate-nav-slide-down,
-  .animate-slide-down {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  /* Gallery slide animations — show active slide immediately, no Ken Burns */
-  .gallery-slide-active {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  /* Gallery progress bar — hide since it's tied to animation timing */
-  .gallery-progress {
-    animation: none !important;
-    transform: scaleX(1) !important;
-  }
-
-  /* Navigation menu link entrance animation */
-  .nav-link-enter {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  /* Suppress Tailwind-generated transitions/animations globally */
   *,
   *::before,
   *::after {
@@ -283,15 +175,76 @@ html {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  .ocean-wave,
+  .hallucination {
+    animation: none !important;
+  }
 }
 
-/* Print overrides for Resume Mode */
 @media print {
   body {
-    @apply bg-white text-paper-text;
+    background: #fff;
+    color: #212529;
   }
 
   .no-print {
     display: none !important;
   }
+}
+
+/* Hero scrim: darkens (dark theme) or lightens (light theme) behind the text. */
+.hero-scrim {
+  background: radial-gradient(70% 55% at 50% 45%, rgb(var(--canvas) / 0.55) 0%, rgb(var(--canvas) / 0.25) 55%, transparent 100%);
+}
+
+/* Music scrubber: a thin track that fills with the accent colour. */
+.scrubber {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.scrubber::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to right, rgb(var(--accent)) var(--progress, 0%), rgb(var(--ink) / 0.18) var(--progress, 0%));
+}
+
+.scrubber::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(var(--ink) / 0.18);
+}
+
+.scrubber::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: rgb(var(--accent));
+}
+
+.scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: rgb(var(--ink));
+}
+
+.scrubber::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--ink));
+}
+
+.scrubber:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 4px;
+  border-radius: 999px;
 }
