@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { AnimatePresence, motion, useInView, useScroll, useTransform } from "framer-motion";
-import { Anchor, ArrowRight, BookOpen, CheckCircle2, Film, Loader2, Music2, Pause, Play, Send, Sparkles, Waves, Wind } from "lucide-react";
+import { Anchor, ArrowRight, BookOpen, CheckCircle2, Film, Loader2, Music2, Pause, Plane, Play, Send, Sparkles, Waves, Wind } from "lucide-react";
 import { Container, SectionHeader } from "@/components/ui/Section";
 import { CARD_SURFACE } from "@/components/ui/BentoCard";
 import { FOCUS_RING } from "@/components/ui/Button";
@@ -13,19 +14,21 @@ import CountUp from "@/components/ui/CountUp";
 import Reveal from "@/components/ui/Reveal";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import { formatTime, seek, togglePlay, TRACK, usePlayer } from "@/lib/player";
-import { useReducedMotionSafe } from "@/lib/hooks";
+import { useMounted, useReducedMotionSafe } from "@/lib/hooks";
+import { asset } from "@/lib/basePath";
+import { TRAVEL_SPOTS } from "@/lib/travels";
 import { cn } from "@/lib/cn";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-type SpotKind = "surf" | "dive";
+type SpotKind = "surf" | "dive" | "travel";
 
 interface Spot {
   label: string;
   kind: SpotKind;
   country: string;
-  /** Sea or ocean the spot sits on. */
-  water: string;
+  /** Sea or ocean the spot sits on (surf and dive spots only). */
+  water?: string;
   lat: number;
   lng: number;
   /** Optional personal line and Cloudinary photo id; shown in the detail panel when set. */
@@ -52,33 +55,55 @@ const DIVE_SPOTS: Spot[] = [
   { label: "Cozumel", kind: "dive", country: "Mexico", water: "Caribbean Sea", lat: 20.423, lng: -86.922 },
 ];
 
-const ALL_SPOTS = [...SURF_SPOTS, ...DIVE_SPOTS];
+const TRAVEL: Spot[] = TRAVEL_SPOTS.map((spot) => ({ ...spot, kind: "travel" }));
 
-// Derived from the spot list, so the numbers can never drift from the map.
-const WORLD_STATS = [
+const SPOT_GROUPS: Array<{ kind: SpotKind; tab: string; groupLabel: string; panelLabel: string; spots: Spot[] }> = [
+  { kind: "surf", tab: "Surf", groupLabel: "Surf spots", panelLabel: "Surf trip", spots: SURF_SPOTS },
+  { kind: "dive", tab: "Dive", groupLabel: "Dive spots", panelLabel: "Dive site", spots: DIVE_SPOTS },
+  { kind: "travel", tab: "Travel", groupLabel: "Travel spots", panelLabel: "Travel", spots: TRAVEL },
+];
+
+const ALL_SPOTS = [...SURF_SPOTS, ...DIVE_SPOTS, ...TRAVEL];
+
+// Counts are derived from the spot lists, so they can never drift from the map.
+const WORLD_STATS: Array<{ value: number; suffix?: string; label: string }> = [
   { value: new Set(ALL_SPOTS.map((s) => s.country)).size, label: "countries on the map" },
   { value: SURF_SPOTS.length, label: "surf coasts" },
-  { value: DIVE_SPOTS.length, label: "dive sites" },
-  { value: new Set(ALL_SPOTS.map((s) => s.water)).size, label: "seas and oceans" },
+  { value: DIVE_SPOTS.length, label: "dive regions" },
+  { value: 30, suffix: "+", label: "dives logged" },
 ];
+
+const KIND_ICON: Record<SpotKind, typeof Wind> = { surf: Wind, dive: Anchor, travel: Plane };
 
 function formatCoords(lat: number, lng: number) {
   const part = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(2)}° ${v >= 0 ? pos : neg}`;
   return `${part(lat, "N", "S")}, ${part(lng, "E", "W")}`;
 }
 
-const BOOKS_READ = [
-  "The Power of Habit", "Can't Hurt Me", "Badulina",
-  "The Alchemist", "Rich Dad Poor Dad", "The Monk Who Sold His Ferrari",
+interface Cover {
+  title: string;
+  /** File in /public/covers; omitted when no cover is available. */
+  cover?: string;
+}
+
+const CURRENT_BOOK = { title: "The Lean Startup", author: "Eric Ries", cover: "the-lean-startup.jpg" };
+
+const BOOKS_READ: Cover[] = [
+  { title: "The Power of Habit", cover: "the-power-of-habit.jpg" },
+  { title: "Can't Hurt Me", cover: "cant-hurt-me.jpg" },
+  { title: "Badulina" },
+  { title: "The Alchemist", cover: "the-alchemist.jpg" },
+  { title: "Rich Dad Poor Dad", cover: "rich-dad-poor-dad.jpg" },
+  { title: "The Monk Who Sold His Ferrari", cover: "the-monk-who-sold-his-ferrari.jpg" },
 ];
 
-const FILMS = [
-  { title: "Shutter Island", year: 2010 },
-  { title: "The Godfather", year: 1972 },
-  { title: "Inglourious Basterds", year: 2009 },
-  { title: "Inception", year: 2010 },
-  { title: "Fight Club", year: 1999 },
-  { title: "Django Unchained", year: 2012 },
+const FILMS: Array<Cover & { year: number }> = [
+  { title: "Shutter Island", year: 2010, cover: "shutter-island.jpg" },
+  { title: "The Godfather", year: 1972, cover: "the-godfather.jpg" },
+  { title: "Inglourious Basterds", year: 2009, cover: "inglourious-basterds.jpg" },
+  { title: "Inception", year: 2010, cover: "inception.jpg" },
+  { title: "Fight Club", year: 1999, cover: "fight-club.jpg" },
+  { title: "Django Unchained", year: 2012, cover: "django-unchained.jpg" },
 ];
 
 const TILE = cn(CARD_SURFACE, "h-full");
@@ -97,6 +122,8 @@ function CardLabel({ icon, label, className }: { icon: React.ReactNode; label: s
 function OceanCard() {
   const globeRef = useRef<GlobeVizHandle>(null);
   const [selected, setSelected] = useState<Spot | null>(null);
+  const [kind, setKind] = useState<SpotKind>("surf");
+  const group = SPOT_GROUPS.find((g) => g.kind === kind) ?? SPOT_GROUPS[0];
   const pill =
     "inline-flex min-h-8 items-center rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
 
@@ -105,28 +132,13 @@ function OceanCard() {
     globeRef.current?.flyTo(spot.lat, spot.lng);
   };
 
-  const pills = (spots: Spot[]) =>
-    spots.map((spot) => {
-      const active = selected?.label === spot.label;
-      return (
-        <button
-          key={spot.label}
-          type="button"
-          aria-pressed={active}
-          onClick={() => select(spot)}
-          className={cn(
-            pill,
-            active
-              ? "border-white bg-white text-[#06152e]"
-              : spot.kind === "surf"
-                ? "border-[#2997ff]/40 bg-[#2997ff]/15 text-white hover:bg-[#2997ff]/30"
-                : "border-white/20 bg-white/10 text-white hover:bg-white/20"
-          )}
-        >
-          {spot.label}
-        </button>
-      );
-    });
+  const PILL_TONE: Record<SpotKind, string> = {
+    surf: "border-[#2997ff]/40 bg-[#2997ff]/15 text-white hover:bg-[#2997ff]/30",
+    dive: "border-white/20 bg-white/10 text-white hover:bg-white/20",
+    travel: "border-[#ffcc66]/40 bg-[#ffcc66]/15 text-white hover:bg-[#ffcc66]/30",
+  };
+
+  const SelectedIcon = selected ? KIND_ICON[selected.kind] : Wind;
 
   return (
     // Always dark: the globe texture is a night-side Earth in both themes.
@@ -139,17 +151,45 @@ function OceanCard() {
 
         <div className="absolute inset-x-0 bottom-0 p-6">
           <CardLabel icon={<Waves className="h-3.5 w-3.5" aria-hidden />} label="Global Adventures" className="text-[#2997ff]" />
-          <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-white">Surf &amp; Dive Spots</h3>
+          <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-white">Surf, Dive &amp; Travel</h3>
 
-          <div className="mt-4 flex flex-col gap-2.5">
-            <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Surf spots">
-              <Wind className="mr-1 h-3.5 w-3.5 shrink-0 text-[#2997ff]" aria-hidden />
-              {pills(SURF_SPOTS)}
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Dive spots">
-              <Anchor className="mr-1 h-3.5 w-3.5 shrink-0 text-white/80" aria-hidden />
-              {pills(DIVE_SPOTS)}
-            </div>
+          <div className="mt-4 inline-flex rounded-full border border-white/15 bg-white/[0.06] p-1" role="group" aria-label="Filter spots">
+            {SPOT_GROUPS.map((g) => {
+              const Icon = KIND_ICON[g.kind];
+              return (
+                <button
+                  key={g.kind}
+                  type="button"
+                  aria-pressed={kind === g.kind}
+                  onClick={() => setKind(g.kind)}
+                  className={cn(
+                    "inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                    kind === g.kind ? "bg-white text-[#06152e]" : "text-white/80 hover:text-white"
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden />
+                  {g.tab}
+                  <span className="tabular-nums opacity-70">{g.spots.length}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-1.5" role="group" aria-label={group.groupLabel}>
+            {group.spots.map((spot) => {
+              const active = selected?.label === spot.label && selected.kind === spot.kind;
+              return (
+                <button
+                  key={spot.label}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => select(spot)}
+                  className={cn(pill, active ? "border-white bg-white text-[#06152e]" : PILL_TONE[spot.kind])}
+                >
+                  {spot.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -168,8 +208,8 @@ function OceanCard() {
               </div>
             )}
             <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2997ff]">
-              {selected.kind === "surf" ? <Wind className="h-3.5 w-3.5" aria-hidden /> : <Anchor className="h-3.5 w-3.5" aria-hidden />}
-              {selected.kind === "surf" ? "Surf trip" : "Dive site"}
+              <SelectedIcon className="h-3.5 w-3.5" aria-hidden />
+              {SPOT_GROUPS.find((g) => g.kind === selected.kind)?.panelLabel}
             </p>
             <p className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-white">{selected.label}</p>
             {selected.note && <p className="mt-3 text-[15px] leading-relaxed text-white/80">{selected.note}</p>}
@@ -180,10 +220,12 @@ function OceanCard() {
                   <dd className="text-right font-medium text-white">{selected.country}</dd>
                 </div>
               )}
-              <div className="flex justify-between gap-4 border-b border-white/10 pb-3">
-                <dt className="text-white/60">Water</dt>
-                <dd className="text-right font-medium text-white">{selected.water}</dd>
-              </div>
+              {selected.water && (
+                <div className="flex justify-between gap-4 border-b border-white/10 pb-3">
+                  <dt className="text-white/60">Water</dt>
+                  <dd className="text-right font-medium text-white">{selected.water}</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-4">
                 <dt className="text-white/60">Coordinates</dt>
                 <dd className="text-right font-mono text-[13px] text-white">{formatCoords(selected.lat, selected.lng)}</dd>
@@ -195,7 +237,7 @@ function OceanCard() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2997ff]">Logbook</p>
             <p className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-white">Pick a spot on the map.</p>
             <p className="mt-3 text-[15px] leading-relaxed text-white/70">
-              Every pin is water I have surfed or dived. Choose one and the globe flies there.
+              Every pin is somewhere I have surfed, dived or travelled. Choose one and the globe flies there.
             </p>
           </div>
         )}
@@ -206,8 +248,78 @@ function OceanCard() {
 
 // ─── Cinema & library ─────────────────────────────────────────────────────────
 
+const COVER_W = 150;
+const COVER_H = 225;
+
+interface CoverPreviewState {
+  cover: string;
+  x: number;
+  y: number;
+}
+
+/**
+ * Hover / focus preview for a film poster or book cover. It is rendered in a
+ * portal with fixed positioning so the card's rounded clipping never cuts it,
+ * and it is decorative: the title is already in the list.
+ */
+function useCoverPreview() {
+  const [preview, setPreview] = useState<CoverPreviewState | null>(null);
+
+  const place = (x: number, y: number) => ({
+    x: Math.max(12, Math.min(x, window.innerWidth - COVER_W - 12)),
+    y: Math.max(12, Math.min(y, window.innerHeight - COVER_H - 12)),
+  });
+
+  const bind = (item: Cover) =>
+    item.cover
+      ? {
+          tabIndex: 0,
+          "data-cover": item.cover,
+          onMouseEnter: (e: React.MouseEvent) => setPreview({ cover: item.cover!, ...place(e.clientX + 20, e.clientY - COVER_H / 2) }),
+          onMouseMove: (e: React.MouseEvent) => setPreview({ cover: item.cover!, ...place(e.clientX + 20, e.clientY - COVER_H / 2) }),
+          onMouseLeave: () => setPreview(null),
+          onFocus: (e: React.FocusEvent<HTMLElement>) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setPreview({ cover: item.cover!, ...place(rect.right - COVER_W, rect.top - COVER_H - 8) });
+          },
+          onBlur: () => setPreview(null),
+        }
+      : {};
+
+  return { preview, bind };
+}
+
+function CoverPreview({ preview }: { preview: CoverPreviewState | null }) {
+  const mounted = useMounted();
+  if (!mounted) return null;
+  return createPortal(
+    <AnimatePresence>
+      {preview && (
+        <motion.div
+          key="cover"
+          aria-hidden
+          data-cover-preview
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.15 }}
+          className="pointer-events-none fixed left-0 top-0 z-[60] overflow-hidden rounded-xl border border-white/15 bg-elevated shadow-lift"
+          style={{ width: COVER_W, height: COVER_H, translate: `${preview.x}px ${preview.y}px` }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={asset(`/covers/${preview.cover}`)} alt="" width={COVER_W} height={COVER_H} className="h-full w-full object-cover" />
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
+  );
+}
+
+const COVER_ROW = "rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-accent";
+
 function CinephileReaderCard() {
   const [tab, setTab] = useState<"cinema" | "books">("cinema");
+  const { preview, bind } = useCoverPreview();
 
   return (
     <div className={cn(TILE, "flex min-h-[440px] flex-col p-6")}>
@@ -243,7 +355,7 @@ function CinephileReaderCard() {
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2">Director&apos;s Cut</p>
             <ol className="flex flex-col">
               {FILMS.map((film, i) => (
-                <li key={film.title} className="flex items-center gap-3 border-b border-hairline py-2.5 last:border-0">
+                <li key={film.title} {...bind(film)} className={cn("flex items-center gap-3 border-b border-hairline py-2.5 last:border-0", COVER_ROW)}>
                   <span className="w-5 text-xs tabular-nums text-ink-2" aria-hidden>{i + 1}</span>
                   <span className="flex-1 text-[15px] font-medium text-ink">{film.title}</span>
                   <span className="text-xs tabular-nums text-ink-2">{film.year}</span>
@@ -260,18 +372,18 @@ function CinephileReaderCard() {
             transition={{ duration: 0.2 }}
             className="flex flex-1 flex-col gap-4"
           >
-            <div className="rounded-card-sm border border-hairline bg-accent/10 p-4">
+            <div {...bind(CURRENT_BOOK)} className={cn("rounded-card-sm border border-hairline bg-accent/10 p-4", COVER_ROW)}>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">Currently Reading</p>
-              <p className="mt-1 text-[17px] font-semibold text-ink">The Lean Startup</p>
-              <p className="text-sm text-ink-2">Eric Ries</p>
+              <p className="mt-1 text-[17px] font-semibold text-ink">{CURRENT_BOOK.title}</p>
+              <p className="text-sm text-ink-2">{CURRENT_BOOK.author}</p>
             </div>
             <div>
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-2">Read</p>
               <ul className="flex flex-col gap-2">
                 {BOOKS_READ.map((book) => (
-                  <li key={book} className="flex items-center gap-2 text-[15px] text-ink">
+                  <li key={book.title} {...bind(book)} className={cn("flex items-center gap-2 text-[15px] text-ink", COVER_ROW)}>
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-accent" strokeWidth={1.75} aria-hidden />
-                    {book}
+                    {book.title}
                   </li>
                 ))}
               </ul>
@@ -279,6 +391,7 @@ function CinephileReaderCard() {
           </motion.div>
         )}
       </AnimatePresence>
+      <CoverPreview preview={preview} />
     </div>
   );
 }
@@ -542,11 +655,11 @@ export default function PersonalWorld() {
 
         <Reveal>
           <dl className="mb-8 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4" data-world-stats>
-            {WORLD_STATS.map(({ value, label }) => (
+            {WORLD_STATS.map(({ value, suffix, label }) => (
               <div key={label} className="flex flex-col-reverse">
                 <dt className="mt-1 text-sm text-ink-2">{label}</dt>
                 <dd className="text-4xl font-semibold tracking-[-0.03em] text-ink md:text-5xl">
-                  <CountUp to={value} />
+                  <CountUp to={value} suffix={suffix} />
                 </dd>
               </div>
             ))}

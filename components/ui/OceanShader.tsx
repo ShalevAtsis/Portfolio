@@ -178,9 +178,12 @@ void main() {
   if (uDepth > 0.001) {
     vec2 cp = uv * 3.2 + vec2(0.0, t * 0.05);
     float caust = pow(0.5 + 0.5 * sin(8.0 * fbm(cp * 1.2 + t * 0.12) + 6.0 * fbm(cp * 1.7 - t * 0.10)), 6.0);
-    vec3 column = mix(deepC * mix(0.30, 0.92, uLight), deepC * mix(1.45, 1.10, uLight), smoothstep(-0.6, 0.6, uv.y));
-    column += mix(crestC, sunC, 0.35) * caust * mix(0.22, 0.16, uLight) * smoothstep(-0.5, 0.5, uv.y);
-    col = mix(col, column, uDepth * 0.92);
+    // Light theme: a pale, sunlit shallow, so the dark text of the section stays readable.
+    vec3 columnLow  = mix(deepC * 0.30, vec3(0.800, 0.890, 0.985), uLight);
+    vec3 columnHigh = mix(deepC * 1.45, vec3(0.910, 0.955, 1.000), uLight);
+    vec3 column = mix(columnLow, columnHigh, smoothstep(-0.6, 0.6, uv.y));
+    column += mix(mix(crestC, sunC, 0.35) * 0.22, vec3(0.10), uLight) * caust * smoothstep(-0.5, 0.5, uv.y);
+    col = mix(col, column, uDepth);
   }
 
   col *= 1.0 - uScroll * 0.35;

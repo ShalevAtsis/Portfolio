@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo, forwardRef, useImperativeHandle } from "react";
 import dynamic from "next/dynamic";
+import { TRAVEL_SPOTS } from "@/lib/travels";
 
 // Dynamically import react-globe.gl with no SSR for Next.js App Router
 // @ts-ignore
@@ -24,7 +25,7 @@ export interface LocationData {
     lat: number;
     lng: number;
     name: string;
-    type: "surf" | "dive";
+    type: "surf" | "dive" | "travel";
 }
 
 const LOCATIONS: LocationData[] = [
@@ -48,7 +49,15 @@ const LOCATIONS: LocationData[] = [
     { lat: -0.3800, lng: -90.3000, name: "Galapagos Islands, Ecuador", type: "dive" },
     { lat: 9.3333, lng: -82.2500, name: "Bocas del Toro, Panama", type: "dive" },
     { lat: 17.3155, lng: -87.5345, name: "Blue Hole, Belize", type: "dive" },
-    { lat: 20.4229, lng: -86.9223, name: "Cozumel, Mexico", type: "dive" }
+    { lat: 20.4229, lng: -86.9223, name: "Cozumel, Mexico", type: "dive" },
+
+    // Travels
+    ...TRAVEL_SPOTS.map((spot): LocationData => ({
+        lat: spot.lat,
+        lng: spot.lng,
+        name: spot.label === spot.country ? spot.label : `${spot.label}, ${spot.country}`,
+        type: "travel",
+    })),
 ];
 
 const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
@@ -108,17 +117,16 @@ const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
     // Ring configurations
     const getRingColor = useMemo(() => {
         return (d: any) => {
-            return d.type === "surf"
-                ? (t: number) => `rgba(41,151,255,${1 - t})`   // Apple blue for surf
-                : (t: number) => `rgba(245,245,247,${0.9 * (1 - t)})`; // soft white for dive
+            if (d.type === "surf") return (t: number) => `rgba(41,151,255,${1 - t})`; // Apple blue for surf
+            if (d.type === "travel") return (t: number) => `rgba(255,204,102,${0.85 * (1 - t)})`; // warm amber for travel
+            return (t: number) => `rgba(245,245,247,${0.9 * (1 - t)})`; // soft white for dive
         };
     }, []);
 
     const getTooltipHtml = (d: LocationData) => {
-        const isSurf = d.type === "surf";
-        const icon = isSurf ? "🌊" : "🤿";
-        const title = isSurf ? "Surf" : "Dive";
-        const colorClass = isSurf ? "color: #2997ff;" : "color: #f5f5f7;";
+        const icon = d.type === "surf" ? "🌊" : d.type === "travel" ? "✈️" : "🤿";
+        const title = d.type === "surf" ? "Surf" : d.type === "travel" ? "Travel" : "Dive";
+        const colorClass = d.type === "surf" ? "color: #2997ff;" : d.type === "travel" ? "color: #ffcc66;" : "color: #f5f5f7;";
 
         return `
       <div style="
@@ -157,7 +165,7 @@ const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
                     ringLat="lat"
                     ringLng="lng"
                     ringColor={getRingColor}
-                    ringMaxRadius={(d: any) => (d.type === "surf" ? 4 : 3)}
+                    ringMaxRadius={(d: any) => (d.type === "surf" ? 4 : d.type === "travel" ? 2.5 : 3)}
                     ringPropagationSpeed={2.5}
                     ringRepeatPeriod={1000}
 

@@ -507,19 +507,25 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
 
         test('globe card mounts with surf and dive spot controls', async () => {
             await expect(world.globe).toBeAttached();
+            const filter = world.section.getByRole('group', { name: 'Filter spots' });
             await expect(world.section.getByRole('group', { name: 'Surf spots' }).getByRole('button')).toHaveCount(6);
+            await filter.getByRole('button', { name: /Dive/ }).click();
             await expect(world.section.getByRole('group', { name: 'Dive spots' }).getByRole('button')).toHaveCount(7);
+            await filter.getByRole('button', { name: /Travel/ }).click();
+            await expect(world.section.getByRole('group', { name: 'Travel spots' }).getByRole('button')).toHaveCount(25);
         });
 
         test('stats row is derived from the spot list', async () => {
             const stats = world.section.locator('[data-world-stats]');
             await expect(stats).toContainText('countries on the map');
-            await expect(stats.locator('dd')).toHaveText(['9', '6', '7', '5']);
+            await expect(stats.locator('dd')).toHaveText(['29', '6', '7', '30+']);
         });
 
         test('choosing a spot fills the logbook panel, with or without WebGL', async () => {
             const panel = world.section.locator('[data-spot-panel]');
             await expect(panel).toContainText('Pick a spot on the map.');
+            const filter = world.section.getByRole('group', { name: 'Filter spots' });
+            await filter.getByRole('button', { name: /Dive/ }).click();
             const galapagos = world.section.getByRole('button', { name: 'Galapagos' });
             await galapagos.click();
             await expect(galapagos).toHaveAttribute('aria-pressed', 'true');
@@ -527,10 +533,25 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await expect(panel).toContainText('Ecuador');
             await expect(panel).toContainText('Pacific Ocean');
             await expect(panel).toContainText('0.38° S, 90.30° W');
+            await filter.getByRole('button', { name: /Surf/ }).click();
             await world.section.getByRole('button', { name: 'Brazil' }).click();
-            await expect(galapagos).toHaveAttribute('aria-pressed', 'false');
             await expect(panel).toContainText('Surf trip');
             await expect(panel).toContainText('Atlantic Ocean');
+            await filter.getByRole('button', { name: /Travel/ }).click();
+            await world.section.getByRole('button', { name: 'Budapest' }).click();
+            await expect(panel).toContainText('Hungary');
+            await expect(panel).not.toContainText('Water');
+        });
+
+        test('focusing a film or a book shows its cover', async ({ page }) => {
+            const preview = page.locator('[data-cover-preview] img');
+            await world.section.getByText('Inception', { exact: true }).locator('xpath=ancestor::li').focus();
+            await expect(preview).toHaveAttribute('src', /\/covers\/inception\.jpg$/);
+            await world.libraryButton.click();
+            await world.section.getByText("Can't Hurt Me", { exact: true }).locator('xpath=ancestor-or-self::li').focus();
+            await expect(preview).toHaveAttribute('src', /\/covers\/cant-hurt-me\.jpg$/);
+            // A book without a cover is simply not focusable and shows nothing.
+            await expect(world.section.getByText('Badulina', { exact: true })).not.toHaveAttribute('tabindex', '0');
         });
 
         test('Cinema and Library tabs switch content', async () => {
