@@ -2,28 +2,35 @@
 
 import { Bug } from "lucide-react";
 import { useDebug } from "@/lib/hooks";
+import { FOCUS_RING } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
-// framer-motion removed. Hover/tap effects are pure CSS transitions.
-
+/** Footer easter-egg trigger: makes the "model" hallucinate and opens the agent console. */
 export default function BugTrigger() {
   const { triggerChaos } = useDebug();
 
   return (
     <button
       type="button"
-      onClick={triggerChaos}
-      className="group relative rounded-lg p-2 text-slate-400 opacity-60 transition-[colors,opacity,transform] duration-150 hover:bg-slate-100 hover:text-red-500 hover:opacity-100 active:scale-[0.92] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 dark:hover:bg-slate-800 dark:hover:text-red-400"
+      onClick={(e) => {
+        // WebKit does not focus buttons on click; focus explicitly so the
+        // console can hand focus back here when it closes.
+        e.currentTarget.focus();
+        triggerChaos();
+      }}
+      className={cn(
+        "group relative inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-[color,background-color,transform] duration-150 hover:bg-ink/[0.08] hover:text-[#ff6961] active:scale-90",
+        FOCUS_RING
+      )}
       aria-label="Trigger debug mode (easter egg)"
     >
-      {/* Tooltip — group-hover CSS only */}
       <span
-        className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 dark:bg-white dark:text-slate-900"
+        className="pointer-events-none absolute -top-9 right-0 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-xs text-canvas opacity-0 shadow-md transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
         aria-hidden
       >
-        Found a bug? Try to fix it.
+        Raise the model temperature?
       </span>
-
-      <Bug className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={1.5} />
+      <Bug className="h-[18px] w-[18px]" strokeWidth={1.5} />
     </button>
   );
 }

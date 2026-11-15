@@ -1,50 +1,39 @@
-import type { Variants, Transition } from "framer-motion";
+import type { Transition, Variants } from "framer-motion";
 
-// ─── Spring presets ───────────────────────────────────────────────────────────
+/**
+ * Shared motion vocabulary. Rules for every animation on the site:
+ *  - animate `transform` and `opacity` only (no layout-affecting properties)
+ *  - scroll-linked values are MotionValues, never React state
+ *  - every component checks useReducedMotionSafe() and renders its final state
+ */
 
-/** Snappy spring – used for entrance animations and interactive elements. */
-export const springSnappy: Transition = {
-  type: "spring",
-  stiffness: 100,
-  damping: 20,
-};
+/** Apple-like ease-out: quick start, long soft landing. */
+export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-/** Gentler spring – used for larger / heavier elements. */
-export const springGentle: Transition = {
-  type: "spring",
-  stiffness: 80,
-  damping: 22,
-};
+export const springSnappy: Transition = { type: "spring", stiffness: 100, damping: 20 };
+export const springGentle: Transition = { type: "spring", stiffness: 80, damping: 22 };
 
-// ─── Reusable Framer Motion variants ─────────────────────────────────────────
+/** Spring used to smooth scroll-linked values. */
+export const SCROLL_SPRING = { stiffness: 120, damping: 30, restDelta: 0.001 } as const;
 
-/** FadeInUp: slides from y+20 at opacity 0 → y=0 at opacity 1. */
 export const fadeInUpVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0 },
 };
 
-/**
- * Ready-to-spread transition object for the FadeInUp pattern.
- * Usage: `transition={{ ...fadeInUp, delay: 0.1 }}`
- */
-export const fadeInUp: Transition = {
-  ...springSnappy,
-};
-
-// ─── Stagger helpers ──────────────────────────────────────────────────────────
-
-/**
- * Container variant that staggers children by `delay` seconds.
- * @param delay – seconds between each child (default 0.08)
- */
-export function staggerContainer(delay = 0.08): Variants {
+/** Parent variant that staggers its children by `delay` seconds. */
+export function staggerContainer(delay = 0.06, delayChildren = 0): Variants {
   return {
     hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: delay,
-      },
-    },
+    visible: { transition: { staggerChildren: delay, delayChildren } },
   };
 }
+
+/** Child variant for staggered chips / list items. */
+export const staggerItem: Variants = {
+  hidden: { opacity: 0, y: 12, scale: 0.96 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: EASE_OUT } },
+};
+
+/** Default viewport config for one-shot reveals. */
+export const VIEWPORT_ONCE = { once: true, margin: "-10% 0px" } as const;

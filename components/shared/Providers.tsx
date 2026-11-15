@@ -1,33 +1,36 @@
 "use client";
 
+import { useEffect, type ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
-import type { ReactNode } from "react";
+import { MotionConfig } from "framer-motion";
 import { ViewProvider } from "@/context/ViewContext";
+import SmoothScroll from "@/components/shared/SmoothScroll";
 
-interface ProvidersProps {
-    children: ReactNode;
+/** Marks the document once React has hydrated (used by the Playwright suite). */
+function HydrationFlag() {
+  useEffect(() => {
+    document.documentElement.dataset.hydrated = "true";
+  }, []);
+  return null;
 }
 
 /**
- * Providers.tsx
- * ─────────────
- * Wraps the app with:
- *  • next-themes ThemeProvider  — global dark/light mode, dark by default,
- *    toggled via the `class` attribute on <html> (Tailwind's `dark:` prefix).
- *  • ViewProvider               — dual-mode (portfolio / resume) context.
- *
- * Usage in layout.tsx:
- *   <Providers>{children}</Providers>
+ * App-wide providers:
+ *  - next-themes: dark by default, light via the toggle (class on <html>)
+ *  - MotionConfig: Framer Motion honours prefers-reduced-motion globally
+ *  - ViewProvider: portfolio / resume mode
+ *  - SmoothScroll: Lenis + anchor navigation
  */
-export default function Providers({ children }: ProvidersProps) {
-    return (
-        <ThemeProvider
-            attribute="class"        // adds `class="dark"` to <html>
-            defaultTheme="dark"      // start in dark mode
-            enableSystem={false}     // ignore OS preference; user controls it
-            disableTransitionOnChange // prevent flash during theme swap
-        >
-            <ViewProvider>{children}</ViewProvider>
-        </ThemeProvider>
-    );
+export default function Providers({ children }: { children: ReactNode }) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+      <MotionConfig reducedMotion="user">
+        <ViewProvider>
+          <SmoothScroll />
+          {children}
+          <HydrationFlag />
+        </ViewProvider>
+      </MotionConfig>
+    </ThemeProvider>
+  );
 }

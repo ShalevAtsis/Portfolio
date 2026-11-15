@@ -1,221 +1,133 @@
 "use client";
 
 /**
- * NavigationMenu — React Portal Overlay
- * Client island. Parent <header> is a Pure Server Component.
- * Uses ReactDOM.createPortal to escape all stacking contexts and guarantee
- * absolute visibility over WebGL globes and other 3D components.
- * Solid backgrounds only (no backdrop-filter) to prevent WebGL bleed-through.
+ * NavigationMenu: full-screen sheet for small screens.
  *
- * A11y features:
- * - Focus trap: on open → first nav link receives focus; on close → burger button regains focus
- * - Escape key closes menu and returns focus
- * - focus-visible:ring-2 ring-cyan-400 on all interactive elements (WCAG 2.4.7)
- * - aria-hidden on decorative glow (WCAG 1.1.1)
- * - prefers-reduced-motion: nav-link entrance animation disabled (WCAG 2.3.3)
+ * Rendered through a portal so it sits above every stacking context (WebGL
+ * canvases included). Accessibility:
+ *  - role="dialog" + aria-modal, real focus trap, Escape closes
+ *  - focus moves to the first link on open and back to the burger on close
+ *  - links reveal with a CSS stagger that is disabled under reduced motion
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { useMounted } from "@/lib/hooks";
-
-const NAV_LINKS = [
-    { href: "#about", label: "About", idx: "01" },
-    { href: "#experience", label: "Experience", idx: "02" },
-    { href: "#skills", label: "Skills", idx: "03" },
-    { href: "#projects", label: "Projects", idx: "04" },
-    { href: "#gallery", label: "Gallery", idx: "05" },
-    { href: "#personal-world", label: "Personal World", idx: "06" },
-    { href: "#contact", label: "Contact", idx: "07" },
-];
+import { useFocusTrap, useMounted } from "@/lib/hooks";
+import { NAV_LINKS } from "@/lib/nav";
+import { setScrollLocked } from "@/lib/scroll";
+import { NAV_ICON_BUTTON } from "@/components/shared/ThemeToggle";
+import { FOCUS_RING } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 const STYLE = `
-@keyframes linkSlideUp {
-  from { opacity: 0; transform: translateY(24px); }
+@keyframes sheetLinkIn {
+  from { opacity: 0; transform: translateY(28px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.nav-link-enter {
-  opacity: 0;
-  animation: linkSlideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-  .nav-link-enter {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
+.sheet-link { animation: sheetLinkIn 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+@media (prefers-reduced-motion: reduce) { .sheet-link { animation: none; } }
 `;
 
 export default function NavigationMenu() {
-    const [isOpen, setIsOpen] = useState(false);
-    const mounted = useMounted();
+  const [isOpen, setIsOpen] = useState(false);
+  const mounted = useMounted();
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
-    // Ref for burger to restore focus on close (WCAG 2.4.3)
-    const burgerRef = useRef<HTMLButtonElement>(null);
-    // Ref for the first nav link to receive focus on open (focus trap entry)
-    const firstLinkRef = useRef<HTMLAnchorElement>(null);
+  const close = useCallback(() => setIsOpen(false), []);
+  useFocusTrap(sheetRef, isOpen, close);
 
-    // Strict Scroll Lock
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
-        return () => {
-            document.body.style.overflow = "";
-        };
-    }, [isOpen]);
+  // Scroll lock: body overflow for native scrolling, Lenis stop for smooth scrolling.
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    setScrollLocked(isOpen);
+    return () => {
+      document.body.style.overflow = "";
+      setScrollLocked(false);
+    };
+  }, [isOpen]);
 
-    // Focus management: move focus into the menu on open, return on close (WCAG 2.4.3)
-    useEffect(() => {
-        if (isOpen) {
-            // Small delay to allow overlay to become visible before shifting focus
-            const raf = requestAnimationFrame(() => {
-                firstLinkRef.current?.focus();
-            });
-            return () => cancelAnimationFrame(raf);
-        } else {
-            // Return focus to the trigger element (burger button)
-            burgerRef.current?.focus();
-        }
-    }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) return;
+    const raf = requestAnimationFrame(() => firstLinkRef.current?.focus());
+    return () => cancelAnimationFrame(raf);
+  }, [isOpen]);
 
-    // Escape to close (WCAG 2.1.2)
-    useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && isOpen) setIsOpen(false);
-        };
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-    }, [isOpen]);
+  const sheet = (
+    <div
+      ref={sheetRef}
+      id="nav-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Site navigation"
+      aria-hidden={!isOpen}
+      data-lenis-prevent
+      className={cn(
+        "fixed inset-0 z-[99999] flex h-[100dvh] flex-col bg-canvas transition-[opacity,visibility] duration-300 motion-reduce:transition-none",
+        isOpen ? "visible opacity-100" : "pointer-events-none invisible opacity-0"
+      )}
+    >
+      <style dangerouslySetInnerHTML={{ __html: STYLE }} />
+      <div aria-hidden className="page-backdrop pointer-events-none absolute inset-0" />
 
-    const close = () => setIsOpen(false);
+      <div className="relative flex h-[52px] shrink-0 items-center px-4 sm:px-6">
+        <button type="button" aria-label="Close menu" onClick={close} className={NAV_ICON_BUTTON}>
+          <X className="h-5 w-5" strokeWidth={1.75} />
+        </button>
+      </div>
 
-    // Focus ring shared classes — WCAG 2.4.7 compliant (focus-visible only, no mouse ring)
-    const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2";
+      <nav aria-label="Site sections" className="relative flex flex-1 flex-col justify-center overflow-y-auto px-8 pb-16 sm:px-12">
+        <ul role="list" className="flex flex-col gap-1">
+          {NAV_LINKS.map(({ href, label, idx }, i) => (
+            <li key={href}>
+              <a
+                ref={i === 0 ? firstLinkRef : undefined}
+                href={href}
+                onClick={close}
+                className={cn(
+                  "group flex items-baseline gap-4 rounded-xl py-2",
+                  // Re-keyed on open so the stagger replays every time.
+                  isOpen && "sheet-link",
+                  FOCUS_RING
+                )}
+                style={{ animationDelay: `${60 + i * 55}ms` }}
+              >
+                <span className="w-6 text-xs font-medium tabular-nums text-ink-2">{idx}</span>
+                <span className="text-[2rem] font-semibold leading-tight tracking-[-0.03em] text-ink transition-colors group-hover:text-accent sm:text-5xl">
+                  {label}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-    // The full-screen overlay (rendered via Portal)
-    const overlayContent = (
-        <div
-            id="nav-overlay"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Site navigation"
-            aria-hidden={!isOpen}
-            className={[
-                "fixed inset-x-0 top-0 z-[99999]",
-                "flex h-[100dvh] flex-col items-center justify-center",
-                // SOLID premium colours — NO transparency or backdrop-blur
-                "bg-white dark:bg-slate-950",
-                // Pure CSS fade-in/out with motion-reduce override
-                "transition-[opacity,visibility] duration-300 motion-reduce:transition-none",
-                isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none",
-            ].join(" ")}
-        >
-            <style dangerouslySetInnerHTML={{ __html: STYLE }} />
+      <p className="relative pb-6 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-ink-2">
+        Shalev Atsis · Software Engineer
+      </p>
+    </div>
+  );
 
-            {/* Subtly animated ambient glow — purely decorative */}
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute -top-1/4 left-1/2 -translate-x-1/2 h-[50vh] w-[60vw] rounded-full bg-indigo-50 dark:bg-indigo-900/20 blur-3xl" />
-            </div>
-
-            {/* ── Top Bar inside Portal ── */}
-            <div className="absolute inset-x-0 top-0">
-                <div className="mx-auto grid w-full max-w-7xl grid-cols-3 items-center px-4 py-2 sm:px-6 lg:px-10">
-                    <div className="justify-self-start">
-                        <button
-                            type="button"
-                            aria-label="Close menu"
-                            onClick={close}
-                            className={[
-                                "inline-flex h-9 w-9 items-center justify-center rounded-xl",
-                                "transition-[colors,transform] duration-150 motion-reduce:transition-none",
-                                "hover:scale-[1.08] active:scale-90",
-                                "text-slate-900 dark:text-slate-100",
-                                "hover:bg-slate-200/70 dark:hover:bg-slate-800/70",
-                                FOCUS_RING,
-                                "focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950",
-                            ].join(" ")}
-                        >
-                            <X className="h-6 w-6" strokeWidth={1.5} />
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* ── Centred nav links with adjusted sizes ── */}
-            <nav aria-label="Site sections" className="relative z-10 flex w-full flex-col items-center px-4 text-center">
-                <ul className="flex w-full max-w-lg flex-col gap-1.5 sm:gap-3 lg:gap-5" role="list">
-                    {NAV_LINKS.map(({ href, label, idx }, i) => (
-                        <li key={href}>
-                            <a
-                                ref={i === 0 ? firstLinkRef : undefined}
-                                href={href}
-                                onClick={close}
-                                className={[
-                                    "nav-link-enter group flex items-center justify-center gap-3 py-1.5 sm:py-2",
-                                    !isOpen && "hidden",
-                                    FOCUS_RING,
-                                    "focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 rounded-lg",
-                                ].join(" ")}
-                                style={{
-                                    animationDelay: `${i * 50}ms`,
-                                    animationPlayState: isOpen ? "running" : "paused",
-                                }}
-                            >
-                                {/* Index */}
-                                <span className="w-6 text-right text-[10px] font-bold tabular-nums text-slate-500 dark:text-slate-400 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:w-8 sm:text-xs">
-                                    {idx}
-                                </span>
-
-                                {/* Label — Scaled down to fit mobile cleanly */}
-                                <span className="relative text-3xl font-black tracking-tighter text-slate-900 dark:text-white transition-[colors,transform] duration-300 motion-reduce:transition-none group-hover:translate-x-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 sm:text-[42px] md:text-[42px] lg:text-[50px]">
-                                    {label}
-                                </span>
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-
-            {/* Footer */}
-            <p className="absolute bottom-6 inset-x-0 text-center text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                Shalev Atsis · Software Engineer
-            </p>
-        </div>
-    );
-
-    return (
-        <>
-            {/* ── Original Burger Button (in Navbar) ── */}
-            <button
-                ref={burgerRef}
-                type="button"
-                aria-label="Open navigation menu"
-                aria-expanded={isOpen}
-                aria-controls="nav-overlay"
-                onClick={() => setIsOpen(true)}
-                className={[
-                    "inline-flex h-9 w-9 flex-col items-center justify-center gap-[5px] rounded-xl",
-                    "transition-[colors,transform] duration-150 motion-reduce:transition-none",
-                    "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800",
-                    "hover:scale-[1.08] active:scale-90",
-                    FOCUS_RING,
-                    "focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950",
-                ].join(" ")}
-            >
-                <span className="block h-[1.5px] w-[18px] rounded-full bg-current" />
-                <span className="block h-[1.5px] w-[18px] rounded-full bg-current" />
-                <span className="block h-[1.5px] w-[18px] rounded-full bg-current" />
-            </button>
-
-            {/* ── React Portal Overlay ── */}
-            {mounted && typeof document !== "undefined"
-                ? createPortal(overlayContent, document.body)
-                : null}
-        </>
-    );
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Open navigation menu"
+        aria-expanded={isOpen}
+        aria-controls="nav-overlay"
+        onClick={(e) => {
+          // WebKit does not focus buttons on click; focus explicitly so the
+          // sheet can hand focus back here when it closes.
+          e.currentTarget.focus();
+          setIsOpen(true);
+        }}
+        className={cn(NAV_ICON_BUTTON, "flex-col gap-[5px]")}
+      >
+        <span className="block h-[1.5px] w-[17px] rounded-full bg-current" />
+        <span className="block h-[1.5px] w-[17px] rounded-full bg-current" />
+      </button>
+      {mounted ? createPortal(sheet, document.body) : null}
+    </>
+  );
 }

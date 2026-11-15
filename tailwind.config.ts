@@ -1,137 +1,89 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Design tokens. Colours resolve to CSS variables defined in app/globals.css,
+ * so every utility adapts to the dark (default) and light themes automatically.
+ */
+const withAlpha = (variable: string) => `rgb(var(${variable}) / <alpha-value>)`;
+
 const config: Config = {
-  darkMode: "class",   // driven by next-themes adding class="dark" to <html>
+  darkMode: "class", // next-themes toggles class="dark" on <html>
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./context/**/*.{js,ts,jsx,tsx,mdx}",
-    "./content/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./context/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {
-      /* ── Primitive palettes ─────────────────────────────────────────────── */
-      /* Cyber theme – Portfolio Mode: dark, glassmorphism, cyan/emerald glow */
-      /* Paper theme – Resume Mode: light/clean, document-style               */
       colors: {
-        cyber: {
-          bg: "#0a0e17",
-          surface: "rgba(15, 23, 42, 0.6)",
-          border: "rgba(6, 182, 212, 0.3)",
-          accent: "#06b6d4",
-          accentDim: "#0891b2",
-          emerald: "#10b981",
-          emeraldDim: "#059669",
-          text: "#e2e8f0",
-          muted: "#94a3b8",
+        canvas: withAlpha("--canvas"), // page background
+        surface: withAlpha("--surface"), // cards
+        elevated: withAlpha("--elevated"), // raised controls, inputs
+        ink: withAlpha("--ink"), // primary text
+        "ink-2": withAlpha("--ink-2"), // secondary text
+        accent: withAlpha("--accent"), // Apple blue: links, highlights
+        "accent-fill": withAlpha("--accent-fill"), // filled buttons (white text passes AA)
+        hairline: "var(--hairline)",
+        ocean: {
+          abyss: "#020b1a",
+          deep: "#06214a",
         },
+        /* Resume view keeps its own document-style "paper" look. */
         paper: {
           bg: "#f8f9fa",
           surface: "#ffffff",
           border: "#dee2e6",
           text: "#212529",
           muted: "#6c757d",
-          accent: "#0d6efd",
-        },
-
-        /* ── Semantic alias groups ─────────────────────────────────────────── */
-        /* `dark-cyber`  → Portfolio (dark) design system token set             */
-        /* `light-paper` → Resume   (light) design system token set             */
-        /* Mirrors primitive palettes, giving components a stable mode-agnostic  */
-        /* API: e.g. text-dark-cyber-accent / bg-light-paper-surface            */
-        "dark-cyber": {
-          bg: "#0a0e17",
-          surface: "rgba(15, 23, 42, 0.6)",
-          border: "rgba(6, 182, 212, 0.3)",
-          accent: "#06b6d4",
-          accentDim: "#0891b2",
-          emerald: "#10b981",
-          emeraldDim: "#059669",
-          text: "#e2e8f0",
-          muted: "#94a3b8",
-        },
-        "light-paper": {
-          bg: "#f8f9fa",
-          surface: "#ffffff",
-          border: "#dee2e6",
-          text: "#212529",
-          muted: "#6c757d",
-          accent: "#0d6efd",
-        },
-        /* ── Clean theme – new light portfolio mode ─────────────────────── */
-        clean: {
-          bg: "#f8fafc",        // slate-50
-          surface: "#ffffff",
-          border: "#e2e8f0",    // slate-200
-          text: "#0f172a",      // slate-900
-          muted: "#475569",     // slate-500
-          subtle: "#94a3b8",    // slate-400
-          accent: "#4f46e5",    // indigo-600
-          accentLight: "#ede9fe", // indigo-100
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        display: ["var(--font-sans)", "system-ui", "sans-serif"],
-        serif: ["var(--font-serif)", "Georgia", "Cambria", "serif"],
+        sans: ["var(--font-sans)", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "SF Mono", "Menlo", "Consolas", "monospace"],
       },
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "cyber-glow":
-          "radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.15) 0%, transparent 50%)",
+      fontSize: {
+        display: ["clamp(3rem, 9vw, 7.5rem)", { lineHeight: "0.98" }],
+        headline: ["clamp(2rem, 5vw, 4rem)", { lineHeight: "1.05" }],
+      },
+      maxWidth: {
+        content: "1100px",
+      },
+      borderRadius: {
+        "card-sm": "20px",
+        card: "28px",
+        "card-lg": "36px",
       },
       boxShadow: {
-        glow: "0 0 40px -10px rgba(6, 182, 212, 0.4)",
-        "glow-emerald": "0 0 40px -10px rgba(16, 185, 129, 0.3)",
-        paper: "0 1px 3px rgba(0,0,0,0.08)",
-        "glow-soft": "0 0 24px -6px rgba(6, 182, 212, 0.25)",
-      },
-      backdropBlur: {
-        glass: "12px",
-        "glass-lg": "20px",
-      },
-      backgroundColor: {
-        "glass/10": "rgba(255, 255, 255, 0.06)",
-        "glass/5": "rgba(255, 255, 255, 0.04)",
-        "cyber-glass": "rgba(15, 23, 42, 0.5)",
-      },
-      animation: {
-        "float": "float 6s ease-in-out infinite",
-        "marquee": "marquee 30s linear infinite",
-        "hero-fade-up": "heroFadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both",
-        "hero-slide-up": "heroSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both",
-        "nav-slide-down": "navSlideDown 0.45s cubic-bezier(0.22,1,0.36,1) both",
-        "lb-crossfade": "lbCrossfade 0.6s cubic-bezier(0.22,1,0.36,1) both",
+        soft: "0 1px 0 0 var(--hairline) inset, 0 30px 60px -30px rgb(0 0 0 / var(--shadow-strength))",
+        lift: "0 40px 80px -40px rgb(0 0 0 / var(--shadow-strength))",
       },
       keyframes: {
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
+        "hero-rise": {
+          from: { transform: "translateY(0.5em)" },
+          to: { transform: "translateY(0)" },
         },
-        marquee: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
+        "hero-fade": {
+          from: { opacity: "0", transform: "translateY(14px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
-        // Hero entrance — secondary elements: translate + fade
-        heroFadeUp: {
-          "from": { opacity: "0", transform: "translateY(18px)" },
-          "to": { opacity: "1", transform: "translateY(0)" },
+        "wave-drift": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
         },
-        // Hero LCP element — translate only, NEVER hides text behind opacity:0
-        heroSlideUp: {
-          "from": { transform: "translateY(14px)" },
-          "to": { transform: "translateY(0)" },
+        "soft-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.55" },
         },
-        // Navbar slide-in from top
-        navSlideDown: {
-          "from": { opacity: "0", transform: "translateY(-20px)" },
-          "to": { opacity: "1", transform: "translateY(0)" },
+        equalize: {
+          "0%, 100%": { transform: "scaleY(0.3)" },
+          "50%": { transform: "scaleY(1)" },
         },
-        lbCrossfade: {
-          "from": { opacity: "0", transform: "scale(1.03)" },
-          "to":   { opacity: "1", transform: "scale(1)" },
-        },
+      },
+      animation: {
+        "hero-rise": "hero-rise 0.9s cubic-bezier(0.22,1,0.36,1) both",
+        "hero-fade": "hero-fade 0.9s cubic-bezier(0.22,1,0.36,1) both",
+        "soft-pulse": "soft-pulse 2.8s ease-in-out infinite",
+        equalize: "equalize 1s ease-in-out infinite",
       },
     },
   },

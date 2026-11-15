@@ -1,274 +1,113 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { Search, X } from "lucide-react";
-import { fadeInUpVariants, springSnappy } from "@/lib/motion";
-import FadeInUp from "@/components/ui/FadeInUp";
-import HoverEffectCard from "@/components/ui/HoverEffectCard";
+import { Section, SectionHeader } from "@/components/ui/Section";
+import BentoCard from "@/components/ui/BentoCard";
+import ButtonLink, { FOCUS_RING } from "@/components/ui/Button";
+import Reveal from "@/components/ui/Reveal";
+import { SKILL_GROUPS } from "@/lib/content";
+import { REPO_URL } from "@/lib/contact";
+import { staggerContainer, staggerItem, VIEWPORT_ONCE } from "@/lib/motion";
+import { cn } from "@/lib/cn";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type SkillCategory = "lang" | "ai" | "devops" | "concepts";
-
-interface Skill {
-    label: string;
-    category: SkillCategory;
-}
-
-interface SkillGroup {
-    title: string;
-    category: SkillCategory;
-    skills: Skill[];
-    spotlightColor: string;
-}
-
-// ─── Skill data ───────────────────────────────────────────────────────────────
-
-function s(label: string, category: SkillCategory): Skill {
-    return { label, category };
-}
-
-const SKILL_GROUPS: SkillGroup[] = [
-    {
-        title: "Programming",
-        category: "lang",
-        spotlightColor: "rgba(99,102,241,0.10)",
-        skills: [
-            s("Python", "lang"), s("TypeScript", "lang"), s("Java", "lang"),
-            s("C++", "lang"), s("SQL", "lang"), s("JavaScript", "lang"),
-            s("NumPy", "lang"), s("Pandas", "lang"), s("Matplotlib", "lang"),
-            s("React", "lang"), s("Node.js", "lang"),
-        ],
-    },
-    {
-        title: "AI & Machine Learning",
-        category: "ai",
-        spotlightColor: "rgba(16,185,129,0.10)",
-        skills: [
-            s("PyTorch", "ai"), s("OpenCV", "ai"), s("HuggingFace", "ai"),
-            s("Scikit-learn", "ai"), s("GenAI", "ai"), s("Diffusion Models", "ai"),
-            s("Computer Vision", "ai"), s("Deep Learning", "ai"),
-        ],
-    },
-    {
-        title: "Cloud & DevOps",
-        category: "devops",
-        spotlightColor: "rgba(245,158,11,0.10)",
-        skills: [
-            s("AWS", "devops"), s("Docker", "devops"), s("CI/CD Pipelines", "devops"),
-            s("Jenkins", "devops"), s("MongoDB", "devops"), s("Git", "devops"), s("Playwright", "devops"),
-            s("Selenium", "devops"), s("Jira", "devops"), s("Postman", "devops"),
-        ],
-    },
-    {
-        title: "Concepts & Soft Skills",
-        category: "concepts",
-        spotlightColor: "rgba(14,165,233,0.10)", // sky-500
-        skills: [
-            s("Data Structures", "concepts"), s("Algorithms", "concepts"),
-            s("OOP", "concepts"), s("System Design", "concepts"),
-            s("Agile Methodologies", "concepts"), s("Communication Networks", "concepts"),
-            s("Analytical Thinking", "concepts"), s("Team Collaboration", "concepts"),
-            s("Fast Learning", "concepts"),
-        ],
-    },
-];
-
-// ─── Semantic colour map ──────────────────────────────────────────────────────
-
-const PILL_STYLES: Record<SkillCategory, string> = {
-    // Programming — indigo/blue
-    lang: [
-        "bg-indigo-50   text-indigo-700  ring-1 ring-indigo-200",
-        "dark:bg-indigo-950/60 dark:text-indigo-300 dark:ring-indigo-800",
-        "hover:bg-indigo-100 dark:hover:bg-indigo-900/50",
-    ].join(" "),
-
-    // AI & ML — emerald/teal
-    ai: [
-        "bg-emerald-50  text-emerald-700 ring-1 ring-emerald-200",
-        "dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-800",
-        "hover:bg-emerald-100 dark:hover:bg-emerald-900/50",
-    ].join(" "),
-
-    // Cloud & DevOps — amber/orange
-    devops: [
-        "bg-amber-50    text-amber-700   ring-1 ring-amber-200",
-        "dark:bg-amber-950/60 dark:text-amber-300 dark:ring-amber-800",
-        "hover:bg-amber-100 dark:hover:bg-amber-900/50",
-    ].join(" "),
-
-    // Concepts & Soft Skills — sky
-    concepts: [
-        "bg-sky-50      text-sky-700      ring-1 ring-sky-200",
-        "dark:bg-sky-950/60 dark:text-sky-300 dark:ring-sky-800",
-        "hover:bg-sky-100 dark:hover:bg-sky-900/50",
-    ].join(" "),
+// Bento layout: the two headline groups are wide, the rest share a row.
+const SPANS: Record<string, string> = {
+  qa: "md:col-span-3",
+  ai: "md:col-span-3",
+  lang: "md:col-span-2",
+  devops: "md:col-span-2",
+  concepts: "md:col-span-2",
 };
-
-const TITLE_STYLES: Record<SkillCategory, string> = {
-    lang: "text-indigo-600  dark:text-indigo-400",
-    ai: "text-emerald-600 dark:text-emerald-400",
-    devops: "text-amber-600   dark:text-amber-400",
-    concepts: "text-sky-600     dark:text-sky-400",
-};
-
-// ─── Pill animation ───────────────────────────────────────────────────────────
-
-const pillVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { ...springSnappy } },
-    exit: { opacity: 0, scale: 0.75, transition: { duration: 0.15 } },
-};
-
-function Pill({ skill }: { skill: Skill }) {
-    return (
-        <motion.li
-            key={skill.label}
-            layout
-            variants={pillVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.96 }}
-            transition={springSnappy}
-            className={`inline-flex cursor-default items-center rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${PILL_STYLES[skill.category]}`}
-        >
-            {skill.label}
-        </motion.li>
-    );
-}
-
-// ─── Section ─────────────────────────────────────────────────────────────────
 
 export default function CleanSkills() {
-    const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
 
-    // Normalised query for loose matching
-    const q = query.trim().toLowerCase();
+  const groups = useMemo(
+    () =>
+      SKILL_GROUPS.map((group) => ({
+        ...group,
+        skills: q ? group.skills.filter((skill) => skill.toLowerCase().includes(q)) : group.skills,
+      })).filter((group) => group.skills.length > 0),
+    [q]
+  );
 
-    // Filter each group's skills dynamically
-    const filteredGroups = useMemo(
-        () =>
-            SKILL_GROUPS.map((group) => ({
-                ...group,
-                skills: q
-                    ? group.skills.filter((sk) =>
-                        sk.label.toLowerCase().includes(q)
-                    )
-                    : group.skills,
-            })).filter((group) => group.skills.length > 0),
-        [q]
-    );
+  return (
+    <Section id="skills">
+      <SectionHeader eyebrow="Toolbox" title="Skills" lede="Languages, frameworks, and tools I use day-to-day." />
 
-    return (
-        <section id="skills" className="py-16 sm:py-20 md:py-24 lg:py-32 scroll-mt-20">
-            {/* ── Header + search bar ── */}
-            <FadeInUp className="mb-10">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
-                    Skills
-                </h2>
-                <p className="mt-3 text-slate-500 dark:text-slate-400">
-                    Languages, frameworks, and tools I use day-to-day.
-                </p>
-            </FadeInUp>
+      <Reveal className="mb-8">
+        <div className="relative max-w-sm">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-2" strokeWidth={1.75} aria-hidden />
+          <input
+            type="text"
+            placeholder="Filter skills…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Filter skills"
+            className="glass h-12 w-full rounded-full pl-11 pr-11 text-[15px] text-ink outline-none transition-shadow placeholder:text-ink-2 focus-visible:ring-2 focus-visible:ring-accent"
+          />
+          {query && (
+            <button
+              type="button"
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+              className={cn("absolute right-3 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-ink-2 hover:text-ink", FOCUS_RING)}
+            >
+              <X className="h-4 w-4" strokeWidth={2} />
+            </button>
+          )}
+        </div>
+      </Reveal>
 
-            {/* Search input */}
-            <FadeInUp delay={0.06} className="mb-10">
-                <div className="relative max-w-sm">
-                    <Search
-                        className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                        strokeWidth={1.75}
-                        aria-hidden
-                    />
-                    <input
-                        type="text"
-                        placeholder="Filter skills…"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        aria-label="Filter skills"
-                        className={[
-                            "w-full rounded-xl py-2.5 pl-10 pr-10 text-sm",
-                            "border border-slate-200 bg-white/80 backdrop-blur-sm",
-                            "dark:border-slate-700 dark:bg-slate-800/80",
-                            "text-slate-900 placeholder:text-slate-400",
-                            "dark:text-slate-100 dark:placeholder:text-slate-500",
-                            "shadow-sm transition",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:border-emerald-400",
-                            "dark:focus-visible:ring-emerald-400/40 dark:focus-visible:border-emerald-500",
-                        ].join(" ")}
-                    />
-                    {/* Clear button */}
-                    <AnimatePresence>
-                        {query && (
-                            <motion.button
-                                initial={{ opacity: 0, scale: 0.7 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.7 }}
-                                transition={springSnappy}
-                                type="button"
-                                aria-label="Clear search"
-                                onClick={() => setQuery("")}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-                            >
-                                <X className="h-3.5 w-3.5" strokeWidth={2} />
-                            </motion.button>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </FadeInUp>
+      <p aria-live="polite" className="sr-only">
+        {q ? `${groups.reduce((n, g) => n + g.skills.length, 0)} skills match ${query}` : ""}
+      </p>
 
-            {/* ── Skill groups grid ── */}
-            <AnimatePresence mode="popLayout">
-                {filteredGroups.length > 0 ? (
-                    <motion.div
-                        key="groups"
-                        layout
-                        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8 xl:gap-10"
+      {groups.length > 0 ? (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-6">
+          {groups.map((group, i) => (
+            <Reveal key={group.id} delay={i * 0.06} className={q ? "md:col-span-3" : SPANS[group.id]}>
+              <BentoCard interactive className="h-full p-7 md:p-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{group.title}</p>
+                <p className="mt-2 text-[15px] leading-snug text-ink-2">{group.blurb}</p>
+                <motion.ul
+                  className="mt-6 flex flex-wrap gap-2"
+                  variants={staggerContainer(0.04, 0.15)}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={VIEWPORT_ONCE}
+                >
+                  {group.skills.map((skill) => (
+                    <motion.li
+                      key={skill}
+                      variants={staggerItem}
+                      className="rounded-full border border-hairline bg-ink/[0.06] px-3.5 py-1.5 text-sm font-medium text-ink"
                     >
-                        {filteredGroups.map((group, i) => (
-                            <motion.div
-                                key={group.title}
-                                layout
-                                variants={fadeInUpVariants}
-                                transition={{ ...springSnappy, delay: i * 0.06 }}
-                                initial="hidden"
-                                animate="visible"
-                                exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
-                                viewport={{ once: true, margin: "-60px" }}
-                            >
-                                <HoverEffectCard
-                                    className="h-full rounded-2xl border border-slate-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-                                    spotlightColor={group.spotlightColor}
-                                >
-                                    <p className={`mb-4 text-xs font-bold uppercase tracking-widest ${TITLE_STYLES[group.category]}`}>
-                                        {group.title}
-                                    </p>
-                                    <motion.ul className="flex flex-wrap gap-2">
-                                        <AnimatePresence mode="popLayout">
-                                            {group.skills.map((skill) => (
-                                                <Pill key={skill.label} skill={skill} />
-                                            ))}
-                                        </AnimatePresence>
-                                    </motion.ul>
-                                </HoverEffectCard>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                ) : (
-                    <motion.p
-                        key="empty"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="text-sm text-slate-500 dark:text-slate-400"
-                    >
-                        No skills match &ldquo;{query}&rdquo;.
-                    </motion.p>
+                      {skill}
+                    </motion.li>
+                  ))}
+                </motion.ul>
+                {group.id === "qa" && !q && (
+                  <div className="mt-6 border-t border-hairline pt-5">
+                    <p className="text-sm leading-relaxed text-ink-2">
+                      Proof of work: this site ships with its own Playwright suite (Page Object Model, three
+                      viewports, hermetic network).
+                    </p>
+                    <ButtonLink variant="link" href={`${REPO_URL}/tree/main/tests`} external className="mt-2">
+                      See the tests
+                    </ButtonLink>
+                  </div>
                 )}
-            </AnimatePresence>
-        </section>
-    );
+              </BentoCard>
+            </Reveal>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[15px] text-ink-2">No skills match &ldquo;{query}&rdquo;.</p>
+      )}
+    </Section>
+  );
 }

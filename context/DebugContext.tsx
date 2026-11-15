@@ -25,7 +25,7 @@ const DebugContext = createContext<DebugContextValue | null>(null);
 
 export { DebugContext };
 
-const TOAST_DURATION_MS = 4000;
+const TOAST_DURATION_MS = 6000;
 
 export function DebugProvider({ children }: { children: React.ReactNode }) {
   const [isSystemBroken, setIsSystemBroken] = useState(false);
@@ -58,7 +58,7 @@ export function DebugProvider({ children }: { children: React.ReactNode }) {
     setIsFixed(true);
     setIsTerminalOpen(false);
     setIsSystemBroken(false);
-    showToast("System Restored. Good job, Engineer.");
+    showToast("System restored. The model has been reminded who's boss.");
   }, [showToast]);
 
   const openTerminal = useCallback(() => {
