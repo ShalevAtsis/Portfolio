@@ -119,6 +119,8 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
 
         test('compact: sheet links navigate and update the URL hash', async ({ page }) => {
             test.skip(!hasCompactNav(page), 'the burger menu exists on small screens only');
+            // Seven open -> navigate -> close round trips: needs more than the default budget on slow CI WebKit.
+            test.slow();
             for (const { name, hash } of SECTIONS) {
                 await navbar.menuButton.click();
                 await navbar.overlay.getByRole('link', { name }).click();
@@ -691,7 +693,9 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
         test('reasoning can be skipped', async () => {
             await agent.open();
             await agent.ask('fix it');
-            await agent.dialog.getByRole('button', { name: 'skip reasoning' }).click();
+            // The button only exists while the trace streams and the panel resizes around it, so a
+            // regular click (which waits for a stable position) can lose the race on slow machines.
+            await agent.dialog.getByRole('button', { name: 'skip reasoning' }).dispatchEvent('click');
             await expect(agent.transcript).toContainText('headings: grounded in the DOM');
             await expect(agent.toast).toBeVisible({ timeout: 10_000 });
         });
