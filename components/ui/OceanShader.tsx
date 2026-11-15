@@ -19,8 +19,9 @@ import { useReducedMotionSafe } from "@/lib/hooks";
  *  - `powerPreference: "low-power"`, zero per-frame allocations
  *
  * Fallbacks (the parent always paints a CSS gradient + SVG waves underneath)
- *  - no WebGL2, a software renderer, or a lost context -> canvas stays
- *    transparent and the CSS fallback shows
+ *  - no WebGL2, a software renderer, a GPU that needs more than 50 ms for one
+ *    frame, or a lost context -> canvas stays transparent and the CSS
+ *    fallback shows
  *  - prefers-reduced-motion or Save-Data -> a single still frame, no loop
  */
 
@@ -165,6 +166,9 @@ void main() {
   outColor = vec4(col, 1.0);
 }`;
 
+/** A single full-size frame slower than this means the GPU cannot keep up. */
+const FRAME_BUDGET_MS = 50;
+
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
   if (!shader) return null;
@@ -264,7 +268,7 @@ export default function OceanShader({ variant = "hero", scroll, depth, className
         }
       };
 
-      const draw = () => {
+      const paint = () => {
         gl.uniform2f(uResolution, canvas.width, canvas.height);
         gl.uniform1f(uTime, time);
         gl.uniform1f(uScroll, scroll ? scroll.get() : 0);
@@ -272,6 +276,10 @@ export default function OceanShader({ variant = "hero", scroll, depth, className
         gl.uniform1f(uDepth, depth ? depth.get() : variant === "deep" ? 1 : 0);
         gl.uniform1f(uLight, lightRef.current);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
+      };
+
+      const draw = () => {
+        paint();
         if (!shown) {
           shown = true;
           canvas.dataset.state = "webgl";
@@ -332,6 +340,30 @@ export default function OceanShader({ variant = "hero", scroll, depth, className
         },
         { rootMargin: "80px" }
       );
+
+      // Not every browser exposes the renderer name (WebKit masks it), so the
+      // real cost of one frame is measured as well: a tiny warm-up draw absorbs
+      // shader compilation, then a full-size frame is timed synchronously.
+      // Anything slower than the budget would starve the main thread, so the
+      // CSS fallback stays instead.
+      if (!forced) {
+        const pixel = new Uint8Array(4);
+        resize();
+        gl.viewport(0, 0, 4, 4);
+        paint();
+        gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        const startedAt = performance.now();
+        paint();
+        gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+        if (performance.now() - startedAt > FRAME_BUDGET_MS) {
+          disposed = true;
+          gl.deleteProgram(program);
+          gl.deleteShader(vs);
+          gl.deleteShader(fs);
+          return fail();
+        }
+      }
 
       renderStill();
       canvas.dataset.running = "false";

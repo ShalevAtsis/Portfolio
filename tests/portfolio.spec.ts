@@ -227,7 +227,9 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await expect(hero.oceanCanvas).toHaveAttribute('data-state', /^(webgl|fallback)$/, { timeout: 15_000 });
         });
 
-        test('ocean shader animates while the hero is on screen and pauses off screen', async ({ page }) => {
+        test('ocean shader animates while the hero is on screen and pauses off screen', async ({ page, browserName }) => {
+            // WebKit on Linux rasterises WebGL on the CPU: forcing the shader there only measures the CI machine.
+            test.skip(browserName === 'webkit' && process.platform === 'linux', 'software-rendered WebGL is too slow to time');
             // Headless browsers use a software renderer, which the site treats as "no WebGL";
             // ?ocean=webgl forces the real shader so its loop can be verified.
             await page.goto('/?ocean=webgl');

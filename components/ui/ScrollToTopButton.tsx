@@ -8,12 +8,17 @@ import { FOCUS_RING } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 
 const SCROLL_THRESHOLD = 600;
+/** Hidden again this close to the end of the page, so it never covers the footer controls. */
+const BOTTOM_CLEARANCE = 160;
 
 /** Floating "back to top" control. Always mounted; CSS handles show/hide. */
 export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false);
   const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (y) => setVisible(y > SCROLL_THRESHOLD));
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    setVisible(y > SCROLL_THRESHOLD && y < max - BOTTOM_CLEARANCE);
+  });
 
   return (
     <button
