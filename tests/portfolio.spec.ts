@@ -550,8 +550,8 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await world.libraryButton.click();
             await world.section.getByText("Can't Hurt Me", { exact: true }).locator('xpath=ancestor-or-self::li').focus();
             await expect(preview).toHaveAttribute('src', /\/covers\/cant-hurt-me\.jpg$/);
-            // A book without a cover is simply not focusable and shows nothing.
-            await expect(world.section.getByText('Badulina', { exact: true })).not.toHaveAttribute('tabindex', '0');
+            await world.section.getByText('Badulina', { exact: true }).locator('xpath=ancestor-or-self::li').focus();
+            await expect(preview).toHaveAttribute('src', /\/covers\/badulina\.jpeg$/);
         });
 
         test('Cinema and Library tabs switch content', async () => {

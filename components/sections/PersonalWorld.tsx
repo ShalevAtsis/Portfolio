@@ -91,7 +91,7 @@ const CURRENT_BOOK = { title: "The Lean Startup", author: "Eric Ries", cover: "t
 const BOOKS_READ: Cover[] = [
   { title: "The Power of Habit", cover: "the-power-of-habit.jpg" },
   { title: "Can't Hurt Me", cover: "cant-hurt-me.jpg" },
-  { title: "Badulina" },
+  { title: "Badulina", cover: "badulina.jpeg" },
   { title: "The Alchemist", cover: "the-alchemist.jpg" },
   { title: "Rich Dad Poor Dad", cover: "rich-dad-poor-dad.jpg" },
   { title: "The Monk Who Sold His Ferrari", cover: "the-monk-who-sold-his-ferrari.jpg" },
