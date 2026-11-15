@@ -4,6 +4,7 @@ export class PersonalWorldSection {
     readonly page: Page;
     readonly sectionLocator: Locator;
     readonly globeCanvas: Locator;
+    readonly globeContainer: Locator;
     readonly cinemaPanelButton: Locator;
     readonly libraryPanelButton: Locator;
     readonly nowPlayingWidget: Locator;
@@ -16,6 +17,8 @@ export class PersonalWorldSection {
         this.page = page;
         this.sectionLocator = page.locator('section#personal-world');
         this.globeCanvas = this.sectionLocator.locator('canvas');
+        // Present with or without WebGL support (headless CI may lack a GPU).
+        this.globeContainer = this.sectionLocator.locator('[data-globe]');
         this.cinemaPanelButton = this.sectionLocator.getByRole('button', { name: 'Cinema' });
         this.libraryPanelButton = this.sectionLocator.getByRole('button', { name: 'Library' });
         this.nowPlayingWidget = this.sectionLocator.getByText('Now Playing', { exact: false });

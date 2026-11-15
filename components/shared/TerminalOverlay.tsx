@@ -19,13 +19,14 @@ const BOOT_LINES = [
 ];
 
 export default function TerminalOverlay() {
-  const {
-    isTerminalOpen,
-    isSystemBroken,
-    fixSystem,
-    closeTerminal,
-    isFixed,
-  } = useDebug();
+  const { isTerminalOpen, isFixed } = useDebug();
+  // The panel mounts fresh each time it opens, so its state resets naturally.
+  if (!isTerminalOpen || isFixed) return null;
+  return <TerminalPanel />;
+}
+
+function TerminalPanel() {
+  const { fixSystem, closeTerminal } = useDebug();
   const [input, setInput] = useState("");
   const [showHelp, setShowHelp] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -38,14 +39,9 @@ export default function TerminalOverlay() {
     normalizedInput === "sudo fix-site --force";
 
   useEffect(() => {
-    if (isTerminalOpen) {
-      setInput("");
-      setShowHelp(false);
-      setShowSuccess(false);
-      setProgress(0);
-      setTimeout(() => inputRef.current?.focus(), 400);
-    }
-  }, [isTerminalOpen]);
+    const t = setTimeout(() => inputRef.current?.focus(), 400);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +68,6 @@ export default function TerminalOverlay() {
       setShowHelp(true);
     }
   };
-
-  if (!isTerminalOpen || isFixed) return null;
 
   return (
     <AnimatePresence>

@@ -163,7 +163,7 @@ function CinephileReaderCard() {
                         className="flex flex-1 flex-col gap-2"
                     >
                         <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
-                            Director's Cut
+                            Director&apos;s Cut
                         </p>
                         {FILMS.map((f, i) => (
                             <div key={f.title} className="flex items-center gap-2.5 rounded-lg px-1 py-1.5 transition-colors hover:bg-indigo-50/80 dark:hover:bg-indigo-950/30">
@@ -423,7 +423,7 @@ function SuggestionCard() {
                             exit={{ opacity: 0 }}
                         >
                             <p className="mt-3 text-base font-semibold text-slate-900 dark:text-slate-50">
-                                Know a movie, book, or dive site I'd love?
+                                Know a movie, book, or dive site I&apos;d love?
                             </p>
                             <p className="mt-1 text-sm text-slate-400">Drop it here. My AI rates compatibility with my taste. Seriously.</p>
 

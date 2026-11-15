@@ -12,7 +12,7 @@ export class HeroSection {
         this.page = page;
         this.sectionLocator = page.locator('section#hero');
         this.headingFirstFrame = this.sectionLocator.getByRole('heading', { level: 1, name: /Shalev Atsis/i });
-        this.statusBadge = this.sectionLocator.getByText('Open to opportunities', { exact: true });
+        this.statusBadge = this.sectionLocator.getByText('Open To Opportunities', { exact: true });
         this.whatsappButton = this.sectionLocator.getByRole('link', { name: /Message on WhatsApp/i });
         this.downloadCVButton = this.sectionLocator.getByRole('link', { name: /Download CV/i });
     }

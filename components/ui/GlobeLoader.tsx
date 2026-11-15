@@ -65,7 +65,7 @@ const GlobeLoader = forwardRef<GlobeVizHandle, GlobeLoaderProps>(
         }, []);
 
         return (
-            <div ref={wrapperRef} className="h-full w-full" style={{ minHeight }}>
+            <div ref={wrapperRef} data-globe className="h-full w-full" style={{ minHeight }}>
                 {inView ? <GlobeViz ref={ref} /> : <GlobeSkeleton />}
             </div>
         );

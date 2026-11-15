@@ -57,6 +57,12 @@ export default function ContactForm() {
         // If validation fails, stop here
         if (!validateForm()) return;
 
+        // Honeypot: real users never see or tick this field. Pretend success, send nothing.
+        if (formData.botcheck) {
+            setIsSuccess(true);
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -69,7 +75,10 @@ export default function ContactForm() {
                 },
                 body: JSON.stringify({
                     access_key: process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "",
-                    ...formData,
+                    name: formData.name,
+                    email: formData.email,
+                    company: formData.company,
+                    message: formData.message,
                     subject: "New Contact Form Submission from Portfolio",
                     from_name: "Portfolio Contact Form",
                     category: "Contact Form",
@@ -140,6 +149,9 @@ export default function ContactForm() {
                             name="botcheck"
                             className="hidden"
                             style={{ display: 'none' }}
+                            tabIndex={-1}
+                            autoComplete="off"
+                            aria-hidden="true"
                             checked={formData.botcheck}
                             onChange={handleChange}
                         />

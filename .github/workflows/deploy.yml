@@ -36,6 +36,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          # Built-in token: lifts the GitHub API rate limit for lib/github.ts (read-only).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY }}
           NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
 

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "test:visual:update": "bash scripts/update-snapshots.sh"
   },
   "dependencies": {
     "framer-motion": "^11.11.17",
@@ -23,6 +26,8 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
     "postcss": "^8.4.49",
     "serve": "^14.2.5",
     "tailwindcss": "^3.4.15",

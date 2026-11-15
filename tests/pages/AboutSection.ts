@@ -19,7 +19,7 @@ export class AboutSection {
         this.journeyCard = this.sectionLocator.getByText('The Journey', { exact: true });
     }
 
-    getCardHeading(title: 'Building in parallel' | 'At the AI frontier' | 'An unconventional path'): Locator {
+    getCardHeading(title: 'Engineering trust in AI' | 'At the AI frontier' | 'An unconventional path'): Locator {
         return this.sectionLocator.getByRole('heading', { level: 3, name: title });
     }
 }

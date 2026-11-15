@@ -18,6 +18,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { useMounted } from "@/lib/hooks";
 
 const NAV_LINKS = [
     { href: "#about", label: "About", idx: "01" },
@@ -49,17 +50,12 @@ const STYLE = `
 
 export default function NavigationMenu() {
     const [isOpen, setIsOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
+    const mounted = useMounted();
 
     // Ref for burger to restore focus on close (WCAG 2.4.3)
     const burgerRef = useRef<HTMLButtonElement>(null);
     // Ref for the first nav link to receive focus on open (focus trap entry)
     const firstLinkRef = useRef<HTMLAnchorElement>(null);
-
-    // Only render portal on client
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // Strict Scroll Lock
     useEffect(() => {

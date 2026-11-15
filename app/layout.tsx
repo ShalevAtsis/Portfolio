@@ -26,14 +26,16 @@ const lora = Lora({
 export const metadata: Metadata = {
   metadataBase: new URL("https://shalevatsis.dev"),
   title: {
-    default: "Shalev Atsis · Software Engineer & AI Developer",
+    default: "Shalev Atsis · Software Engineer · AI Engineer",
     template: "%s | Shalev Atsis",
   },
   description:
-    "Experienced Software Engineer specializing in AI, Computer Vision, and Full Stack Development. Tier 2 at Jifiti, B.Sc. Computer Science. Open to engineering opportunities.",
+    "Software Engineer and AI Engineer building AI-driven quality engineering for autonomous aviation at High Lander. Computer vision, test automation (Playwright, TypeScript, Python), B.Sc. Computer Science Honor Graduate. Open to opportunities.",
   keywords: [
     "Software Engineer",
-    "Full Stack",
+    "AI Engineer",
+    "Test Automation",
+    "Playwright",
     "AI",
     "Machine Learning",
     "Computer Vision",
@@ -45,9 +47,9 @@ export const metadata: Metadata = {
     "Shalev Atsis",
   ],
   openGraph: {
-    title: "Shalev Atsis · Software Engineer & AI Developer",
+    title: "Shalev Atsis · Software Engineer · AI Engineer",
     description:
-      "Experienced Software Engineer specializing in AI, Computer Vision, and Full Stack Development. Open to new opportunities.",
+      "Software Engineer and AI Engineer: AI-driven quality engineering for autonomous aviation, computer vision, and test automation. Open to new opportunities.",
     url: "https://shalevatsis.dev",
     siteName: "Shalev Atsis",
     images: [
@@ -55,7 +57,7 @@ export const metadata: Metadata = {
         url: "https://res.cloudinary.com/ddyrg0nz5/image/upload/f_auto,q_auto,w_1200,h_630,c_fill/v1774023127/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Shalev Atsis - Software Engineer & AI Developer Portfolio",
+        alt: "Shalev Atsis - Software Engineer and AI Engineer portfolio",
       },
     ],
     locale: "en_US",
@@ -63,9 +65,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Shalev Atsis · Software Engineer",
+    title: "Shalev Atsis · Software Engineer · AI Engineer",
     description:
-      "Experienced Software Engineer exploring the intersection of modern web development and Artificial Intelligence.",
+      "Software Engineer and AI Engineer. AI-driven quality engineering for autonomous aviation, computer vision, and test automation.",
     images: ["https://res.cloudinary.com/ddyrg0nz5/image/upload/f_auto,q_auto,w_1200,h_630,c_fill/v1774023127/og-image.png"],
   },
   icons: {
