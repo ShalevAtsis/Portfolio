@@ -29,8 +29,14 @@ This portfolio is not just a digital business card; it is a demonstration of ent
 - **Hermetic Playwright suite (Page Object Model)**  
   `tests/` holds a POM suite that runs on Desktop, Tablet, and Mobile against the static export. Every external host is mocked (`tests/fixtures.ts`), so CI never sends real e-mails or depends on third-party uptime. Pixel baselines are generated in the official Playwright Docker image and compared on Linux only.
 
-- **Cinematic, Zero-Crop Renderings**  
-  Developed a continuous, responsive image slideshow engine utilizing mathematical dynamic aspect ratios (`aspect-ratio: width / height`). It actively prevents Continuous Layout Shifts (CLS) while ensuring complex images are never cropped, regardless of esoteric viewport dimensions.
+- **A WebGL ocean, written by hand**  
+  The hero is a raw WebGL2 fragment shader (no three.js): layered Gerstner-like swells, fbm detail, fresnel sky reflection, and specular glints. It renders below native resolution, is frame-capped, pauses off-screen, and falls back to a CSS gradient with SVG wave lines when WebGL2 is missing, the GPU is a software renderer, or the visitor prefers reduced motion.
+
+- **Scroll-driven motion that respects the platform**  
+  Framer Motion `useScroll` / `useTransform` drive a receding hero, a pinned word-by-word statement, a self-drawing timeline, and a pinned horizontal project gallery. Only `transform` and `opacity` are animated, scroll values never pass through React state, and every effect has a static reduced-motion rendering. Lenis smooths wheel and touch input while keyboard scrolling stays native.
+
+- **An easter egg with a point**  
+  The bug icon in the footer makes the "model" hallucinate the headings and opens a scripted agent console. Ask it, in plain language, to fix the site.
 
 ---
 

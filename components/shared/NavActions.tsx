@@ -2,216 +2,133 @@
 
 /**
  * NavActions
- * ─────────────────────────────────────────────────────────────────────────────
- * Desktop (sm+): renders the full social icon row inline — identical to before.
- * Mobile  (<sm): collapses icons into a single "⋯" trigger button that opens a
- *               frosted-glass dropdown panel. Theme + mode toggles always visible.
+ *   sm+ : social icons inline, then theme + view-mode toggles
+ *   <sm : toggles always visible; socials collapse into a "more" popover
  *
- * Layout of the trigger zone (mobile):
- *   [☀ theme] [◉— mode] [⋯ socials]
- *
- * Dropdown:
- *   ┌─────────────────────────┐
- *   │  GitHub     LinkedIn    │
- *   │  Mail       WhatsApp    │
- *   └─────────────────────────┘
+ * E-mail and WhatsApp hrefs are filled in after hydration (see lib/contact.ts).
  */
 
-import { useState, useEffect, useRef } from "react";
-import {
-    Github, Linkedin, Mail, MessageCircle,
-    MoreHorizontal, X,
-} from "lucide-react";
-import ThemeToggle from "@/components/shared/ThemeToggle";
+import { useEffect, useRef, useState } from "react";
+import { Github, Linkedin, Mail, MessageCircle, MoreHorizontal, X } from "lucide-react";
+import ThemeToggle, { NAV_ICON_BUTTON } from "@/components/shared/ThemeToggle";
 import DualModeToggle from "@/components/shared/DualModeToggle";
+import { GITHUB_URL, LINKEDIN_URL } from "@/lib/contact";
+import { useContact } from "@/lib/hooks";
+import { cn } from "@/lib/cn";
+import { FOCUS_RING } from "@/components/ui/Button";
 
-// ─── Config ───────────────────────────────────────────────────────────────────
-
-const GITHUB_URL = "https://github.com/ShalevAtsis";
-const LINKEDIN_URL = "https://www.linkedin.com/in/shalev-atsis-software-developer/";
-const EMAIL = "mailto:Shalevatsis@gmail.com";
-const WHATSAPP_URL = "https://wa.me/+972585060699";
-
-const SOCIALS = [
-    {
-        label: "GitHub",
-        href: GITHUB_URL,
-        icon: Github,
-        color: "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50",
-    },
-    {
-        label: "LinkedIn",
-        href: LINKEDIN_URL,
-        icon: Linkedin,
-        color: "hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#0A66C2] dark:hover:text-blue-400",
-    },
-    {
-        label: "Email",
-        href: EMAIL,
-        icon: Mail,
-        color: "hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 dark:hover:text-violet-400",
-    },
-    {
-        label: "WhatsApp",
-        href: WHATSAPP_URL,
-        icon: MessageCircle,
-        color: "hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 dark:hover:text-emerald-400",
-    },
-];
-
-// ─── Desktop icon row ─────────────────────────────────────────────────────────
-
-const ICON_BTN =
-    "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 transition-[color,background,transform] duration-150 motion-reduce:transition-none hover:scale-[1.08] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950";
-
-const SEP = (
-    <span
-        className="mx-1.5 h-5 w-px shrink-0 bg-slate-200 dark:bg-slate-800"
-        aria-hidden
-    />
-);
+function useSocials() {
+  const contact = useContact();
+  return [
+    { label: "GitHub", href: GITHUB_URL as string | undefined, icon: Github, external: true },
+    { label: "LinkedIn", href: LINKEDIN_URL as string | undefined, icon: Linkedin, external: true },
+    { label: "Email", href: contact.mailto, icon: Mail, external: false },
+    { label: "WhatsApp", href: contact.whatsapp, icon: MessageCircle, external: true },
+  ];
+}
 
 function InlineIcons() {
-    return (
-        <div className="hidden sm:flex items-center gap-0.5">
-            {SOCIALS.map(({ label, href, icon: Icon, color }) => (
-                <a
-                    key={label}
-                    href={href}
-                    target={href.startsWith("mailto") ? undefined : "_blank"}
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className={`${ICON_BTN} ${color}`}
-                >
-                    <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
-                </a>
-            ))}
-            {SEP}
-            <ThemeToggle />
-            <DualModeToggle />
-        </div>
-    );
+  const socials = useSocials();
+  return (
+    <div className="hidden items-center sm:flex">
+      {socials.map(({ label, href, icon: Icon, external }) => (
+        <a
+          key={label}
+          href={href}
+          aria-label={label}
+          className={NAV_ICON_BUTTON}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
+          <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
+        </a>
+      ))}
+      <span className="mx-1.5 h-4 w-px shrink-0 bg-hairline" aria-hidden />
+      <ThemeToggle />
+      <DualModeToggle />
+    </div>
+  );
 }
-
-// ─── Mobile dropdown ──────────────────────────────────────────────────────────
 
 function MobileActions() {
-    const [open, setOpen] = useState(false);
-    const panelRef = useRef<HTMLDivElement>(null);
-    const triggerRef = useRef<HTMLButtonElement>(null);
+  const socials = useSocials();
+  const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
-    // Close on outside click
-    useEffect(() => {
-        if (!open) return;
-        const handler = (e: MouseEvent) => {
-            if (
-                panelRef.current && !panelRef.current.contains(e.target as Node) &&
-                triggerRef.current && !triggerRef.current.contains(e.target as Node)
-            ) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (!panelRef.current?.contains(target) && !triggerRef.current?.contains(target)) setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
-    // Close on Escape
-    useEffect(() => {
-        if (!open) return;
-        const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-        document.addEventListener("keydown", handler);
-        return () => document.removeEventListener("keydown", handler);
-    }, [open]);
+  return (
+    <div className="relative flex items-center sm:hidden">
+      <ThemeToggle />
+      <DualModeToggle />
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        aria-controls="social-links-panel"
+        aria-label={open ? "Close social links" : "Open social links"}
+        className={cn(NAV_ICON_BUTTON, "ml-1", open && "bg-ink/[0.08] text-ink")}
+      >
+        {open ? <X className="h-4 w-4" strokeWidth={2} /> : <MoreHorizontal className="h-[17px] w-[17px]" strokeWidth={1.75} />}
+      </button>
 
-    return (
-        // Only shows on xs (<sm) screens
-        <div className="flex sm:hidden items-center gap-1 relative">
-            {/* Always-visible utility toggles */}
-            <ThemeToggle />
-            <DualModeToggle />
-
-            {/* Socials trigger */}
-            <button
-                ref={triggerRef}
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                aria-expanded={open}
-                aria-haspopup="true"
-                aria-label="Open social links"
-                className={[
-                    "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                    "text-slate-500 dark:text-slate-400",
-                    "transition-[color,background,transform] duration-150 motion-reduce:transition-none",
-                    "hover:scale-[1.08] active:scale-90",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950",
-                    open
-                        ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50"
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800",
-                ].join(" ")}
+      <div
+        ref={panelRef}
+        id="social-links-panel"
+        aria-label="Social links"
+        className={cn(
+          "glass absolute right-0 top-[calc(100%+10px)] z-50 w-52 origin-top-right rounded-card-sm p-2 shadow-lift transition-[opacity,transform,visibility] duration-200 motion-reduce:transition-none",
+          // `invisible` keeps the closed panel out of the tab order and the a11y tree.
+          open ? "visible scale-100 opacity-100" : "pointer-events-none invisible scale-95 opacity-0"
+        )}
+      >
+        <div className="grid grid-cols-2 gap-1">
+          {socials.map(({ label, href, icon: Icon, external }) => (
+            <a
+              key={label}
+              href={href}
+              onClick={() => setOpen(false)}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-2xl px-3 py-3 text-ink-2 transition-colors hover:bg-ink/[0.08] hover:text-ink",
+                FOCUS_RING
+              )}
+              {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             >
-                {open
-                    ? <X className="h-[15px] w-[15px]" strokeWidth={2} />
-                    : <MoreHorizontal className="h-[17px] w-[17px]" strokeWidth={1.75} />
-                }
-            </button>
-
-            {/* Dropdown panel */}
-            <div
-                ref={panelRef}
-                role="menu"
-                aria-label="Social links"
-                style={{
-                    // CSS transition approach — no framer-motion dep needed
-                    transition: "opacity 160ms ease, transform 160ms cubic-bezier(0.22,1,0.36,1)",
-                    opacity: open ? 1 : 0,
-                    transform: open ? "translateY(0) scale(1)" : "translateY(-6px) scale(0.96)",
-                    pointerEvents: open ? "auto" : "none",
-                }}
-                className={[
-                    "absolute right-0 top-[calc(100%+10px)] z-50",
-                    "w-52 rounded-2xl p-3",
-                    "border border-slate-200/80 dark:border-slate-700/60",
-                    "bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl",
-                    "shadow-xl shadow-slate-900/10 dark:shadow-slate-900/40",
-                    "origin-top-right",
-                ].join(" ")}
-            >
-                {/* 2×2 social grid */}
-                <div className="grid grid-cols-2 gap-2">
-                    {SOCIALS.map(({ label, href, icon: Icon, color }) => (
-                        <a
-                            key={label}
-                            href={href}
-                            target={href.startsWith("mailto") ? undefined : "_blank"}
-                            rel="noopener noreferrer"
-                            role="menuitem"
-                            aria-label={label}
-                            onClick={() => setOpen(false)}
-                            className={[
-                                "flex flex-col items-center gap-1.5 rounded-xl px-3 py-3",
-                                "text-slate-500 dark:text-slate-400",
-                                "transition-[color,background,transform] duration-150",
-                                "hover:scale-[1.04] active:scale-95",
-                                color,
-                            ].join(" ")}
-                        >
-                            <Icon className="h-5 w-5" strokeWidth={1.75} />
-                            <span className="text-[10px] font-semibold tracking-wide">{label}</span>
-                        </a>
-                    ))}
-                </div>
-            </div>
+              <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+              <span className="text-[11px] font-medium">{label}</span>
+            </a>
+          ))}
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
-// ─── Export ───────────────────────────────────────────────────────────────────
-
 export default function NavActions() {
-    return (
-        <>
-            <InlineIcons />
-            <MobileActions />
-        </>
-    );
+  return (
+    <>
+      <InlineIcons />
+      <MobileActions />
+    </>
+  );
 }

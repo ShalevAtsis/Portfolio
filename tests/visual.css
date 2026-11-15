@@ -1,0 +1,5 @@
+/* Applied only while taking pixel snapshots: WebGL output is GPU-dependent,
+   so the canvases are hidden and the deterministic CSS fallback shows instead. */
+canvas {
+  visibility: hidden !important;
+}

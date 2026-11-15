@@ -1,148 +1,152 @@
-// Pure Server Component — zero JavaScript shipped for this component.
-// All animations are CSS-only (Tailwind keyframes). The h1 LCP element
-// paints before any JS parses or hydrates.
+"use client";
 
-import { MessageCircle, Mail, Github, Linkedin, Download } from "lucide-react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ChevronDown, Download, Github, Linkedin, Mail, MessageCircle } from "lucide-react";
+import ButtonLink, { FOCUS_RING } from "@/components/ui/Button";
+import OceanBackdrop from "@/components/ui/OceanBackdrop";
+import Hallucinate from "@/components/shared/Hallucinate";
 import { asset } from "@/lib/basePath";
+import { CV_FILENAME, CV_PATH, GITHUB_URL, LINKEDIN_URL } from "@/lib/contact";
+import { useContact, useReducedMotionSafe } from "@/lib/hooks";
+import { cn } from "@/lib/cn";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+const NAME = "Shalev Atsis";
+const TITLE_WORDS: Array<{ text: string; accent?: boolean; separator?: boolean }> = [
+  { text: "Software" },
+  { text: "Engineer" },
+  { text: "·", separator: true },
+  { text: "AI", accent: true },
+  { text: "Engineer", accent: true },
+];
 
-const GITHUB_URL = "https://github.com/ShalevAtsis";
-const LINKEDIN_URL = "https://www.linkedin.com/in/shalev-atsis-software-developer/";
-const EMAIL = "mailto:Shalevatsis@gmail.com";
-const WHATSAPP_URL = "https://wa.me/+972585060699";
+const ICON_LINK = cn(
+  "inline-flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-ink/[0.06] text-ink backdrop-blur-md transition-[background-color,transform] duration-200 hover:bg-ink/[0.12] active:scale-95",
+  FOCUS_RING
+);
 
-// ─── Component ────────────────────────────────────────────────────────────────
-// Zero JS animation dependency. Pure Tailwind CSS keyframe classes:
-//   animate-hero-slide-up  → LCP elements: translate only, opacity always 1
-//   animate-hero-fade-up   → secondary elements: fade + translate
-// The text blocks have NO animation-delay so they render at their final position immediately.
-
+/**
+ * Hero: the ocean behind a single confident statement.
+ *
+ * - The entrance is CSS-only (it runs before hydration); the <h1> is the LCP
+ *   element and only ever animates `transform`, never opacity.
+ * - On scroll the content scales to 0.9, fades and rises ("product recedes"),
+ *   driven by MotionValues. Under reduced motion it simply scrolls away.
+ */
 export default function CleanHero() {
-    return (
-        <section
-            id="hero"
-            className="relative flex flex-col justify-center items-center px-4 pt-24 pb-8 text-center md:pt-32 md:pb-16 lg:pt-40 lg:pb-20"
-            style={{ minHeight: "80vh" }}
+  const ref = useRef<HTMLElement>(null);
+  const reduced = useReducedMotionSafe();
+  const contact = useContact();
+
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, -90]);
+  const cueOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+
+  return (
+    <section
+      id="hero"
+      ref={ref}
+      className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6 pb-28 pt-28 text-center"
+    >
+      <OceanBackdrop variant="hero" scroll={scrollYProgress} />
+      {/* Scrim keeps text contrast above 4.5:1 over the moving water. */}
+      <div aria-hidden className="hero-scrim pointer-events-none absolute inset-0" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-canvas" />
+
+      <motion.div
+        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center"
+        style={reduced ? undefined : { scale, opacity, y }}
+      >
+        <div className="hero-fade">
+          <span className="glass inline-flex items-center gap-2.5 rounded-full px-4 py-1.5 text-[13px] font-medium text-ink">
+            <span className="relative flex h-2 w-2" aria-hidden>
+              <span className="absolute inline-flex h-full w-full animate-soft-pulse rounded-full bg-[#30d158]" />
+            </span>
+            Open To Opportunities
+          </span>
+        </div>
+
+        <h1 className="mt-8 text-display font-bold tracking-[-0.045em] text-ink">
+          <Hallucinate text={NAME}>
+            {NAME.split(" ").map((word, i) => (
+              <span key={word}>
+                <span className="hero-word text-gradient pb-[0.08em]" style={{ animationDelay: `${i * 110}ms` }}>
+                  {word}
+                </span>
+                {i === 0 ? " " : null}
+              </span>
+            ))}
+          </Hallucinate>
+        </h1>
+
+        <p className="mt-5 text-2xl font-medium tracking-[-0.02em] text-ink sm:text-3xl md:text-4xl">
+          {TITLE_WORDS.map(({ text, accent, separator }, i) => (
+            <span key={i}>
+              <span
+                className={cn("hero-fade inline-block", accent && "text-accent", separator && "text-ink-2")}
+                style={{ animationDelay: `${260 + i * 80}ms` }}
+                aria-hidden={separator || undefined}
+              >
+                {text}
+              </span>
+              {i < TITLE_WORDS.length - 1 ? " " : null}
+            </span>
+          ))}
+        </p>
+
+        <p
+          className="hero-slide mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2 sm:text-xl"
         >
-            {/* Ambient glow */}
-            <div
-                className="pointer-events-none absolute inset-0 -z-10"
-                style={{
-                    background:
-                        "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 70%)",
-                }}
-                aria-hidden="true"
-            />
+          Building AI-driven quality engineering for autonomous aviation at High Lander. I turn AI research,
+          computer vision, and test automation into software you can trust.
+        </p>
 
-            <div className="flex max-w-4xl flex-col items-center gap-y-6">
+        <div
+          className="hero-fade mt-10 flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
+          style={{ animationDelay: "760ms" }}
+        >
+          <ButtonLink
+            href={contact.whatsapp}
+            external
+            aria-label="Message on WhatsApp"
+            className="w-full sm:w-auto"
+          >
+            <MessageCircle className="h-4 w-4" strokeWidth={2} aria-hidden />
+            WhatsApp Me
+          </ButtonLink>
+          <ButtonLink
+            variant="secondary"
+            href={asset(CV_PATH)}
+            download={CV_FILENAME}
+            aria-label="Download CV"
+            className="w-full sm:w-auto"
+          >
+            <Download className="h-4 w-4" strokeWidth={2} aria-hidden />
+            Download CV
+          </ButtonLink>
+          <div className="flex items-center gap-3">
+            <a href={contact.mailto} aria-label="Send email" className={ICON_LINK}>
+              <Mail className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            </a>
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" className={ICON_LINK}>
+              <Github className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            </a>
+            <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" className={ICON_LINK}>
+              <Linkedin className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            </a>
+          </div>
+        </div>
+      </motion.div>
 
-                {/* Status badge */}
-                <div className="animate-hero-fade-up" style={{ animationDelay: "0ms" }}>
-                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700 shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse dark:border-emerald-500 dark:bg-emerald-950/80 dark:text-emerald-300 dark:shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                        <span className="relative flex h-2.5 w-2.5">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 dark:bg-emerald-500" aria-hidden="true" />
-                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-                        </span>
-                        Open To Opportunities
-                    </span>
-                </div>
-
-                {/* ── TEXT CONTENT (LCP CANDIDATES) ─────────────────────────────────────────
-                    Uses animate-hero-slide-up (translate only, opacity ALWAYS 1).
-                    Has ZERO animation-delay — renders at final position on the very first
-                    CSS paint. This eliminates the 2.7s LCP render delay.
-                    ─────────────────────────────────────────────────────────────────────── */}
-                <h1
-                    className="animate-hero-slide-up text-5xl font-extrabold tracking-tight break-words text-slate-900 dark:text-slate-50 sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl lg:tracking-tighter"
-                    style={{ lineHeight: 1.05 }}
-                >
-                    Shalev Atsis
-                </h1>
-
-                {/* Title */}
-                <p
-                    className="animate-hero-slide-up text-xl font-medium text-slate-500 dark:text-slate-400 sm:text-2xl md:text-3xl lg:text-4xl"
-                >
-                    Software Engineer
-                    <span className="mx-3 text-slate-300 dark:text-slate-600" aria-hidden>·</span>
-                    <span className="text-indigo-600 dark:text-indigo-400">AI Engineer</span>
-                </p>
-
-                {/* Summary (Flagged as LCP on Mobile) */}
-                <p
-                    className="animate-hero-slide-up max-w-2xl lg:max-w-[70ch] text-base leading-relaxed text-slate-500 dark:text-slate-400 sm:text-lg lg:text-xl lg:leading-relaxed"
-                >
-                    Building AI-driven quality engineering for autonomous aviation at High Lander.{" "}
-                    I turn AI research, computer vision, and test automation into software you can trust.
-                </p>
-
-                {/* ── CTA Row ── 
-                    Kept the fade-up animation here, as buttons are rarely the LCP. */}
-                <div
-                    className="animate-hero-fade-up flex w-full flex-col items-center justify-center gap-3 pt-2 sm:flex-row sm:flex-wrap"
-                    style={{ animationDelay: "150ms" }}
-                >
-                    {/* Primary Button — WhatsApp */}
-                    <a
-                        href={WHATSAPP_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Message on WhatsApp"
-                        className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/20 transition-[transform,box-shadow] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[#25D366]/40 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 sm:w-auto"
-                    >
-                        <MessageCircle className="h-4 w-4 transition-transform group-hover:scale-110" strokeWidth={2.5} />
-                        WhatsApp Me
-                    </a>
-
-                    {/* Secondary Buttons Row */}
-                    <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                        {/* Download CV */}
-                        <a
-                            href={asset("/Shalev_Atsis_CV.pdf")}
-                            download="Shalev_Atsis_CV.pdf"
-                            aria-label="Download CV"
-                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200/50 bg-indigo-50/50 px-6 py-3 text-sm font-semibold text-indigo-700 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-100 active:scale-[0.97] dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:border-indigo-500/40 dark:hover:bg-indigo-500/20 sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                        >
-                            <Download className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" strokeWidth={2.5} />
-                            Download CV
-                        </a>
-
-                        {/* Email */}
-                        <a
-                            href={EMAIL}
-                            aria-label="Send email to Shalevatsis@gmail.com"
-                            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200/50 bg-violet-50/50 px-6 py-3 text-sm font-semibold text-violet-700 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-violet-300 hover:bg-violet-100 active:scale-[0.97] dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:border-violet-500/40 dark:hover:bg-violet-500/20 sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-                        >
-                            <Mail className="h-4 w-4 transition-transform group-hover:scale-110" strokeWidth={2.5} />
-                            Email
-                        </a>
-                    </div>
-
-                    {/* Social Icon Links */}
-                    <div className="flex w-full items-center justify-center gap-3 sm:w-auto">
-                        <a
-                            href={GITHUB_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="GitHub Profile"
-                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200/50 bg-slate-50/50 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-100 active:scale-[0.97] dark:border-slate-700/50 dark:bg-slate-800/50 dark:hover:border-slate-600 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2"
-                        >
-                            <Github className="h-5 w-5 text-slate-600 transition-colors duration-300 group-hover:text-black dark:text-slate-400 dark:group-hover:text-white" strokeWidth={2} />
-                        </a>
-
-                        <a
-                            href={LINKEDIN_URL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="LinkedIn Profile"
-                            className="group flex h-12 w-12 items-center justify-center rounded-xl border border-blue-200/50 bg-blue-50/50 shadow-sm backdrop-blur-md transition-[transform,colors] duration-200 motion-reduce:transition-none motion-reduce:transform-none hover:scale-[1.04] hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100 active:scale-[0.97] dark:border-blue-500/20 dark:bg-blue-900/20 dark:hover:border-blue-500/40 dark:hover:bg-blue-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                        >
-                            <Linkedin className="h-5 w-5 text-blue-600 transition-colors duration-300 group-hover:text-[#0A66C2] dark:text-blue-400" strokeWidth={2} />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-8 z-10 flex justify-center text-ink-2"
+        style={reduced ? undefined : { opacity: cueOpacity }}
+      >
+        <ChevronDown className="h-6 w-6 animate-bounce motion-reduce:animate-none" strokeWidth={1.5} />
+      </motion.div>
+    </section>
+  );
 }

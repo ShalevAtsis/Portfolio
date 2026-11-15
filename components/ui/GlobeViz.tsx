@@ -8,17 +8,16 @@ import dynamic from "next/dynamic";
 const Globe = dynamic(() => import("react-globe.gl"), {
     ssr: false,
     loading: () => (
-        <div className="flex h-full w-full items-center justify-center bg-slate-950">
-            <div className="flex flex-col items-center gap-3">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-500/20 border-t-cyan-500" />
-                <span className="text-xs font-medium uppercase tracking-widest text-cyan-500/70">Initializing Orbit...</span>
-            </div>
+        <div className="flex h-full w-full items-center justify-center" aria-hidden>
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-[#2997ff]" />
         </div>
     ),
 });
 
 export interface GlobeVizHandle {
     flyTo: (lat: number, lng: number) => void;
+    /** Pause / resume the render loop (used when the globe is off-screen). */
+    setPaused: (paused: boolean) => void;
 }
 
 export interface LocationData {
@@ -64,6 +63,10 @@ const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
             const controls = globeRef.current?.controls();
             if (controls) controls.autoRotate = false;
         },
+        setPaused(paused: boolean) {
+            if (paused) globeRef.current?.pauseAnimation?.();
+            else globeRef.current?.resumeAnimation?.();
+        },
     }));
 
     // Auto-resize the globe to fit its container
@@ -106,8 +109,8 @@ const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
     const getRingColor = useMemo(() => {
         return (d: any) => {
             return d.type === "surf"
-                ? (t: number) => `rgba(16,185,129,${1 - t})`   // Emerald/Cyan hue for surf
-                : (t: number) => `rgba(99,102,241,${1 - t})`; // Deep Indigo/Purple for dive
+                ? (t: number) => `rgba(41,151,255,${1 - t})`   // Apple blue for surf
+                : (t: number) => `rgba(245,245,247,${0.9 * (1 - t)})`; // soft white for dive
         };
     }, []);
 
@@ -115,22 +118,22 @@ const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
         const isSurf = d.type === "surf";
         const icon = isSurf ? "🌊" : "🤿";
         const title = isSurf ? "Surf" : "Dive";
-        const colorClass = isSurf ? "color: #10b981;" : "color: #818cf8;"; // Emerald vs Indigo
+        const colorClass = isSurf ? "color: #2997ff;" : "color: #f5f5f7;";
 
         return `
       <div style="
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(8px);
+        background: rgba(17, 17, 19, 0.8);
+        backdrop-filter: blur(12px);
         border: 1px solid rgba(255,255,255,0.1);
         padding: 8px 12px;
-        border-radius: 8px;
+        border-radius: 14px;
         font-family: inherit;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
       ">
         <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; ${colorClass}">
           ${icon} ${title}
         </div>
-        <div style="font-size: 13px; color: #f1f5f9; margin-top: 2px;">
+        <div style="font-size: 13px; color: #f5f5f7; margin-top: 2px;">
           ${d.name}
         </div>
       </div>
@@ -147,7 +150,7 @@ const GlobeViz = forwardRef<GlobeVizHandle>(function GlobeViz(_, ref) {
                     backgroundColor="rgba(0,0,0,0)"
                     globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"
 
-                    atmosphereColor="rgba(99, 102, 241, 0.4)"
+                    atmosphereColor="rgba(41, 151, 255, 0.45)"
                     atmosphereAltitude={0.15}
 
                     ringsData={LOCATIONS}

@@ -3,82 +3,69 @@
 import { motion } from "framer-motion";
 import { Download, FileText } from "lucide-react";
 import { asset } from "@/lib/basePath";
+import { CV_FILENAME, CV_PATH } from "@/lib/contact";
+import { BUTTON_VARIANTS, FOCUS_RING } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
-// asset() prepends basePath so the path is correct on the custom domain
-// as well as local development environments.
-const PDF_PATH = asset("/Shalev_Atsis_CV.pdf");
-const PDF_FILENAME = "Shalev_Atsis_CV.pdf";
+const PDF_PATH = asset(CV_PATH);
 
-
+/**
+ * Resume view. Keeps its own document-style "paper" look: a light sheet on a
+ * neutral desk, independent of the portfolio's dark / light theme.
+ */
 export default function ResumeView() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-20"
+      className="min-h-screen bg-paper-bg pt-[52px] text-paper-text"
     >
-      {/* ── Sticky toolbar ──────────────────────────────────────────────── */}
-      <div className="sticky top-[57px] z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3 sm:px-8 lg:px-12">
-          {/* Title */}
-          <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-400">
-            <FileText className="h-4 w-4" strokeWidth={1.75} />
-            <span className="text-sm font-medium">Interactive Resume</span>
-          </div>
-
-          {/* Download CTA */}
-          <motion.a
-            href={PDF_PATH}
-            download={PDF_FILENAME}
-            aria-label="Download resume PDF"
-            whileHover={{ scale: 1.04, boxShadow: "0 6px 20px -4px rgba(16,185,129,0.35)" }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 320, damping: 20 }}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:bg-emerald-500 dark:hover:bg-emerald-400"
-          >
-            <Download className="h-4 w-4 shrink-0" strokeWidth={2} />
-            Download PDF
-          </motion.a>
-        </div>
-      </div>
-
-      {/* ── PDF viewer ──────────────────────────────────────────────────── */}
-      <div className="mx-auto max-w-5xl px-6 py-8 sm:px-8 lg:px-12">
-        {/*
-         * <object> gives browsers the most control over how to render the PDF.
-         * The inner <p> is the fallback shown when inline rendering is not supported
-         * (e.g. iOS Safari, some Android browsers).
-         */}
-        <object
-          data={PDF_PATH}
-          type="application/pdf"
-          aria-label="Shalev Atsis resume PDF"
-          className="w-full rounded-xl border border-slate-200 shadow-xl dark:border-slate-800"
-          style={{ height: "calc(100vh - 180px)", minHeight: "600px" }}
-        >
-          {/* ── Mobile / unsupported fallback ── */}
-          <div className="flex flex-col items-center justify-center gap-4 rounded-xl bg-slate-100 py-20 text-center dark:bg-slate-900">
-            <FileText className="h-12 w-12 text-slate-300 dark:text-slate-600" strokeWidth={1} />
-            <div>
-              <p className="font-semibold text-slate-700 dark:text-slate-300">
-                Your browser doesn&apos;t support inline PDF viewing.
-              </p>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                No problem —{" "}
-                <a
-                  href={PDF_PATH}
-                  download={PDF_FILENAME}
-                  className="font-medium text-emerald-600 underline underline-offset-2 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
-                >
-                  click here to download the PDF
-                </a>{" "}
-                and open it in your preferred reader.
-              </p>
+      <main id="main-content" tabIndex={-1} className="focus:outline-none">
+        <div className="no-print sticky top-[52px] z-40 border-b border-paper-border bg-paper-surface/90 backdrop-blur-md">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3">
+            <div className="flex items-center gap-2.5 text-paper-muted">
+              <FileText className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              <h1 className="text-sm font-medium text-paper-text">Interactive Resume</h1>
             </div>
+            <a
+              href={PDF_PATH}
+              download={CV_FILENAME}
+              aria-label="Download resume PDF"
+              className={cn(BUTTON_VARIANTS.primary, FOCUS_RING, "min-h-10 px-5 py-2 text-sm focus-visible:ring-offset-white")}
+            >
+              <Download className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+              Download PDF
+            </a>
           </div>
-        </object>
-      </div>
+        </div>
+
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          {/* <object> lets the browser render the PDF inline; the inner block is the
+              fallback for browsers that cannot (iOS Safari, some Android browsers). */}
+          <object
+            data={PDF_PATH}
+            type="application/pdf"
+            aria-label="Shalev Atsis resume PDF"
+            className="w-full rounded-2xl border border-paper-border bg-paper-surface shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)]"
+            style={{ height: "calc(100vh - 180px)", minHeight: "600px" }}
+          >
+            <div className="flex flex-col items-center justify-center gap-4 rounded-2xl bg-paper-surface px-6 py-20 text-center">
+              <FileText className="h-12 w-12 text-paper-muted" strokeWidth={1} aria-hidden />
+              <div>
+                <p className="font-semibold text-paper-text">Your browser doesn&apos;t support inline PDF viewing.</p>
+                <p className="mt-1 text-sm text-paper-muted">
+                  No problem:{" "}
+                  <a href={PDF_PATH} download={CV_FILENAME} className="font-medium text-[#0066cc] underline underline-offset-2">
+                    click here to download the PDF
+                  </a>{" "}
+                  and open it in your preferred reader.
+                </p>
+              </div>
+            </div>
+          </object>
+        </div>
+      </main>
     </motion.div>
   );
 }
