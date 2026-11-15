@@ -97,7 +97,7 @@ export default function CleanHero() {
         </p>
 
         <p
-          className="hero-slide mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2 sm:text-xl"
+          className="hero-slide mt-6 max-w-2xl text-[17px] leading-relaxed text-ink/85 sm:text-xl"
         >
           Building AI-driven quality engineering for autonomous aviation at High Lander. I turn AI research,
           computer vision, and test automation into software you can trust.

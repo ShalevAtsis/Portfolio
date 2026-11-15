@@ -19,14 +19,14 @@
 }
 
 .dark {
-  --canvas: 0 0 0;            /* #000 */
-  --surface: 17 17 19;        /* #111113 */
-  --elevated: 28 28 30;       /* #1c1c1e */
+  --canvas: 7 10 18;          /* #070a12: deep navy, not pure black */
+  --surface: 20 24 34;        /* #141822 */
+  --elevated: 32 37 49;       /* #202531 */
   --ink: 245 245 247;         /* #f5f5f7 */
-  --ink-2: 142 142 147;       /* 6.3:1 on black */
+  --ink-2: 163 168 180;       /* 8:1 on canvas */
   --accent: 41 151 255;       /* #2997ff */
   --accent-fill: 0 113 227;   /* #0071e3 */
-  --hairline: rgb(255 255 255 / 0.08);
+  --hairline: rgb(255 255 255 / 0.12);
   --shadow-strength: 0.7;
   color-scheme: dark;
 }
@@ -94,6 +94,13 @@ html.lenis body {
     radial-gradient(56rem 34rem at 100% 78%, rgb(var(--accent-fill) / 0.07), transparent 60%);
 }
 
+.dark .page-backdrop {
+  background:
+    radial-gradient(60rem 36rem at 85% -5%, rgb(var(--accent) / 0.16), transparent 60%),
+    radial-gradient(48rem 30rem at 0% 35%, rgb(var(--accent) / 0.10), transparent 60%),
+    radial-gradient(56rem 34rem at 100% 78%, rgb(var(--accent) / 0.12), transparent 60%);
+}
+
 .page-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   opacity: 0.035;
@@ -102,21 +109,24 @@ html.lenis body {
 
 /* ── Ocean: CSS fallback under the WebGL shader ───────────────────────────── */
 .ocean-gradient {
+  /* Moon glow, then sky -> horizon (30%) -> sea, matching the shader's framing. */
   background:
-    radial-gradient(120% 70% at 50% 108%, #0a3a7a 0%, #06214a 32%, #020b1a 62%, #000 100%);
+    radial-gradient(22rem 14rem at 77% 24%, rgb(184 219 255 / 0.30), transparent 70%),
+    linear-gradient(180deg, #030818 0%, #0d2a5c 20%, #21549f 30%, #0f3d78 30.2%, #0a2a57 55%, #06152e 85%, #070a12 100%);
 }
 
 .ocean-gradient-deep {
-  background: linear-gradient(180deg, #000 0%, #020b1a 30%, #041a3a 70%, #020b1a 100%);
+  background: linear-gradient(180deg, #070a12 0%, #0a1c3d 30%, #0d3160 70%, #081a38 100%);
 }
 
 :root:not(.dark) .ocean-gradient {
   background:
-    radial-gradient(120% 70% at 50% 108%, #8fc2f2 0%, #c4dffa 34%, #e9f2fd 62%, #fbfbfd 100%);
+    radial-gradient(24rem 16rem at 77% 22%, rgb(255 250 235 / 0.85), transparent 70%),
+    linear-gradient(180deg, #5c9ef2 0%, #9cc8f8 20%, #c7e3fc 30%, #4f9fdf 30.2%, #3a8bd3 55%, #8fc0ee 85%, #fbfbfd 100%);
 }
 
 :root:not(.dark) .ocean-gradient-deep {
-  background: linear-gradient(180deg, #fbfbfd 0%, #e3effc 30%, #cfe4fb 70%, #e9f2fd 100%);
+  background: linear-gradient(180deg, #fbfbfd 0%, #d5e8fb 30%, #b5d6f7 70%, #e3effc 100%);
 }
 
 .ocean-wave {
@@ -195,7 +205,11 @@ html.lenis body {
 
 /* Hero scrim: darkens (dark theme) or lightens (light theme) behind the text. */
 .hero-scrim {
-  background: radial-gradient(70% 55% at 50% 45%, rgb(var(--canvas) / 0.55) 0%, rgb(var(--canvas) / 0.25) 55%, transparent 100%);
+  background: radial-gradient(62% 46% at 50% 48%, rgb(var(--canvas) / 0.62) 0%, rgb(var(--canvas) / 0.34) 55%, transparent 100%);
+}
+
+.dark .hero-scrim {
+  background: radial-gradient(70% 55% at 50% 48%, rgb(var(--canvas) / 0.42) 0%, rgb(var(--canvas) / 0.18) 55%, transparent 100%);
 }
 
 /* Music scrubber: a thin track that fills with the accent colour. */

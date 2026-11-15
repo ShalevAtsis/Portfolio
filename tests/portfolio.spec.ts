@@ -509,8 +509,28 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await expect(world.globe).toBeAttached();
             await expect(world.section.getByRole('group', { name: 'Surf spots' }).getByRole('button')).toHaveCount(6);
             await expect(world.section.getByRole('group', { name: 'Dive spots' }).getByRole('button')).toHaveCount(7);
-            // Clicking a spot must never throw, with or without WebGL.
-            await world.section.getByRole('button', { name: 'Galapagos' }).click();
+        });
+
+        test('stats row is derived from the spot list', async () => {
+            const stats = world.section.locator('[data-world-stats]');
+            await expect(stats).toContainText('countries on the map');
+            await expect(stats.locator('dd')).toHaveText(['9', '6', '7', '5']);
+        });
+
+        test('choosing a spot fills the logbook panel, with or without WebGL', async () => {
+            const panel = world.section.locator('[data-spot-panel]');
+            await expect(panel).toContainText('Pick a spot on the map.');
+            const galapagos = world.section.getByRole('button', { name: 'Galapagos' });
+            await galapagos.click();
+            await expect(galapagos).toHaveAttribute('aria-pressed', 'true');
+            await expect(panel).toContainText('Dive site');
+            await expect(panel).toContainText('Ecuador');
+            await expect(panel).toContainText('Pacific Ocean');
+            await expect(panel).toContainText('0.38° S, 90.30° W');
+            await world.section.getByRole('button', { name: 'Brazil' }).click();
+            await expect(galapagos).toHaveAttribute('aria-pressed', 'false');
+            await expect(panel).toContainText('Surf trip');
+            await expect(panel).toContainText('Atlantic Ocean');
         });
 
         test('Cinema and Library tabs switch content', async () => {
@@ -549,6 +569,7 @@ test.describe('Portfolio — Full E2E Test Suite (POM)', () => {
             await expect(world.section.getByText('[AI TARGET ACQUIRED]')).toBeVisible();
             await expect(world.section.getByText('Species: Hammerhead Shark')).toBeVisible();
             await expect(world.section.getByText(/AI Species Classifier/)).toBeVisible();
+            await expect(world.section.getByRole('link', { name: 'See SwellSight' })).toHaveAttribute('href', '#projects');
         });
 
         test('suggestion box is honest about being human-powered and accepts a suggestion', async ({ page }) => {

@@ -9,9 +9,9 @@ import { useReducedMotionSafe } from "@/lib/hooks";
  * OceanShader: the site's signature visual, built in code.
  *
  * Raw WebGL2, one full-screen triangle, no dependencies. The fragment shader
- * draws a calm deep-blue sea at a low camera angle: layered Gerstner-like
- * swells + fbm detail, fresnel sky reflection, soft specular glints and a
- * little foam on the crests.
+ * draws the open sea from a low camera: a clear horizon, a sky with a low
+ * moon (dark theme) or sun (light theme), swells rolling towards the viewer,
+ * fresnel sky reflection, a glittering light path and foam on the crests.
  *
  * Performance budget
  *  - renders at 0.5-0.75x device pixel ratio, capped at 30-45 fps
@@ -76,47 +76,61 @@ float fbm(vec2 p) {
   return s;
 }
 
-// Sea surface height: five rotated swells with peaked crests (Gerstner-like),
-// each dragging the domain a little for choppiness, plus fine fbm detail.
+// Swell directions (radians off "straight at the camera"). Keeping them within
+// ~50 degrees makes the crests read as long horizontal lines that foreshorten
+// towards the horizon, which is what makes water look like the sea.
+const float SWELL[6] = float[6](-0.28, 0.42, -0.85, 0.16, 0.72, -0.52);
+
+// Sea surface height: six swells with peaked crests (Gerstner-like), each
+// dragging the domain a little for choppiness, plus fine fbm detail.
 float seaHeight(vec2 p, float t) {
-  float h = 0.0, f = 0.42, a = 0.36;
-  vec2 dir = vec2(0.80, 0.60);
-  for (int i = 0; i < 5; i++) {
-    float x = dot(p, dir) * f + t * (0.50 + 0.11 * float(i));
+  float h = 0.0, f = 0.36, a = 0.36;
+  for (int i = 0; i < 6; i++) {
+    vec2 dir = vec2(sin(SWELL[i]), -cos(SWELL[i]));
+    float x = dot(p, dir) * f - t * (0.62 + 0.13 * float(i));
     float w = exp(sin(x) - 1.0);
     h += a * w;
-    p += dir * (-cos(x) * w) * a * 0.32;
-    dir = mat2(0.80, -0.60, 0.60, 0.80) * dir;
-    f *= 1.72;
-    a *= 0.56;
+    p += dir * (cos(x) * w) * a * 0.30;
+    f *= 1.62;
+    a *= 0.60;
   }
-  return h + (fbm(p * 0.9 + t * 0.07) - 0.5) * 0.10;
+  return h + (fbm(p * 1.1 + t * 0.08) - 0.5) * 0.08;
 }
 
-vec3 skyColor(vec3 rd, vec3 skyTop, vec3 skyHorizon, vec3 glow, vec3 sun) {
-  vec3 c = mix(skyHorizon, skyTop, pow(clamp(rd.y, 0.0, 1.0), 0.45));
-  return c + glow * 0.10 * pow(max(dot(rd, sun), 0.0), 5.0);
+// Sky: vertical gradient, a low sun (day) or moon (night) with a wide glow,
+// and thin stratus streaks hugging the horizon.
+vec3 skyColor(vec3 rd, vec3 skyTop, vec3 skyHor, vec3 sunC, vec3 sun, float t, float disc) {
+  float y = clamp(rd.y, 0.0, 1.0);
+  vec3 c = mix(skyHor, skyTop, pow(clamp(y * 2.4, 0.0, 1.0), 0.62));
+  float sd = max(dot(rd, sun), 0.0);
+  c += sunC * (0.20 * pow(sd, 8.0) + 0.45 * pow(sd, 140.0));
+  c += sunC * disc * smoothstep(0.99972, 0.99986, sd);
+  float streak = fbm(vec2(rd.x * 2.6 + t * 0.006, y * 22.0 + 3.0));
+  c = mix(c, mix(skyHor, sunC, 0.55), smoothstep(0.50, 0.82, streak) * 0.28 * (1.0 - smoothstep(0.0, 0.22, y)));
+  return c;
 }
 
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution) / uResolution.y;
   float t = uTime;
 
-  // Palette: deep navy #020b1a -> Apple blue #2997ff highlights (dark theme),
-  // pale sky and soft blue water (light theme).
-  vec3 deepC   = mix(vec3(0.008, 0.043, 0.102), vec3(0.56, 0.76, 0.95), uLight);
-  vec3 crestC  = mix(vec3(0.030, 0.150, 0.330), vec3(0.72, 0.87, 1.00), uLight);
-  vec3 blue    = mix(vec3(0.161, 0.592, 1.000), vec3(1.00, 1.00, 1.00), uLight);
-  vec3 skyTop  = mix(vec3(0.000, 0.002, 0.008), vec3(0.984, 0.984, 0.992), uLight);
-  vec3 skyHor  = mix(vec3(0.012, 0.060, 0.150), vec3(0.840, 0.915, 0.990), uLight);
-  vec3 foamC   = mix(vec3(0.70, 0.85, 1.00), vec3(1.0), uLight);
+  // Palette. Dark theme: blue hour, a moonlit sea. Light theme: a clear day.
+  vec3 deepC   = mix(vec3(0.012, 0.075, 0.180), vec3(0.070, 0.380, 0.720), uLight);
+  vec3 crestC  = mix(vec3(0.055, 0.300, 0.520), vec3(0.250, 0.700, 0.900), uLight);
+  vec3 skyTop  = mix(vec3(0.010, 0.030, 0.095), vec3(0.360, 0.620, 0.950), uLight);
+  vec3 skyHor  = mix(vec3(0.130, 0.330, 0.640), vec3(0.780, 0.890, 0.990), uLight);
+  vec3 sunC    = mix(vec3(0.720, 0.860, 1.000), vec3(1.000, 0.970, 0.900), uLight);
+  vec3 foamC   = mix(vec3(0.780, 0.900, 1.000), vec3(1.0), uLight);
 
-  // Camera: low over the water; lifts and pitches down as the hero scrolls away.
-  float camH  = 1.55 + uScroll * 1.4;
-  float pitch = 0.10 + uScroll * 0.22;
-  vec3 ro = vec3(uPointer.x * 0.25, camH, t * 0.35);
+  // Camera: low over the water with the horizon in the upper third; it lifts
+  // and pitches down as the hero scrolls away.
+  float camH  = 1.35 + uScroll * 1.4;
+  float pitch = 0.20 + uScroll * 0.22;
+  vec3 ro = vec3(uPointer.x * 0.25, camH, t * 0.12);
   vec3 rd = normalize(vec3(uv.x + uPointer.x * 0.035, uv.y - pitch + uPointer.y * 0.02, 1.25));
-  vec3 sun = normalize(vec3(0.22, 0.30, 1.0));
+  // The light sits off to the right (at ~77% of the width on any aspect ratio)
+  // so its reflection never runs underneath the centred headline.
+  vec3 sun = normalize(vec3(0.27 * uResolution.x / uResolution.y, 0.075, 1.25));
 
   float calm = mix(1.0, 0.35, uDepth);
   vec3 col;
@@ -126,42 +140,50 @@ void main() {
     vec2 pos = ro.xz + rd.xz * dist;
 
     // Fade wave energy with distance to keep the horizon alias-free.
-    float amp = calm / (1.0 + dist * 0.035);
+    float amp = calm / (1.0 + dist * 0.030);
     float e = 0.03 + dist * 0.012;
     float h0 = seaHeight(pos, t);
     float hx = seaHeight(pos + vec2(e, 0.0), t);
     float hz = seaHeight(pos + vec2(0.0, e), t);
-    vec3 n = normalize(vec3(-(hx - h0) / e * amp, 1.0, -(hz - h0) / e * amp));
+    vec3 n = vec3(-(hx - h0) / e * amp, 1.0, -(hz - h0) / e * amp);
+    // Fine ripples: only near the camera, they are what makes the light glitter.
+    float ripple = 0.16 * calm / (1.0 + dist * 0.25);
+    n.xz += (vec2(noise(pos * 5.0 + vec2(t * 0.6, 0.0)), noise(pos * 5.0 + vec2(13.0, -t * 0.6))) - 0.5) * ripple;
+    n = normalize(n);
 
-    float fres = 0.02 + 0.98 * pow(1.0 - max(dot(n, -rd), 0.0), 5.0);
+    float fres = 0.03 + 0.97 * pow(1.0 - max(dot(n, -rd), 0.0), 5.0);
     vec3 refl = reflect(rd, n);
     refl.y = abs(refl.y);
 
-    vec3 water = mix(deepC, crestC, smoothstep(0.25, 0.85, h0) * amp);
-    col = mix(water, skyColor(refl, skyTop, skyHor, blue, sun), fres);
+    // Body colour: deep water in the troughs, lit turquoise through the crests.
+    float lift = smoothstep(0.22, 0.68, h0);
+    vec3 water = mix(deepC, crestC, lift * (0.35 + 0.65 * amp));
+    col = mix(water, skyColor(refl, skyTop, skyHor, sunC, sun, t, 0.0), fres * 0.85);
 
+    // The light path: a wide sheen plus sharp glitter running to the horizon.
     float sd = max(dot(refl, sun), 0.0);
-    col += blue * pow(sd, 14.0) * 0.10 * calm;                 // broad sheen
-    col += mix(blue, vec3(1.0), 0.45) * pow(sd, 260.0) * 0.9;   // glints
+    col += sunC * pow(sd, 10.0) * mix(0.16, 0.10, uLight);
+    col += sunC * pow(sd, 70.0) * mix(0.38, 0.30, uLight);
+    col += vec3(1.0) * pow(sd, 420.0) * 1.2;
 
-    float foam = smoothstep(0.70, 0.95, h0) * fbm(pos * 3.0 + t * 0.15) * amp;
-    col = mix(col, foamC, foam * 0.30);
+    float foam = smoothstep(0.60, 0.80, h0) * smoothstep(0.35, 0.75, fbm(pos * 2.6 + t * 0.2)) * amp;
+    col = mix(col, foamC, foam * mix(0.42, 0.65, uLight));
 
-    col = mix(col, skyHor, 1.0 - exp(-dist * 0.045));           // haze to horizon
+    col = mix(col, skyHor, 1.0 - exp(-dist * 0.022));           // haze to horizon
   } else {
-    col = skyColor(rd, skyTop, skyHor, blue, sun);
+    col = skyColor(rd, skyTop, skyHor, sunC, sun, t, 1.0);
   }
 
   // Dive: cross-fade to an underwater column with drifting caustics.
   if (uDepth > 0.001) {
     vec2 cp = uv * 3.2 + vec2(0.0, t * 0.05);
     float caust = pow(0.5 + 0.5 * sin(8.0 * fbm(cp * 1.2 + t * 0.12) + 6.0 * fbm(cp * 1.7 - t * 0.10)), 6.0);
-    vec3 column = mix(deepC * mix(0.35, 0.92, uLight), deepC * mix(1.5, 1.06, uLight), smoothstep(-0.6, 0.6, uv.y));
-    column += blue * caust * 0.16 * smoothstep(-0.5, 0.5, uv.y);
+    vec3 column = mix(deepC * mix(0.30, 0.92, uLight), deepC * mix(1.45, 1.10, uLight), smoothstep(-0.6, 0.6, uv.y));
+    column += mix(crestC, sunC, 0.35) * caust * mix(0.22, 0.16, uLight) * smoothstep(-0.5, 0.5, uv.y);
     col = mix(col, column, uDepth * 0.92);
   }
 
-  col *= 1.0 - uScroll * 0.45;
+  col *= 1.0 - uScroll * 0.35;
   col += (hash(gl_FragCoord.xy + fract(t)) - 0.5) / 128.0;      // dither: no banding
   outColor = vec4(col, 1.0);
 }`;
